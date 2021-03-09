@@ -1,5 +1,5 @@
 import pygame
-import level_manager
+import Scripts.level_manager as level_manager
 
 pygame.init()
 win_dim = (800, 800)
