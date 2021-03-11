@@ -1,4 +1,5 @@
 import pygame
+import player
 
 
 class LevelManager():
@@ -6,8 +7,8 @@ class LevelManager():
         self.win = win
         self.screen_dim = (win.get_width(), win.get_height())
         self.clock = pygame.time.Clock()
-        self.state = ""
-        self.delta = 0.0
+        self.state = "Runner"
+        self.player = player.Player((100, self.screen_dim[1] // 2), None, None, self.win)
 
     def generate_chunk(self):
         pass
@@ -16,14 +17,29 @@ class LevelManager():
         """
         General updates called every frame
         """
-        self.delta = self.clock.tick() / 1000
+        print(self.player.jump_power)
+        delta_time = self.clock.tick() / 1000
+        self.player.update(self.state, delta_time)
 
     def handle_input(self):
         """
         Handles input between the player and UI / game objects
         :return: True if the player is exiting the game
         """
-        pass
+        event = pygame.event.poll()
+
+        if event.type == pygame.QUIT:
+            return True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                return True
+
+        self.player.handle_running_input(event)
+
+    def draw(self):
+        self.win.fill((0, 0, 0))
+        self.player.draw()
+        pygame.display.flip()
 
     def draw_level(self):
         pass
