@@ -1,5 +1,6 @@
 import pygame
 import player
+import random
 
 
 class LevelManager():
@@ -9,15 +10,18 @@ class LevelManager():
         self.clock = pygame.time.Clock()
         self.state = "Runner"
         self.player = player.Player((100, self.screen_dim[1] // 2), None, None, self.win)
+        
 
-    def generate_chunk(self):
+    def generate_chunk(self,x,y):
         pass
+
+                
 
     def update(self):
         """
         General updates called every frame
         """
-        print(self.player.jump_power)
+        #print(self.player.jump_power)
         delta_time = self.clock.tick() / 1000
         self.player.update(self.state, delta_time)
 
@@ -40,6 +44,7 @@ class LevelManager():
         self.win.fill((0, 0, 0))
         self.player.draw()
         pygame.display.flip()
+        
 
     def draw_level(self):
-        pass
+       pass
