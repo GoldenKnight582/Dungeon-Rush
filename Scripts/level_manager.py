@@ -1,10 +1,6 @@
 import pygame
-<<<<<<< Updated upstream
-import player
 import random
-=======
 import Scripts.player as player
->>>>>>> Stashed changes
 
 
 class LevelManager():
@@ -14,12 +10,8 @@ class LevelManager():
         self.clock = pygame.time.Clock()
         self.state = state
         self.player = player.Player((100, self.screen_dim[1] // 2), None, None, self.win)
-<<<<<<< Updated upstream
-        
-=======
         self.combat_encounter = []
         self.font = pygame.font.Font("C:\\Users\\tcobb\\PycharmProjects\\Dungeon-Rush\\Fonts\\Orbitron-Regular.ttf", 15)
->>>>>>> Stashed changes
 
     def generate_chunk(self,x,y):
         pass
@@ -56,12 +48,8 @@ class LevelManager():
         elif self.state == "Combat":
             self.draw_combat_screen(self.combat_encounter)
         pygame.display.flip()
-        
 
     def draw_level(self):
-<<<<<<< Updated upstream
-       pass
-=======
         self.player.draw()
 
     def draw_combat_screen(self, enemy_list):
@@ -69,4 +57,4 @@ class LevelManager():
 #        enemy_list[0].draw()
         menu_space_color = (176, 166, 156)
         pygame.draw.rect(self.win, menu_space_color, (0, 421, self.screen_dim[0], self.screen_dim[1] - 421))
->>>>>>> Stashed changes
+
