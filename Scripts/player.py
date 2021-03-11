@@ -1,5 +1,6 @@
 import pygame
 
+
 class Player:
     def __init__(self, start_pos, image, scale, surf):
         self.x = start_pos[0]
@@ -25,6 +26,8 @@ class Player:
             self.y += self.jump_power * dt
             if self.y < 400:
                 self.aerial = True
+            else:
+                self.aerial = False
             if self.aerial:
                 self.jump_power += 200 * dt
             if self.jump_power > 100:
@@ -38,7 +41,7 @@ class Player:
     def handle_running_input(self, evt):
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
-                if self.jump_cooldown <= 0:
+                if self.jump_cooldown <= 0 and not self.aerial:
                     self.aerial = True
                     self.jump_cooldown = 0.33
                     self.jump_power = -150
