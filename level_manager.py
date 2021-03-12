@@ -1,3 +1,4 @@
+
 import pygame
 import random
 import player
@@ -54,7 +55,7 @@ class LevelManager():
         if damage < 0:
             damage = 0
         crit_chance = attackee.luck * 100
-        if random.randint(1, crit_chance) == crit_chance:
+        if random.randint(crit_chance, 100) == crit_chance:
             damage *= 2
         attacked.health -= damage
 
