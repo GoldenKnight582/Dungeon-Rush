@@ -48,21 +48,58 @@ class Player:
                     self.jump_cooldown = 0.33
                     self.jump_power = -150
 
-    def handle_combat_input(self, evt):
+    def handle_combat_input(self, evt, menu):
         if self.selection == None:
-            self.selection = 1
+            if menu == "Main":
+                self.selection = 1
+            if menu == "Swapping":
+                if self.__class__.__name__ == "Warrior":
+                    self.selection = 2
+                if self.__class__.__name__ == "Archer" or self.__class__.__name__ == "Wizard":
+                    self.selection = 1
             self.selection_made = False
         if evt.type == pygame.KEYDOWN:
-            if evt.key == pygame.K_UP:
-                self.selection -= 1
-                if self.selection < 1:
-                    self.selection = 3
-            if evt.key == pygame.K_DOWN:
-                self.selection += 1
-                if self.selection > 3:
-                    self.selection = 1
-            if evt.key == pygame.K_RETURN:
-                self.selection_made = True
+            if not self.selection_made:
+                if evt.key == pygame.K_UP:
+                    self.selection -= 1
+                    if menu == "Main":
+                        if self.selection < 1:
+                            self.selection = 3
+                    elif menu == "Swapping":
+                        if self.__class__.__name__ == "Warrior":
+                            if self.selection < 2:
+                                self.selection = 3
+                        elif self.__class__.__name__ == "Archer":
+                            if self.selection < 1:
+                                self.selection = 3
+                            elif self.selection == 2:
+                                self.selection = 1
+                        else:
+                            if self.selection < 1:
+                                self.selection = 2
+                if evt.key == pygame.K_DOWN:
+                    self.selection += 1
+                    if menu == "Main":
+                        if self.selection > 3:
+                            self.selection = 1
+                    elif menu == "Swapping":
+                        if self.__class__.__name__ == "Warrior":
+                            if self.selection > 3:
+                                self.selection = 2
+                        elif self.__class__.__name__ == "Archer":
+                            if self.selection > 3:
+                                self.selection = 1
+                            elif self.selection == 2:
+                                self.selection = 3
+                        else:
+                            if self.selection > 2:
+                                self.selection = 1
+                if evt.key == pygame.K_RETURN:
+                    self.selection_made = True
+            if evt.key == pygame.K_BACKSPACE:
+                if menu == "Swapping":
+                    self.selection = 0
+                    self.selection_made = True
 
     def draw(self):
         pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -73,10 +110,35 @@ class Warrior(Player):
     def __init__(self, start_pos, image, scale, surf):
         super().__init__(start_pos, image, scale, surf)
         self.health = 250
-        self.attack = 75
+        self.attack = 60
         self.defense = 40
         self.luck = 0.05
 
+
+class Archer(Player):
+
+    def __init__(self, start_pos, image, scale, surf):
+        super().__init__(start_pos, image, scale, surf)
+        self.health = 180
+        self.attack = 45
+        self.defense = 20
+        self.luck = 0.08
+
+    def draw(self):
+        pygame.draw.circle(self.surf, (255, 255, 0), (int(self.x), int(self.y)), self.radius)
+
+
+class Wizard(Player):
+
+    def __init__(self, start_pos, image, scale, surf):
+        super().__init__(start_pos, image, scale, surf)
+        self.health = 120
+        self.attack = 20
+        self.defense = 10
+        self.luck = 0.1
+
+    def draw(self):
+        pygame.draw.circle(self.surf, (0, 0, 255), (int(self.x), int(self.y)), self.radius)
 
 
 
