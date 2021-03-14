@@ -41,12 +41,33 @@ class Player:
             self.y = 400
 
     def handle_running_input(self, evt):
+        if self.__class__.__name__ == "Warrior":
+            cur_class = "Warrior"
+        elif self.__class__.__name__ == "Archer":
+            cur_class = "Archer"
+        else:
+            cur_class = "Wizard"
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
                 if self.jump_cooldown <= 0 and not self.aerial:
                     self.aerial = True
                     self.jump_cooldown = 0.33
                     self.jump_power = -150
+            elif evt.key == pygame.K_q:
+                if self.__class__.__name__ == "Warrior":
+                    cur_class = "Wizard"
+                elif self.__class__.__name__ == "Archer":
+                    cur_class = "Warrior"
+                else:
+                    cur_class = "Archer"
+            elif evt.key == pygame.K_e:
+                if self.__class__.__name__ == "Warrior":
+                    cur_class = "Archer"
+                elif self.__class__.__name__ == "Archer":
+                    cur_class = "Wizard"
+                else:
+                    cur_class = "Warrior"
+        return cur_class
 
     def handle_combat_input(self, evt, menu):
         if self.selection == None:
@@ -60,7 +81,7 @@ class Player:
             self.selection_made = False
         if evt.type == pygame.KEYDOWN:
             if not self.selection_made:
-                if evt.key == pygame.K_UP:
+                if evt.key == pygame.K_w:
                     self.selection -= 1
                     if menu == "Main":
                         if self.selection < 1:
@@ -77,7 +98,7 @@ class Player:
                         else:
                             if self.selection < 1:
                                 self.selection = 2
-                if evt.key == pygame.K_DOWN:
+                if evt.key == pygame.K_s:
                     self.selection += 1
                     if menu == "Main":
                         if self.selection > 3:

@@ -112,7 +112,7 @@ class LevelManager():
                 return True
 
         if self.state == "Runner":
-            self.player.handle_running_input(event)
+            self.player = self.party[self.player.handle_running_input(event)]
         elif self.state == "Combat":
             self.player.handle_combat_input(event, self.cur_menu)
 
