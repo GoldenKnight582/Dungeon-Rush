@@ -24,7 +24,7 @@ class LevelManager():
         self.attack_delay = 0
         self.turn = "Player"
 
-    def generate_chunk(self,x,y):
+    def generate_chunk(self, x, y):
         pass
 
     def update(self):
@@ -35,6 +35,21 @@ class LevelManager():
         if self.state == "Combat":
             self.attack_delay -= delta_time
         self.player.update(self.state, delta_time)
+
+        if self.state == "Runner":
+            # Sync position data for the whole party
+            self.party["Warrior"].x = self.player.x
+            self.party["Archer"].x = self.player.x
+            self.party["Wizard"].x = self.player.x
+            self.party["Warrior"].y = self.player.y
+            self.party["Archer"].y = self.player.y
+            self.party["Wizard"].y = self.player.y
+            self.party["Warrior"].jump_power = self.player.jump_power
+            self.party["Archer"].jump_power = self.player.jump_power
+            self.party["Wizard"].jump_power = self.player.jump_power
+            self.party["Warrior"].jump_cooldown = self.player.jump_cooldown
+            self.party["Archer"].jump_cooldown = self.player.jump_cooldown
+            self.party["Wizard"].jump_cooldown = self.player.jump_cooldown
 
         if self.state == "Combat":
             if self.turn == "Player":
