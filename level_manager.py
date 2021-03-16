@@ -25,9 +25,39 @@ class LevelManager():
         self.attack_delay = 0
         self.turn = "Player"
         self.turn_count = 1
+        
+        self.true_scroll = [0,0]
+        self.CHUNK_SIZE = 16
+        self.game_map = {}
+        self.grass_img = pygame.image.load('images\\grass.png')
+        self.dirt_img = pygame.image.load('images\\dirt.png')
+        self.plant_img = pygame.image.load('images\\plant.png').convert()
+        self.plant_img.set_colorkey((255,255,255))
+        
 
-    def generate_chunk(self, x, y):
-        pass
+        self.tile_index = {1:self.grass_img,
+              2:self.dirt_img,
+              3:self.plant_img
+              }
+
+    def generate_chunk(self,x,y):
+        cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
+        chunk_data = []
+        for y_pos in range(self.CHUNK_SIZE):
+            for x_pos in range(self.CHUNK_SIZE):
+                target_x = x * self.CHUNK_SIZE + x_pos
+                target_y = y * self.CHUNK_SIZE + y_pos
+                tile_type = 0 # nothing
+                if target_y > cal:
+                    tile_type = 2 # dirt
+                elif target_y ==cal:
+                    tile_type = 1 # grass
+                elif target_y == cal - 1:
+                    if random.randint(1,5) == 1:
+                        tile_type = 3 # plant
+                if tile_type != 0:
+                    chunk_data.append([[target_x,target_y],tile_type])
+        return chunk_data
 
     def update(self):
         """
@@ -151,6 +181,28 @@ class LevelManager():
 
     def draw_level(self):
         self.player.draw()
+        self.true_scroll[0] += (self.player.x-self.true_scroll[0]-self.player.speed) 
+
+        #self.true_scroll[0] += (self.player.x-self.true_scroll[0]-152)/20
+        #self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
+        #self.true_scroll[0] += 0
+        self.true_scroll[1] += 0
+        scroll = self.true_scroll.copy()
+        scroll[0] = int(scroll[0])
+        scroll[1] = int(scroll[1])
+        
+        tile_rects = []
+        for y in range(7):
+            for x in range(8):
+                target_x = x - 1 + int(round(scroll[0]/(self.CHUNK_SIZE*16)))
+                target_y = y - 1 + int(round(scroll[1]/(self.CHUNK_SIZE*16)))
+                target_chunk = str(target_x) + ';' + str(target_y)
+                if target_chunk not in self.game_map:
+                    self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
+                for tile in self.game_map[target_chunk]:
+                    self.win.blit(self.tile_index[tile[1]],(tile[0][0]*16-scroll[0],tile[0][1]*16-scroll[1]))
+                    if tile[1] in [1,2]:
+                        tile_rects.append(pygame.Rect(tile[0][0]*16,tile[0][1]*16,16,16))   
 
     def draw_combat_screen(self, enemy_list, selection):
         self.player.draw()
