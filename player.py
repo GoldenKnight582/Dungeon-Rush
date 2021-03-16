@@ -4,7 +4,7 @@ import pygame
 class Player:
     def __init__(self, start_pos, image, scale, surf):
         self.x = start_pos[0]
-        self.y = start_pos[1]
+        self.y = start_pos[1]  
 #        self.image = pygame.image.load(image)
 #        self.width = self.image.get_width()
 #        self.height = self.image.get_height()
@@ -33,7 +33,7 @@ class Player:
         if game_state == "Runner":
             self.x += self.speed * dt
             self.y += self.jump_power * dt
-            if self.y < 400:
+            if self.y < 380:
                 self.aerial = True
             else:
                 self.aerial = False
@@ -42,10 +42,10 @@ class Player:
             if self.jump_power > 100:
                 self.jump_power = 100
 
-        if self.y >= 400:
+        if self.y >= 380:
             if self.aerial:
                 self.jump_power = 0
-            self.y = 400
+            self.y = 380
 
         if game_state == "Combat":
             # Fortify Check
