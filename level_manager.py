@@ -84,12 +84,14 @@ class LevelManager():
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit:
                     self.combat_encounter = [e]
-                    for i in range(random.randint(2, 3)):
+                    for i in range(random.randint(1, 2)):
                         new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state)
                         self.combat_encounter.append(new_enemy)
                     self.onscreen_enemies.remove(e)
                     for e in self.combat_encounter:
                         e.x = 600
+                    for character in self.party:
+                        self.party[character].y = 380
                     self.state = "Combat"
             # Despawn offscreen enemies
             for e in self.onscreen_enemies:
@@ -198,7 +200,7 @@ class LevelManager():
 
     def draw(self):
         self.win.blit(self.cave_img,(self.cave_scroll_x, 0))
-        self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(),0))
+        self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
         if self.state == "Runner":
@@ -242,21 +244,21 @@ class LevelManager():
         outline_color = (255, 152, 48)
         text_color = (255, 73, 48)
         # Menu Area
-        pygame.draw.rect(self.win, menu_space_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 421))
-        pygame.draw.rect(self.win, outline_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 421), 5)
+#        pygame.draw.rect(self.win, menu_space_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 401))
+#        pygame.draw.rect(self.win, outline_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 401), 5)
         offset = self.player.selection - 1
         # Menu Options
-        temp = self.font.render("Attack", False, text_color, menu_space_color)
+        temp = self.font.render("Attack", False, text_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.6))
-        temp = self.font.render("Abilities", False, text_color, menu_space_color)
+        temp = self.font.render("Abilities", False, text_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.65))
-        temp = self.font.render("Swap", False, text_color, menu_space_color)
+        temp = self.font.render("Swap", False, text_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.7))
         # Player Health
-        temp = self.font.render(str(self.player.health), False, text_color, (0, 0, 0))
+        temp = self.font.render(str(self.player.health), False, text_color)
         self.win.blit(temp, (self.player.x - self.player.radius * 1.5, self.player.y - 100))
         # Opponent Health
-        temp = self.font.render(str(self.current_opponent.health), False, text_color, (0, 0, 0))
+        temp = self.font.render(str(self.current_opponent.health), False, text_color)
         if self.current_opponent.health >= 100:
             self.win.blit(temp, (self.current_opponent.x - self.current_opponent.radius * 1.5, self.current_opponent.y - 100))
         else:
