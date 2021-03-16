@@ -12,9 +12,9 @@ class Player:
 #        self.width *= scale
 #        self.height *= scale
         self.radius = 20
-        self.speed = 100
         self.jump_cooldown = 0.33
         self.jump_power = 0
+        self.speed = 5
         self.aerial = False
         self.surf = surf
         self.selection = None
@@ -31,7 +31,6 @@ class Player:
         self.jump_cooldown -= dt
 
         if game_state == "Runner":
-            self.x += self.speed * dt
             self.y += self.jump_power * dt
             if self.y < 380:
                 self.aerial = True

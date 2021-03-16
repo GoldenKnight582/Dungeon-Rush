@@ -11,9 +11,9 @@ class LevelManager():
         self.screen_dim = (win.get_width(), win.get_height())
         self.clock = pygame.time.Clock()
         self.state = state
-        self.party = {"Warrior": player.Warrior((100, self.screen_dim[1] // 2), None, None, self.win), "Archer":
-                      player.Archer((100, self.screen_dim[1] // 2), None, None, self.win), "Wizard":
-                      player.Wizard((100, self.screen_dim[1] // 2), None, None, self.win)}
+        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2), None, None, self.win), "Archer":
+                      player.Archer((200, self.screen_dim[1] // 2), None, None, self.win), "Wizard":
+                      player.Wizard((200, self.screen_dim[1] // 2), None, None, self.win)}
         self.player = self.party["Warrior"]
         self.combat_encounter = [enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2), self.state)]
         self.current_opponent = self.combat_encounter[0]
@@ -26,7 +26,7 @@ class LevelManager():
         self.turn = "Player"
         self.turn_count = 1
         
-        self.true_scroll = [0,0]
+        self.true_scroll = [0, 0]
         self.CHUNK_SIZE = 16
         self.game_map = {}
         self.grass_img = pygame.image.load('images\\grass.png')
@@ -181,8 +181,7 @@ class LevelManager():
 
     def draw_level(self):
         self.player.draw()
-        self.true_scroll[0] += (self.player.x-self.true_scroll[0]-self.player.speed) 
-        #self.true_scroll[0] += (self.player.x-self.true_scroll[0]-152)/20
+        self.true_scroll[0] += self.player.speed
         #self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
         #self.true_scroll[0] += 0
         self.true_scroll[1] += 0
@@ -200,8 +199,8 @@ class LevelManager():
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
                 for tile in self.game_map[target_chunk]:
                     self.win.blit(self.tile_index[tile[1]],(tile[0][0]*16-scroll[0],tile[0][1]*16-scroll[1]))
-                    if tile[1] in [1,2]:
-                        tile_rects.append(pygame.Rect(tile[0][0]*16,tile[0][1]*16,16,16))   
+                    if tile[1] in [1, 2]:
+                        tile_rects.append(pygame.Rect(tile[0][0]*16,tile[0][1]*16,16,16))
 
     def draw_combat_screen(self, enemy_list, selection):
         self.player.draw()
