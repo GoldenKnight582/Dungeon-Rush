@@ -20,9 +20,11 @@ class LevelManager():
         self.cur_menu = "Main"
         self.font = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 30)
         self.combat_menu = {"Main": {1: "Attack", 2: "Special", 3: "Swap"}, "Swapping":
-                            {1: "Warrior", 2: "Archer", 3: "Wizard"}}
+                            {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
+                            self.player.abilities}
         self.attack_delay = 0
         self.turn = "Player"
+        self.turn_count = 1
 
     def generate_chunk(self, x, y):
         pass
@@ -32,53 +34,44 @@ class LevelManager():
         General updates called every frame
         """
         delta_time = self.clock.tick() / 1000
-        if self.state == "Combat":
-            self.attack_delay -= delta_time
-        self.player.update(self.state, delta_time)
+        for character in self.party:
+            self.party[character].update(self.state, delta_time, self.turn_count, self.party)
 
         if self.state == "Runner":
-            # Sync position data for the whole party
-            self.party["Warrior"].x = self.player.x
-            self.party["Archer"].x = self.player.x
-            self.party["Wizard"].x = self.player.x
-            self.party["Warrior"].y = self.player.y
-            self.party["Archer"].y = self.player.y
-            self.party["Wizard"].y = self.player.y
-            self.party["Warrior"].jump_power = self.player.jump_power
-            self.party["Archer"].jump_power = self.player.jump_power
-            self.party["Wizard"].jump_power = self.player.jump_power
-            self.party["Warrior"].jump_cooldown = self.player.jump_cooldown
-            self.party["Archer"].jump_cooldown = self.player.jump_cooldown
-            self.party["Wizard"].jump_cooldown = self.player.jump_cooldown
+            # Sync the current jump power for the whole party
+            self.sync_party()
 
         if self.state == "Combat":
+            self.attack_delay -= delta_time
             if self.turn == "Player":
                 if self.cur_menu == "Main":
                     if self.player.selection_made:
                         if self.player.selection == 1:
                             self.attack(self.player, self.current_opponent)
                             self.change_turn()
-                        if self.player.selection == 3:
-                            self.cur_menu = "Swapping"
-                            self.player.selection = None
-                            self.player.selection_made = False
+                        elif self.player.selection == 2:
+                            self.menu_change("Abilities")
+                        elif self.player.selection == 3:
+                            self.menu_change("Swapping")
+                elif self.cur_menu == "Abilities":
+                    if self.player.selection_made:
+                        if self.player.selection == 0:
+                            self.menu_change("Main")
+                        else:
+                            self.player.do_ability(self.current_opponent, self.party)
+                            self.change_turn()
+                            self.menu_change("Main")
                 elif self.cur_menu == "Swapping":
                     if self.player.selection_made:
                         if self.player.selection == 0:
-                            self.cur_menu = "Main"
-                            self.player.selection_made = False
-                            self.player.selection = 3
+                            self.menu_change("Main")
                         elif self.player.selection == 1:
                             self.player = self.party["Warrior"]
-                            self.player.selection_made = False
-                            self.cur_menu = "Main"
-                            self.player.selection = None
+                            self.menu_change("Main")
                             self.change_turn()
                         elif self.player.selection == 2:
                             self.player = self.party["Archer"]
-                            self.player.selection_made = False
-                            self.cur_menu = "Main"
-                            self.player.selection = None
+                            self.menu_change("Main")
                             self.change_turn()
                         elif self.player.selection == 3:
                             self.player = self.party["Wizard"]
@@ -106,12 +99,28 @@ class LevelManager():
             damage *= 2
         attacked.health -= damage
 
+    def menu_change(self, next_menu):
+        self.player.selection_made = False
+        if self.cur_menu == "Swapping":
+            self.player.selection = 3
+        elif self.cur_menu == "Abilities":
+            self.player.selection = 2
+        else:
+            self.player.selection = None
+        self.cur_menu = next_menu
+
+    def sync_party(self):
+        self.party["Warrior"].jump_power = self.player.jump_power
+        self.party["Archer"].jump_power = self.player.jump_power
+        self.party["Wizard"].jump_power = self.player.jump_power
+
     def change_turn(self):
         if self.turn == "Player":
             self.turn = "Enemy"
             self.attack_delay = 0.33
         else:
             self.turn = "Player"
+        self.turn_count += 1
 
     def handle_input(self):
         """
@@ -153,10 +162,11 @@ class LevelManager():
         # Menu Area
         pygame.draw.rect(self.win, menu_space_color, (0, 421, self.screen_dim[0], self.screen_dim[1] - 421))
         pygame.draw.rect(self.win, outline_color, (0, 421, self.screen_dim[0], self.screen_dim[1] - 421), 5)
+        offset = self.player.selection - 1
         # Menu Options
         temp = self.font.render("Attack", False, text_color, menu_space_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.6))
-        temp = self.font.render("Special", False, text_color, menu_space_color)
+        temp = self.font.render("Abilities", False, text_color, menu_space_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.65))
         temp = self.font.render("Swap", False, text_color, menu_space_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.7))
@@ -173,13 +183,21 @@ class LevelManager():
         if selection != 0:
             if self.combat_menu["Main"][selection] == "Attack" and self.cur_menu == "Main":
                 pygame.draw.polygon(self.win, (0, 0, 0), ((50, 485), (50, 515), (95, 500)))
-            if self.combat_menu["Main"][selection] == "Special" and self.cur_menu == "Main":
+            if self.combat_menu["Main"][selection] == "Special" and self.cur_menu == "Main" or self.cur_menu == "Abilities":
                 pygame.draw.polygon(self.win, (0, 0, 0), ((50, 525), (50, 555), (95, 540)))
-            if self.combat_menu["Main"][selection] == "Swap" or self.cur_menu == "Swapping":
+            if self.combat_menu["Main"][selection] == "Swap" and self.cur_menu == "Main" or self.cur_menu == "Swapping":
                 pygame.draw.polygon(self.win, (0, 0, 0), ((50, 565), (50, 595), (95, 580)))
         # Turn Info
         temp = self.font.render(self.turn + " Turn!", False, text_color, menu_space_color)
         self.win.blit(temp, (50, 725))
+        if self.cur_menu == "Abilities":
+            for i in range(len(self.player.abilities)):
+                temp = self.font.render(self.player.abilities[i], False, text_color, menu_space_color)
+                self.win.blit(temp, (400, (self.screen_dim[1] * (0.6 + 0.05 * i))))
+                # Selection Arrow
+                if selection != 0:
+                    pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + offset * 40), (350, 515 + (offset * 40)),
+                                                              (395, 500 + offset * 40)))
         if self.cur_menu == "Swapping":
             if self.player.__class__ == player.Warrior:
                 # Menu Options

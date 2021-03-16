@@ -19,8 +19,15 @@ class Player:
         self.surf = surf
         self.selection = None
         self.selection_made = False
+        self.abilities = []
+        self.fortify_on = False
+        self.fortify_track = None
+        self.fortify_turn = None
 
-    def update(self, game_state, dt):
+    def do_ability(self, opponent, party):
+        pass
+
+    def update(self, game_state, dt, cur_turn, party):
         self.jump_cooldown -= dt
 
         if game_state == "Runner":
@@ -39,6 +46,24 @@ class Player:
             if self.aerial:
                 self.jump_power = 0
             self.y = 400
+
+        if game_state == "Combat":
+            # Fortify Check
+            if self.fortify_on:
+                if self.fortify_track == None:
+                    self.fortify_turn = cur_turn - 1
+                    # - 1 because this code executes a frame AFTER the ability is activated
+                    self.fortify_track = 0
+                if cur_turn != self.fortify_turn and cur_turn % 2 == 1:
+                    self.fortify_track = (cur_turn - self.fortify_turn) // 2
+                    print(cur_turn, self.fortify_turn, self.fortify_track)
+                if self.fortify_track == 3:
+                    self.fortify_turn = 0
+                    self.fortify_track = 0
+                    self.fortify_on = False
+                    print("Defortified, sir")
+                    for character in party:
+                        party[character].defense -= 20
 
     def handle_running_input(self, evt):
         if self.__class__.__name__ == "Warrior":
@@ -71,7 +96,7 @@ class Player:
 
     def handle_combat_input(self, evt, menu):
         if self.selection == None:
-            if menu == "Main":
+            if menu == "Main" or menu == "Abilities":
                 self.selection = 1
             if menu == "Swapping":
                 if self.__class__.__name__ == "Warrior":
@@ -86,6 +111,9 @@ class Player:
                     if menu == "Main":
                         if self.selection < 1:
                             self.selection = 3
+                    elif menu == "Abilities":
+                        if self.selection < 1:
+                            self.selection = len(self.abilities)
                     elif menu == "Swapping":
                         if self.__class__.__name__ == "Warrior":
                             if self.selection < 2:
@@ -103,6 +131,9 @@ class Player:
                     if menu == "Main":
                         if self.selection > 3:
                             self.selection = 1
+                    elif menu == "Abilities":
+                        if self.selection > len(self.abilities):
+                            self.selection = 1
                     elif menu == "Swapping":
                         if self.__class__.__name__ == "Warrior":
                             if self.selection > 3:
@@ -118,7 +149,7 @@ class Player:
                 if evt.key == pygame.K_RETURN:
                     self.selection_made = True
             if evt.key == pygame.K_BACKSPACE:
-                if menu == "Swapping":
+                if menu == "Swapping" or menu == "Abilities":
                     self.selection = 0
                     self.selection_made = True
 
@@ -134,6 +165,17 @@ class Warrior(Player):
         self.attack = 60
         self.defense = 40
         self.luck = 0.05
+        self.abilities = ["Fortify", "Overwhelm"]
+
+    def do_ability(self, opponent, party):
+        if self.selection == 1:
+            for character in party:
+                party[character].fortify_on = True
+                party[character].defense += 20
+
+    def update(self, game_state, dt, cur_turn, party):
+        super().update(game_state, dt, cur_turn, party)
+
 
 
 class Archer(Player):
@@ -144,6 +186,7 @@ class Archer(Player):
         self.attack = 45
         self.defense = 20
         self.luck = 0.08
+        self.abilities = ["Rapidfire", "Take Cover"]
 
     def draw(self):
         pygame.draw.circle(self.surf, (255, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -157,6 +200,7 @@ class Wizard(Player):
         self.attack = 20
         self.defense = 10
         self.luck = 0.1
+        self.abilities = ["Thunderbolt", "Blaze"]
 
     def draw(self):
         pygame.draw.circle(self.surf, (0, 0, 255), (int(self.x), int(self.y)), self.radius)
