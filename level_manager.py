@@ -182,7 +182,6 @@ class LevelManager():
     def draw_level(self):
         self.player.draw()
         self.true_scroll[0] += (self.player.x-self.true_scroll[0]-self.player.speed) 
-
         #self.true_scroll[0] += (self.player.x-self.true_scroll[0]-152)/20
         #self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
         #self.true_scroll[0] += 0
