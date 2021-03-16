@@ -30,7 +30,7 @@ class LevelManager():
         self.CHUNK_SIZE = 16
         self.game_map = {}
         self.grass_img = pygame.image.load('images\\cobblestone.jpg')
-        self.dirt_img = pygame.image.load('images\\dirt.png')
+        self.dirt_img = pygame.image.load('images\\rock.png')
         self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255,255,255))
         
@@ -171,7 +171,7 @@ class LevelManager():
             self.player.handle_combat_input(event, self.cur_menu)
 
     def draw(self):
-        self.win.fill((0, 0, 0))
+        self.win.fill((64, 64, 64))
         if self.state == "Runner":
             self.draw_level()
         elif self.state == "Combat":
