@@ -175,7 +175,7 @@ class LevelManager():
             self.player.handle_combat_input(event, self.cur_menu)
 
     def draw(self):
-        self.win.blit(self.cave_img,(self.cave_scroll_x,0))
+        self.win.blit(self.cave_img,(self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(),0))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
