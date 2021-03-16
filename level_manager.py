@@ -3,6 +3,7 @@ import pygame
 import random
 import player
 import enemy
+import noise
 
 
 class LevelManager():
@@ -48,13 +49,11 @@ class LevelManager():
                 target_x = x * self.CHUNK_SIZE + x_pos
                 target_y = y * self.CHUNK_SIZE + y_pos
                 tile_type = 0 # nothing
-                if target_y > cal:
+                height = int(noise.pnoise1(target_x * 0.1, repeat=9999999) * 5)
+                if target_y > cal - height * 3:
                     tile_type = 2 # dirt
-                elif target_y ==cal:
+                elif target_y == cal - height * 3:
                     tile_type = 1 # grass
-                elif target_y == cal - 1:
-                    if random.randint(1,5) == 1:
-                        tile_type = 3 # plant
                 if tile_type != 0:
                     chunk_data.append([[target_x,target_y],tile_type])
         return chunk_data

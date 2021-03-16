@@ -14,7 +14,7 @@ class Player:
         self.radius = 20
         self.jump_cooldown = 0.33
         self.jump_power = 0
-        self.speed = 5
+        self.speed = 1
         self.aerial = False
         self.surf = surf
         self.selection = None
