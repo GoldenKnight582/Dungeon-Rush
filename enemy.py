@@ -13,6 +13,17 @@ class Enemy:
 #        self.width *= scale
 #        self.height *= scale
         self.game_state = state
+        self.speed = None
+        self.radius = None
+
+    def update(self, dt, player_x, player_y):
+        collision = False
+        self.x -= self.speed * dt
+        # Collision Check
+        if ((self.x - player_x) ** 2 + (self.y - player_y) ** 2) ** 0.5 <= self.radius + 20:
+            collision = True
+            print("damn u got me")
+        return collision
 
 
 class BasicEnemyTypeTest(Enemy):
@@ -24,9 +35,7 @@ class BasicEnemyTypeTest(Enemy):
         self.attack = 30
         self.defense = 10
         self.luck = 0.02
+        self.speed = 350
 
     def draw(self, surf):
-        if self.game_state == "Runner":
-            pass
-        elif self.game_state == "Combat":
-            pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
+        pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)

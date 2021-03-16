@@ -14,7 +14,7 @@ class Player:
         self.radius = 20
         self.jump_cooldown = 0.33
         self.jump_power = 0
-        self.speed = 1
+        self.speed = 3
         self.aerial = False
         self.surf = surf
         self.selection = None
@@ -55,12 +55,10 @@ class Player:
                     self.fortify_track = 0
                 if cur_turn != self.fortify_turn and cur_turn % 2 == 1:
                     self.fortify_track = (cur_turn - self.fortify_turn) // 2
-                    print(cur_turn, self.fortify_turn, self.fortify_track)
                 if self.fortify_track == 3:
                     self.fortify_turn = 0
                     self.fortify_track = 0
                     self.fortify_on = False
-                    print("Defortified, sir")
                     for character in party:
                         party[character].defense -= 20
 

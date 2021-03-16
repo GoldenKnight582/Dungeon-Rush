@@ -12,12 +12,12 @@ class LevelManager():
         self.screen_dim = (win.get_width(), win.get_height())
         self.clock = pygame.time.Clock()
         self.state = state
-        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2), None, None, self.win), "Archer":
-                      player.Archer((200, self.screen_dim[1] // 2), None, None, self.win), "Wizard":
-                      player.Wizard((200, self.screen_dim[1] // 2), None, None, self.win)}
+        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Archer":
+                      player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
+                      player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
         self.player = self.party["Warrior"]
-        self.combat_encounter = [enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2), self.state)]
-        self.current_opponent = self.combat_encounter[0]
+        self.combat_encounter = []
+        self.current_opponent = None
         self.cur_menu = "Main"
         self.font = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 30)
         self.combat_menu = {"Main": {1: "Attack", 2: "Special", 3: "Swap"}, "Swapping":
@@ -26,7 +26,8 @@ class LevelManager():
         self.attack_delay = 0
         self.turn = "Player"
         self.turn_count = 1
-        
+
+        # World Generation and Scrolling data
         self.true_scroll = [0, 0]
         self.CHUNK_SIZE = 16
         self.game_map = {}
@@ -34,12 +35,11 @@ class LevelManager():
         self.dirt_img = pygame.image.load('images\\rock.png')
         self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255,255,255))
-        
+        self.tile_index = {1:self.grass_img, 2:self.dirt_img, 3:self.plant_img}
 
-        self.tile_index = {1:self.grass_img,
-              2:self.dirt_img,
-              3:self.plant_img
-              }
+        # Obstacle Spawn Data
+        self.onscreen_enemies = []
+        self.enemy_spawn_timer = random.randint(3, 5)
 
     def generate_chunk(self,x,y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
@@ -69,9 +69,30 @@ class LevelManager():
         if self.state == "Runner":
             # Sync the current jump power for the whole party
             self.sync_party()
+            # Spawn enemies
+            self.enemy_spawn_timer -= delta_time
+            if self.enemy_spawn_timer <= 0:
+                self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
+                self.enemy_spawn_timer = random.randint(3, 5)
+            for e in self.onscreen_enemies:
+                hit = e.update(delta_time, self.player.x, self.player.y)
+                if hit:
+                    self.combat_encounter = [e]
+                    for i in range(random.randint(2, 3)):
+                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state)
+                        self.combat_encounter.append(new_enemy)
+                    self.onscreen_enemies.remove(e)
+                    for e in self.combat_encounter:
+                        e.x = 600
+                    self.state = "Combat"
+            # Despawn offscreen enemies
+            for e in self.onscreen_enemies:
+                if e.x - e.radius <= 0:
+                    self.onscreen_enemies.remove(e)
 
         if self.state == "Combat":
             self.attack_delay -= delta_time
+            self.current_opponent = self.combat_encounter[0]
             if self.turn == "Player":
                 if self.cur_menu == "Main":
                     if self.player.selection_made:
@@ -187,7 +208,7 @@ class LevelManager():
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
-        
+
         tile_rects = []
         for y in range(7):
             for x in range(8):
@@ -197,20 +218,23 @@ class LevelManager():
                 if target_chunk not in self.game_map:
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
                 for tile in self.game_map[target_chunk]:
-                    self.win.blit(self.tile_index[tile[1]],(tile[0][0]*16-scroll[0],tile[0][1]*16-scroll[1]))
+                    self.win.blit(self.tile_index[tile[1]], (tile[0][0]*16-scroll[0], tile[0][1]*16 - scroll[1]))
                     if tile[1] in [1, 2]:
-                        tile_rects.append(pygame.Rect(tile[0][0]*16,tile[0][1]*16,16,16))
+                        tile_rects.append(pygame.Rect(tile[0][0]*16, tile[0][1] * 16, 16, 16))
+        for e in self.onscreen_enemies:
+            e.draw(self.win)
 
     def draw_combat_screen(self, enemy_list, selection):
         self.player.draw()
-        self.current_opponent.draw(self.win)
+        if self.current_opponent:
+            self.current_opponent.draw(self.win)
         # Color Palette
         menu_space_color = (176, 166, 156)
         outline_color = (255, 152, 48)
         text_color = (255, 73, 48)
         # Menu Area
-        pygame.draw.rect(self.win, menu_space_color, (0, 421, self.screen_dim[0], self.screen_dim[1] - 421))
-        pygame.draw.rect(self.win, outline_color, (0, 421, self.screen_dim[0], self.screen_dim[1] - 421), 5)
+        pygame.draw.rect(self.win, menu_space_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 421))
+        pygame.draw.rect(self.win, outline_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 421), 5)
         offset = self.player.selection - 1
         # Menu Options
         temp = self.font.render("Attack", False, text_color, menu_space_color)
