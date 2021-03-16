@@ -22,7 +22,6 @@ class Enemy:
         # Collision Check
         if ((self.x - player_x) ** 2 + (self.y - player_y) ** 2) ** 0.5 <= self.radius + 20:
             collision = True
-            print("damn u got me")
         return collision
 
 
