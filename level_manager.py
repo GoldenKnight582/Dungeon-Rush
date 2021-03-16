@@ -29,7 +29,7 @@ class LevelManager():
         self.true_scroll = [0, 0]
         self.CHUNK_SIZE = 16
         self.game_map = {}
-        self.grass_img = pygame.image.load('images\\grass.png')
+        self.grass_img = pygame.image.load('images\\cobblestone.jpg')
         self.dirt_img = pygame.image.load('images\\dirt.png')
         self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255,255,255))
