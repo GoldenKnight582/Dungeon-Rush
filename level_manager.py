@@ -34,6 +34,9 @@ class LevelManager():
         self.dirt_img = pygame.image.load('images\\rock.png')
         self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255,255,255))
+        self.cave_img = pygame.image.load('images\\cave.png')
+        # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
+        self.cave_scroll_x = 0
         
 
         self.tile_index = {1:self.grass_img,
@@ -65,6 +68,8 @@ class LevelManager():
         delta_time = self.clock.tick() / 1000
         for character in self.party:
             self.party[character].update(self.state, delta_time, self.turn_count, self.party)
+
+        self.cave_scroll_x -= 0.2
 
         if self.state == "Runner":
             # Sync the current jump power for the whole party
@@ -170,7 +175,10 @@ class LevelManager():
             self.player.handle_combat_input(event, self.cur_menu)
 
     def draw(self):
-        self.win.fill((64, 64, 64))
+        self.win.blit(self.cave_img,(self.cave_scroll_x,0))
+        self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(),0))
+        if self.cave_scroll_x <= -self.cave_img.get_width():
+            self.cave_scroll_x = 0
         if self.state == "Runner":
             self.draw_level()
         elif self.state == "Combat":
