@@ -37,7 +37,6 @@ class Player:
             self.y += self.jump_power * dt
             if self.y < 380:
                 self.aerial = True
-                #self.sound.play()
             else:
                 self.aerial = False
             if self.aerial:
@@ -45,9 +44,17 @@ class Player:
             if self.jump_power > 100:
                 self.jump_power = 100
 
+        if self.y >= 380:
+            if self.aerial:
+                self.jump_power = 0
+            self.y = 380
         if self.aerial:
             self.jump_power = 0
 
+        if self.y >= 380:
+            if self.aerial:
+                self.jump_power = 0
+            self.y = 380
         self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
 
         if game_state == "Combat":
@@ -156,7 +163,6 @@ class Player:
 
     def draw(self):
         pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
-        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
 
 
 class Warrior(Player):
