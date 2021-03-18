@@ -42,6 +42,11 @@ class LevelManager():
         self.score = -56
         self.distance = -56
 
+        # Music by AlexisOrtizSofield from Pixabay
+        pygame.mixer.music.load("audio\\music.mp3")
+        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.play(-1)
+
 
         # Obstacle Spawn Data
         self.onscreen_enemies = []
