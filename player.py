@@ -12,6 +12,7 @@ class Player:
 #        self.width *= scale
 #        self.height *= scale
         self.radius = 20
+        self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
         self.jump_cooldown = 0.33
         self.jump_power = 0
         self.speed = 3
@@ -23,6 +24,8 @@ class Player:
         self.fortify_on = False
         self.fortify_track = None
         self.fortify_turn = None
+        self.sound = pygame.mixer.Sound("audio\\bouncy.wav")
+        self.sound.set_volume(0.5)
 
     def do_ability(self, opponent, party):
         pass
