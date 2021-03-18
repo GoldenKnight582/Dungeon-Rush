@@ -1,4 +1,3 @@
-
 import pygame
 import random
 import player
@@ -37,6 +36,7 @@ class LevelManager():
         self.plant_img.set_colorkey((255,255,255))
         self.tile_index = {1:self.grass_img, 2:self.dirt_img, 3:self.plant_img}
         self.cave_img = pygame.image.load('images\\cave.png')
+        self.tile_rects = []
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
         self.cave_scroll_x = 0
         self.score = -56
@@ -47,12 +47,11 @@ class LevelManager():
         pygame.mixer.music.set_volume(1)
         pygame.mixer.music.play(-1)
 
-
         # Obstacle Spawn Data
         self.onscreen_enemies = []
         self.enemy_spawn_timer = random.randint(3, 5)
 
-    def generate_chunk(self,x,y):
+    def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
         chunk_data = []
         for y_pos in range(self.CHUNK_SIZE):
@@ -92,6 +91,7 @@ class LevelManager():
             if self.enemy_spawn_timer <= 0:
                 self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
                 self.enemy_spawn_timer = random.uniform(2, 3.5)
+            # Enemy Collision and Combat Generation
             for e in self.onscreen_enemies:
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit:
@@ -234,7 +234,7 @@ class LevelManager():
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
-        
+
         tile_rects = []
         for y in range(7):
             for x in range(8):
