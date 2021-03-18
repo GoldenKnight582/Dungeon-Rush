@@ -23,6 +23,8 @@ class Player:
         self.fortify_on = False
         self.fortify_track = None
         self.fortify_turn = None
+        self.sound = pygame.mixer.Sound("audio\\bouncy.wav")
+        self.sound.set_volume(0.5)
 
     def do_ability(self, opponent, party):
         pass
@@ -34,6 +36,7 @@ class Player:
             self.y += self.jump_power * dt
             if self.y < 380:
                 self.aerial = True
+                self.sound.play()
             else:
                 self.aerial = False
             if self.aerial:
