@@ -44,18 +44,12 @@ class Player:
             if self.jump_power > 100:
                 self.jump_power = 100
 
-        if self.y >= 380:
-            if self.aerial:
-                self.jump_power = 0
-            self.y = 380
-        if self.aerial:
-            self.jump_power = 0
+            if self.y >= 380:
+                if self.aerial:
+                    self.jump_power = 0
+                self.y = 380
 
-        if self.y >= 380:
-            if self.aerial:
-                self.jump_power = 0
-            self.y = 380
-        self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+            self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
 
         if game_state == "Combat":
             # Fortify Check
