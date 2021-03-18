@@ -12,9 +12,9 @@ class LevelManager():
         self.screen_dim = (win.get_width(), win.get_height())
         self.clock = pygame.time.Clock()
         self.state = state
-        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Archer":
-                      player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
-                      player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
+        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2 - 21), None, None, self.win), "Archer":
+                      player.Archer((200, self.screen_dim[1] // 2 - 21), None, None, self.win), "Wizard":
+                      player.Wizard((200, self.screen_dim[1] // 2 - 21), None, None, self.win)}
         self.player = self.party["Warrior"]
         self.combat_encounter = []
         self.current_opponent = None
@@ -26,6 +26,7 @@ class LevelManager():
         self.attack_delay = 0
         self.turn = "Player"
         self.turn_count = 1
+        self.gravity = 10
 
         # World Generation and Scrolling data
         self.true_scroll = [0, 0]
@@ -37,6 +38,7 @@ class LevelManager():
         self.plant_img.set_colorkey((255,255,255))
         self.tile_index = {1:self.grass_img, 2:self.dirt_img, 3:self.plant_img}
         self.cave_img = pygame.image.load('images\\cave.png')
+        self.tile_rects = []
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
         self.cave_scroll_x = 0
         self.score = -56
@@ -47,12 +49,11 @@ class LevelManager():
         pygame.mixer.music.set_volume(1)
         pygame.mixer.music.play(-1)
 
-
         # Obstacle Spawn Data
         self.onscreen_enemies = []
         self.enemy_spawn_timer = random.randint(3, 5)
 
-    def generate_chunk(self,x,y):
+    def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
         chunk_data = []
         for y_pos in range(self.CHUNK_SIZE):
@@ -68,6 +69,20 @@ class LevelManager():
                 if tile_type != 0:
                     chunk_data.append([[target_x,target_y],tile_type])
         return chunk_data
+
+    def collision_handling(self, tiles, dt):
+        hit_list = []
+        for tile in tiles:
+            if self.player.rect.colliderect(tile):
+                hit_list.append(tile)
+        for tile in hit_list:
+            if self.player.rect.right >= tile.left and tile.top < self.player.y:
+                self.player.x = tile.left
+        for tile in hit_list:
+            if self.player.rect.bottom <= tile.top:
+                self.player.y = tile.top
+                print(self.player.y, tile.top)
+                self.player.aerial = False
 
     def update(self):
         """
@@ -87,11 +102,14 @@ class LevelManager():
         if self.state == "Runner":
             # Sync the current jump power for the whole party
             self.sync_party()
+            # World Collision
+            self.collision_handling(self.tile_rects, delta_time)
             # Spawn enemies
-            self.enemy_spawn_timer -= delta_time
-            if self.enemy_spawn_timer <= 0:
-                self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
-                self.enemy_spawn_timer = random.uniform(2, 3.5)
+            #self.enemy_spawn_timer -= delta_time
+            #if self.enemy_spawn_timer <= 0:
+            #    self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
+            #    self.enemy_spawn_timer = random.uniform(2, 3.5)
+            # Enemy Collision and Combat Generation
             for e in self.onscreen_enemies:
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit:
@@ -234,8 +252,8 @@ class LevelManager():
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
-        
-        tile_rects = []
+
+        self.tile_rects = []
         for y in range(7):
             for x in range(8):
                 target_x = x - 1 + int(round(scroll[0]/(self.CHUNK_SIZE*16)))
@@ -248,7 +266,7 @@ class LevelManager():
                 for tile in self.game_map[target_chunk]:
                     self.win.blit(self.tile_index[tile[1]], (tile[0][0]*16-scroll[0], tile[0][1]*16 - scroll[1]))
                     if tile[1] in [1, 2]:
-                        tile_rects.append(pygame.Rect(tile[0][0]*16, tile[0][1] * 16, 16, 16))
+                        self.tile_rects.append(pygame.Rect(tile[0][0]*16, tile[0][1] * 16, 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
 
