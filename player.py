@@ -37,7 +37,7 @@ class Player:
             self.y += self.jump_power * dt
             if self.y < 380:
                 self.aerial = True
-                self.sound.play()
+                #self.sound.play()
             else:
                 self.aerial = False
             if self.aerial:
