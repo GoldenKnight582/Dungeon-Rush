@@ -79,12 +79,12 @@ class LevelManager():
             self.enemy_spawn_timer -= delta_time
             if self.enemy_spawn_timer <= 0:
                 self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
-                self.enemy_spawn_timer = random.randint(3, 5)
+                self.enemy_spawn_timer = random.uniform(2, 3.5)
             for e in self.onscreen_enemies:
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit:
                     self.combat_encounter = [e]
-                    for i in range(random.randint(1, 2)):
+                    for i in range(random.randint(2, 3)):
                         new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state)
                         self.combat_encounter.append(new_enemy)
                     self.onscreen_enemies.remove(e)
