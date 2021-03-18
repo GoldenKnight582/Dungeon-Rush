@@ -15,6 +15,7 @@ class Enemy:
         self.game_state = state
         self.speed = None
         self.radius = None
+        self.enemy_point = 100
 
     def update(self, dt, player_x, player_y):
         collision = False

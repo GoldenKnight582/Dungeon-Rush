@@ -39,6 +39,8 @@ class LevelManager():
         self.cave_img = pygame.image.load('images\\cave.png')
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
         self.cave_scroll_x = 0
+        self.score = -56
+        self.distance = -56
 
 
         # Obstacle Spawn Data
@@ -71,6 +73,11 @@ class LevelManager():
             self.party[character].update(self.state, delta_time, self.turn_count, self.party)
 
         self.cave_scroll_x -= 0.2
+
+        for e in self.onscreen_enemies:
+            if e.x <= self.distance:
+                self.score += e.enemy_point
+                e.enemy_point = 0
 
         if self.state == "Runner":
             # Sync the current jump power for the whole party
@@ -199,12 +206,15 @@ class LevelManager():
             self.player.handle_combat_input(event, self.cur_menu)
 
     def draw(self):
+        score = self.font.render("Score:" + str(int(self.score)), False, (255, 255, 0))
         self.win.blit(self.cave_img,(self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
         if self.state == "Runner":
             self.draw_level()
+            pygame.draw.rect(self.win, (0,0,0), (0,0,self.win.get_width(), 50))
+            self.win.blit(score, (self.win.get_width() - 200, 5))
         elif self.state == "Combat":
             if self.player.selection is not None:
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
@@ -228,6 +238,8 @@ class LevelManager():
                 target_chunk = str(target_x) + ';' + str(target_y)
                 if target_chunk not in self.game_map:
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
+                    self.score += 1
+                    self.distance += 1
                 for tile in self.game_map[target_chunk]:
                     self.win.blit(self.tile_index[tile[1]], (tile[0][0]*16-scroll[0], tile[0][1]*16 - scroll[1]))
                     if tile[1] in [1, 2]:
