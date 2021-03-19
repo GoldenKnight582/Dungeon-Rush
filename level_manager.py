@@ -36,6 +36,7 @@ class LevelManager():
         self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255,255,255))
         self.tile_index = {1:self.grass_img, 2:self.dirt_img, 3:self.plant_img}
+        self.tile_rects = []
         self.cave_img = pygame.image.load('images\\cave.png')
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
         self.cave_scroll_x = 0
@@ -68,7 +69,7 @@ class LevelManager():
         """
         delta_time = self.clock.tick() / 1000
         for character in self.party:
-            self.party[character].update(self.state, delta_time, self.turn_count, self.party)
+            self.party[character].update(self.state, self.tile_rects, delta_time, self.turn_count, self.party)
 
         self.cave_scroll_x -= 0.2
 
@@ -76,10 +77,10 @@ class LevelManager():
             # Sync the current jump power for the whole party
             self.sync_party()
             # Spawn enemies
-            self.enemy_spawn_timer -= delta_time
-            if self.enemy_spawn_timer <= 0:
-                self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
-                self.enemy_spawn_timer = random.uniform(2, 3.5)
+#            self.enemy_spawn_timer -= delta_time
+#            if self.enemy_spawn_timer <= 0:
+#                self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
+#                self.enemy_spawn_timer = random.uniform(2, 3.5)
             for e in self.onscreen_enemies:
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit:
@@ -220,7 +221,7 @@ class LevelManager():
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
         
-        tile_rects = []
+        self.tile_rects = []
         for y in range(7):
             for x in range(8):
                 target_x = x - 1 + int(round(scroll[0]/(self.CHUNK_SIZE*16)))
@@ -229,9 +230,9 @@ class LevelManager():
                 if target_chunk not in self.game_map:
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
                 for tile in self.game_map[target_chunk]:
-                    self.win.blit(self.tile_index[tile[1]], (tile[0][0]*16-scroll[0], tile[0][1]*16 - scroll[1]))
+                    self.win.blit(self.tile_index[tile[1]], (tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1]))
                     if tile[1] in [1, 2]:
-                        tile_rects.append(pygame.Rect(tile[0][0]*16, tile[0][1] * 16, 16, 16))
+                        self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
 
