@@ -23,7 +23,7 @@ class LevelManager():
         self.combat_menu = {"Main": {1: "Attack", 2: "Special", 3: "Swap"}, "Swapping":
                             {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
                             self.player.abilities}
-        self.attack_delay = 0
+        self.attack_delay = 0.33
         self.turn = "Player"
         self.turn_count = 1
 
@@ -77,10 +77,10 @@ class LevelManager():
             # Sync the current jump power for the whole party
             self.sync_party()
             # Spawn enemies
-#            self.enemy_spawn_timer -= delta_time
-#            if self.enemy_spawn_timer <= 0:
-#                self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
-#                self.enemy_spawn_timer = random.uniform(2, 3.5)
+            self.enemy_spawn_timer -= delta_time
+            if self.enemy_spawn_timer <= 0:
+                self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
+                self.enemy_spawn_timer = random.uniform(2, 3.5)
             for e in self.onscreen_enemies:
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit:

@@ -33,35 +33,37 @@ class Player:
                 collisions.append(tile)
         return collisions
 
-    def collision_handling(self, movement, tiles):
+    def move_and_collide(self, tiles):
         collision_types = {"bottom": False, "right": False}
 #        collisions = self.collision_test(tiles)
 #        for tile in collisions:
 #            if tile.top <= self.rect.top:
 #                self.rect.right = tile.left
+#                self.x = self.rect.right - self.radius
 #                collision_types["right"] = True
-        self.rect.y += movement[1]
+        self.y += self.jump_power
+        self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
         collisions = self.collision_test(tiles)
         for tile in collisions:
-            if movement[1] > 0:
+            if self.jump_power > 0:
                 self.rect.bottom = tile.top
+                self.y = self.rect.bottom - self.radius
                 collision_types["bottom"] = True
-#            elif movement[1] < 0:
+#            elif self.jump_power < 0:
 #                self.rect.top = tile.bottom
+#                self.y = self.rect.top += self.rect.top
 #                collision_types["top"] = True
         return collision_types
 
     def update(self, game_state, tiles, dt, cur_turn, party):
         if game_state == "Runner":
-            velocity = [0, 0]
-            velocity[1] += self.jump_power
-            self.jump_power += 5
-            if self.jump_power > 100:
-                self.jump_power = 100
+            self.jump_power += 1.5
+            if self.jump_power > 15:
+                self.jump_power = 15
 
-            collisions = self.collision_handling(velocity, tiles)
+            collisions = self.move_and_collide(tiles)
             if collisions["bottom"]:
-                self.jump_power = -7
+                self.jump_power = 0.25
 
         if game_state == "Combat":
             # Fortify Check
@@ -83,7 +85,7 @@ class Player:
         cur_class = self.__class__.__name__
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
-                self.jump_power = -50
+                self.jump_power = -20
             elif evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
                     cur_class = "Wizard"
@@ -161,7 +163,8 @@ class Player:
 
     def draw(self):
         pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
-        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
+        # Collision rect for debug
+#        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
 
 
 class Warrior(Player):
