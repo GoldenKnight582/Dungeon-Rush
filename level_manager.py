@@ -76,7 +76,7 @@ class LevelManager():
         for character in self.party:
             self.party[character].update(self.state, self.tile_rects, delta_time, self.turn_count, self.party)
 
-        self.cave_scroll_x -= 0.2
+        self.cave_scroll_x -= 3
 
         for e in self.onscreen_enemies:
             if e.x <= self.distance:
