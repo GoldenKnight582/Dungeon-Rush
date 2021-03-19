@@ -1,4 +1,3 @@
-
 import pygame
 import random
 import player
@@ -23,7 +22,7 @@ class LevelManager():
         self.combat_menu = {"Main": {1: "Attack", 2: "Special", 3: "Swap"}, "Swapping":
                             {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
                             self.player.abilities}
-        self.attack_delay = 0.33
+        self.attack_delay = 0
         self.turn = "Player"
         self.turn_count = 1
 
@@ -40,13 +39,19 @@ class LevelManager():
         self.cave_img = pygame.image.load('images\\cave.png')
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
         self.cave_scroll_x = 0
+        self.score = -56
+        self.distance = -56
 
+        # Music by AlexisOrtizSofield from Pixabay
+        pygame.mixer.music.load("audio\\music.mp3")
+        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.play(-1)
 
         # Obstacle Spawn Data
         self.onscreen_enemies = []
         self.enemy_spawn_timer = random.randint(3, 5)
 
-    def generate_chunk(self,x,y):
+    def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
         chunk_data = []
         for y_pos in range(self.CHUNK_SIZE):
@@ -73,6 +78,11 @@ class LevelManager():
 
         self.cave_scroll_x -= 0.2
 
+        for e in self.onscreen_enemies:
+            if e.x <= self.distance:
+                self.score += e.enemy_point
+                e.enemy_point = 0
+
         if self.state == "Runner":
             # Sync the current jump power for the whole party
             self.sync_party()
@@ -81,6 +91,7 @@ class LevelManager():
             if self.enemy_spawn_timer <= 0:
                 self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((self.screen_dim[0] - 20, self.screen_dim[1] // 2 - 20), "Runner"))
                 self.enemy_spawn_timer = random.uniform(2, 3.5)
+            # Enemy Collision and Combat Generation
             for e in self.onscreen_enemies:
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit:
@@ -200,12 +211,15 @@ class LevelManager():
             self.player.handle_combat_input(event, self.cur_menu)
 
     def draw(self):
+        score = self.font.render("Score:" + str(int(self.score)), False, (255, 255, 0))
         self.win.blit(self.cave_img,(self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
         if self.state == "Runner":
             self.draw_level()
+            pygame.draw.rect(self.win, (0,0,0), (0,0,self.win.get_width(), 50))
+            self.win.blit(score, (self.win.get_width() - 200, 5))
         elif self.state == "Combat":
             if self.player.selection is not None:
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
@@ -229,6 +243,8 @@ class LevelManager():
                 target_chunk = str(target_x) + ';' + str(target_y)
                 if target_chunk not in self.game_map:
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
+                    self.score += 1
+                    self.distance += 1
                 for tile in self.game_map[target_chunk]:
                     self.win.blit(self.tile_index[tile[1]], (tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1]))
                     if tile[1] in [1, 2]:

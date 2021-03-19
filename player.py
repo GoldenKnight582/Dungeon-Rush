@@ -22,6 +22,8 @@ class Player:
         self.fortify_on = False
         self.fortify_track = None
         self.fortify_turn = None
+        self.sound = pygame.mixer.Sound("audio\\bouncy.wav")
+        self.sound.set_volume(0.5)
 
     def do_ability(self, opponent, party):
         pass
