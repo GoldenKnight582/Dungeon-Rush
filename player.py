@@ -12,10 +12,10 @@ class Player:
 #        self.width *= scale
 #        self.height *= scale
         self.radius = 20
-        self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
         self.jump_power = 0
         self.speed = 9
         self.surf = surf
+        self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
         self.selection = None
         self.selection_made = False
         self.abilities = []
@@ -35,20 +35,20 @@ class Player:
 
     def collision_handling(self, movement, tiles):
         collision_types = {"bottom": False, "right": False}
-        collisions = self.collision_test(tiles)
-        for tile in collisions:
-            if tile.top <= self.rect.top:
-                self.x = tile.left - self.radius
-                collision_types["right"] = True
+#        collisions = self.collision_test(tiles)
+#        for tile in collisions:
+#            if tile.top <= self.rect.top:
+#                self.rect.right = tile.left
+#                collision_types["right"] = True
         self.rect.y += movement[1]
         collisions = self.collision_test(tiles)
         for tile in collisions:
             if movement[1] > 0:
-                self.y = tile.top - self.radius
+                self.rect.bottom = tile.top
                 collision_types["bottom"] = True
-            elif movement[1] < 0:
-                self.y = tile.bottom + self.radius
-                collision_types["top"] = True
+#            elif movement[1] < 0:
+#                self.rect.top = tile.bottom
+#                collision_types["top"] = True
         return collision_types
 
     def update(self, game_state, tiles, dt, cur_turn, party):
