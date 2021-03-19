@@ -35,8 +35,8 @@ class LevelManager():
         self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255,255,255))
         self.tile_index = {1:self.grass_img, 2:self.dirt_img, 3:self.plant_img}
-        self.cave_img = pygame.image.load('images\\cave.png')
         self.tile_rects = []
+        self.cave_img = pygame.image.load('images\\cave.png')
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
         self.cave_scroll_x = 0
         self.score = -56
@@ -74,7 +74,7 @@ class LevelManager():
         """
         delta_time = self.clock.tick() / 1000
         for character in self.party:
-            self.party[character].update(self.state, delta_time, self.turn_count, self.party)
+            self.party[character].update(self.state, self.tile_rects, delta_time, self.turn_count, self.party)
 
         self.cave_scroll_x -= 0.2
 
@@ -234,8 +234,8 @@ class LevelManager():
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
-
-        tile_rects = []
+        
+        self.tile_rects = []
         for y in range(7):
             for x in range(8):
                 target_x = x - 1 + int(round(scroll[0]/(self.CHUNK_SIZE*16)))
@@ -246,9 +246,9 @@ class LevelManager():
                     self.score += 1
                     self.distance += 1
                 for tile in self.game_map[target_chunk]:
-                    self.win.blit(self.tile_index[tile[1]], (tile[0][0]*16-scroll[0], tile[0][1]*16 - scroll[1]))
+                    self.win.blit(self.tile_index[tile[1]], (tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1]))
                     if tile[1] in [1, 2]:
-                        tile_rects.append(pygame.Rect(tile[0][0]*16, tile[0][1] * 16, 16, 16))
+                        self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
 

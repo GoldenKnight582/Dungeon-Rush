@@ -12,12 +12,10 @@ class Player:
 #        self.width *= scale
 #        self.height *= scale
         self.radius = 20
-        self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
-        self.jump_cooldown = 0.33
         self.jump_power = 0
-        self.speed = 3
-        self.aerial = False
+        self.speed = 9
         self.surf = surf
+        self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
         self.selection = None
         self.selection_made = False
         self.abilities = []
@@ -30,26 +28,44 @@ class Player:
     def do_ability(self, opponent, party):
         pass
 
-    def update(self, game_state, dt, cur_turn, party):
-        self.jump_cooldown -= dt
+    def collision_test(self, tiles):
+        collisions = []
+        for tile in tiles:
+            if self.rect.colliderect(tile):
+                collisions.append(tile)
+        return collisions
 
+    def move_and_collide(self, tiles):
+        collision_types = {"bottom": False, "right": False}
+#        collisions = self.collision_test(tiles)
+#        for tile in collisions:
+#            if tile.top <= self.rect.top:
+#                self.rect.right = tile.left
+#                self.x = self.rect.right - self.radius
+#                collision_types["right"] = True
+        self.y += self.jump_power
+        self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
+        collisions = self.collision_test(tiles)
+        for tile in collisions:
+            if self.jump_power > 0:
+                self.rect.bottom = tile.top
+                self.y = self.rect.bottom - self.radius
+                collision_types["bottom"] = True
+#            elif self.jump_power < 0:
+#                self.rect.top = tile.bottom
+#                self.y = self.rect.top += self.rect.top
+#                collision_types["top"] = True
+        return collision_types
+
+    def update(self, game_state, tiles, dt, cur_turn, party):
         if game_state == "Runner":
-            self.y += self.jump_power * dt
-            if self.y < 380:
-                self.aerial = True
-            else:
-                self.aerial = False
-            if self.aerial:
-                self.jump_power += 200 * dt
-            if self.jump_power > 100:
-                self.jump_power = 100
+            self.jump_power += 1.5
+            if self.jump_power > 15:
+                self.jump_power = 15
 
-            if self.y >= 380:
-                if self.aerial:
-                    self.jump_power = 0
-                self.y = 380
-
-            self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+            collisions = self.move_and_collide(tiles)
+            if collisions["bottom"]:
+                self.jump_power = 0.25
 
         if game_state == "Combat":
             # Fortify Check
@@ -68,18 +84,10 @@ class Player:
                         party[character].defense -= 20
 
     def handle_running_input(self, evt):
-        if self.__class__.__name__ == "Warrior":
-            cur_class = "Warrior"
-        elif self.__class__.__name__ == "Archer":
-            cur_class = "Archer"
-        else:
-            cur_class = "Wizard"
+        cur_class = self.__class__.__name__
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
-                if self.jump_cooldown <= 0 and not self.aerial:
-                    self.aerial = True
-                    self.jump_cooldown = 0.33
-                    self.jump_power = -150
+                self.jump_power = -20
             elif evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
                     cur_class = "Wizard"
@@ -157,6 +165,8 @@ class Player:
 
     def draw(self):
         pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
+        # Collision rect for debug
+#        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
 
 
 class Warrior(Player):
@@ -175,8 +185,8 @@ class Warrior(Player):
                 party[character].fortify_on = True
                 party[character].defense += 20
 
-    def update(self, game_state, dt, cur_turn, party):
-        super().update(game_state, dt, cur_turn, party)
+    def update(self, game_state, tiles, dt, cur_turn, party):
+        super().update(game_state, tiles, dt, cur_turn, party)
 
 
 
