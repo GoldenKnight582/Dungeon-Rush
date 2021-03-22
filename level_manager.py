@@ -18,7 +18,13 @@ class LevelManager():
         self.combat_encounter = []
         self.current_opponent = None
         self.cur_menu = "Main"
-        self.font = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 30)
+
+        # Font
+        self.title = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 45)
+        self.header = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 30)
+        self.normal = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 20)
+
+        # Combat Stuff
         self.combat_menu = {"Main": {1: "Attack", 2: "Special", 3: "Swap"}, "Swapping":
                             {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
                             self.player.abilities}
@@ -36,11 +42,18 @@ class LevelManager():
         self.plant_img.set_colorkey((255,255,255))
         self.tile_index = {1:self.grass_img, 2:self.dirt_img, 3:self.plant_img}
         self.tile_rects = []
-        self.cave_img = pygame.image.load('images\\cave.png')
+        self.cave_img = pygame.image.load('Images\\cave.png')
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
         self.cave_scroll_x = 0
         self.score = -56
         self.distance = -56
+
+        # Title Screen
+        self.start_rect = None
+        self.start_hover = False
+        self.quit_rect = None
+        self.quit_hover = False
+        self.logo = pygame.image.load("Images\\logo.png")
 
         # Music by AlexisOrtizSofield from Pixabay
         pygame.mixer.music.load("audio\\music.mp3")
@@ -73,17 +86,31 @@ class LevelManager():
         General updates called every frame
         """
         delta_time = self.clock.tick() / 1000
-        for character in self.party:
-            self.party[character].update(self.state, self.tile_rects, delta_time, self.turn_count, self.party)
 
-        self.cave_scroll_x -= 3
+        # Title Screen Updates
+        if self.state == "Title" or self.state == "Resume":
+            mouse_pos = pygame.mouse.get_pos()
+            if self.start_rect:
+                if self.start_rect[0] - 5 < mouse_pos[0] < self.start_rect[0] + self.start_rect[2] + 5 and \
+                        self.start_rect[1] - 5 < mouse_pos[1] < self.start_rect[1] + self.start_rect[3] + 5:
+                    self.start_hover = True
+                else:
+                    self.start_hover = False
+            if self.quit_rect:
+                if self.quit_rect[0] - 5 < mouse_pos[0] < self.quit_rect[0] + self.quit_rect[2] + 5 and \
+                        self.quit_rect[1] - 5 < mouse_pos[1] < self.quit_rect[1] + self.quit_rect[3] + 5:
+                    self.quit_hover = True
+                else:
+                    self.quit_hover = False
 
-        for e in self.onscreen_enemies:
-            if e.x <= self.distance:
-                self.score += e.enemy_point
-                e.enemy_point = 0
-
-        if self.state == "Runner":
+        elif self.state == "Runner":
+            for character in self.party:
+                self.party[character].update(self.state, self.tile_rects, delta_time, self.turn_count, self.party)
+            self.cave_scroll_x -= 3
+            for e in self.onscreen_enemies:
+                if e.x <= self.distance:
+                    self.score += e.enemy_point
+                    e.enemy_point = 0
             # Sync the current jump power for the whole party
             self.sync_party()
             # Spawn enemies
@@ -201,8 +228,17 @@ class LevelManager():
 
         if event.type == pygame.QUIT:
             return True
-        if event.type == pygame.KEYDOWN:
+        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
+                if self.state == "Title" or self.state == "Resume":
+                    return True
+                else:
+                    self.state = "Resume"
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and self.start_hover:
+                if self.state == "Title" or self.state == "Resume":
+                    self.state = "Runner"
+            if event.button == 1 and self.quit_hover:
                 return True
 
         if self.state == "Runner":
@@ -211,11 +247,13 @@ class LevelManager():
             self.player.handle_combat_input(event, self.cur_menu)
 
     def draw(self):
-        score = self.font.render("Score:" + str(int(self.score)), False, (255, 255, 0))
+        score = self.header.render("Score:" + str(int(self.score)), False, (255, 255, 0))
         self.win.blit(self.cave_img,(self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
+        if self.state == "Title" or self.state == "Resume":
+            self.draw_title_screen(self.start_hover, self.quit_hover)
         if self.state == "Runner":
             self.draw_level()
             pygame.draw.rect(self.win, (0,0,0), (0,0,self.win.get_width(), 50))
@@ -265,17 +303,17 @@ class LevelManager():
 #        pygame.draw.rect(self.win, outline_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 401), 5)
         offset = self.player.selection - 1
         # Menu Options
-        temp = self.font.render("Attack", False, text_color)
+        temp = self.header.render("Attack", False, text_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.6))
-        temp = self.font.render("Abilities", False, text_color)
+        temp = self.header.render("Abilities", False, text_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.65))
-        temp = self.font.render("Swap", False, text_color)
+        temp = self.header.render("Swap", False, text_color)
         self.win.blit(temp, (100, self.screen_dim[1] * 0.7))
         # Player Health
-        temp = self.font.render(str(self.player.health), False, text_color)
+        temp = self.header.render(str(self.player.health), False, text_color)
         self.win.blit(temp, (self.player.x - self.player.radius * 1.5, self.player.y - 100))
         # Opponent Health
-        temp = self.font.render(str(self.current_opponent.health), False, text_color)
+        temp = self.header.render(str(self.current_opponent.health), False, text_color)
         if self.current_opponent.health >= 100:
             self.win.blit(temp, (self.current_opponent.x - self.current_opponent.radius * 1.5, self.current_opponent.y - 100))
         else:
@@ -289,11 +327,11 @@ class LevelManager():
             if self.combat_menu["Main"][selection] == "Swap" and self.cur_menu == "Main" or self.cur_menu == "Swapping":
                 pygame.draw.polygon(self.win, (0, 0, 0), ((50, 565), (50, 595), (95, 580)))
         # Turn Info
-        temp = self.font.render(self.turn + " Turn!", False, text_color, menu_space_color)
+        temp = self.header.render(self.turn + " Turn!", False, text_color, menu_space_color)
         self.win.blit(temp, (50, 725))
         if self.cur_menu == "Abilities":
             for i in range(len(self.player.abilities)):
-                temp = self.font.render(self.player.abilities[i], False, text_color, menu_space_color)
+                temp = self.header.render(self.player.abilities[i], False, text_color, menu_space_color)
                 self.win.blit(temp, (400, (self.screen_dim[1] * (0.6 + 0.05 * i))))
                 # Selection Arrow
                 if selection != 0:
@@ -302,9 +340,9 @@ class LevelManager():
         if self.cur_menu == "Swapping":
             if self.player.__class__ == player.Warrior:
                 # Menu Options
-                temp = self.font.render("Archer", False, text_color, menu_space_color)
+                temp = self.header.render("Archer", False, text_color, menu_space_color)
                 self.win.blit(temp, (400, self.screen_dim[1] * 0.6))
-                temp = self.font.render("Wizard", False, text_color, menu_space_color)
+                temp = self.header.render("Wizard", False, text_color, menu_space_color)
                 self.win.blit(temp, (400, self.screen_dim[1] * 0.65))
                 # Selection Arrow
                 if selection != 0:
@@ -314,9 +352,9 @@ class LevelManager():
                         pygame.draw.polygon(self.win, (0, 0, 0), ((350, 525), (350, 555), (395, 540)))
             if self.player.__class__ == player.Archer:
                 # Menu Options
-                temp = self.font.render("Warrior", False, text_color, menu_space_color)
+                temp = self.header.render("Warrior", False, text_color, menu_space_color)
                 self.win.blit(temp, (400, self.screen_dim[1] * 0.6))
-                temp = self.font.render("Wizard", False, text_color, menu_space_color)
+                temp = self.header.render("Wizard", False, text_color, menu_space_color)
                 self.win.blit(temp, (400, self.screen_dim[1] * 0.65))
                 # Selection Arrow
                 if selection != 0:
@@ -326,9 +364,9 @@ class LevelManager():
                         pygame.draw.polygon(self.win, (0, 0, 0), ((350, 525), (350, 555), (395, 540)))
             if self.player.__class__ == player.Wizard:
                 # Menu Options
-                temp = self.font.render("Warrior", False, text_color, menu_space_color)
+                temp = self.header.render("Warrior", False, text_color, menu_space_color)
                 self.win.blit(temp, (400, self.screen_dim[1] * 0.6))
-                temp = self.font.render("Archer", False, text_color, menu_space_color)
+                temp = self.header.render("Archer", False, text_color, menu_space_color)
                 self.win.blit(temp, (400, self.screen_dim[1] * 0.65))
                 # Selection Arrow
                 if selection != 0:
@@ -336,3 +374,40 @@ class LevelManager():
                         pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485), (350, 515), (395, 500)))
                     if self.combat_menu["Swapping"][selection] == "Archer":
                         pygame.draw.polygon(self.win, (0, 0, 0), ((350, 525), (350, 555), (395, 540)))
+
+    def draw_title_screen(self, start_highlight=False, quit_highlight=False):
+        bg_color = (150, 150, 150)
+        title_color = (255, 0, 51)
+        highlight_color = (0, 170, 200)
+        self.win.fill(bg_color)
+        self.win.blit(self.logo, (self.screen_dim[0] // 2 - self.logo.get_width() // 2, int(self.screen_dim[1] * 0.1)))
+        temp = self.title.render("Dungeon Rush", False, title_color, bg_color)
+        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] // 3 - temp.get_height() // 2))
+        temp = self.header.render("By Tyler Cobb and Chase Minor", False, (0, 0, 0), bg_color)
+        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.37))
+
+        if not start_highlight:
+            if self.state == "Title":
+                temp = self.header.render("Start Game", False, title_color, bg_color)
+            elif self.state == "Resume":
+                temp = self.header.render("Resume Game", False, title_color, bg_color)
+        else:
+            if self.state == "Title":
+                temp = self.header.render("Start Game", False, highlight_color, bg_color)
+            elif self.state == "Resume":
+                temp = self.header.render("Resume Game", False, highlight_color, bg_color)
+        self.start_rect = temp.get_rect()
+        self.start_rect[0] = self.screen_dim[0] // 2 - temp.get_width() // 2
+        self.start_rect[1] = int(self.screen_dim[1] * 0.55)
+        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.55)))
+        if not quit_highlight:
+            temp = self.header.render("Quit Game", False, title_color, bg_color)
+        else:
+            temp = self.header.render("Quit Game", False, highlight_color, bg_color)
+        self.quit_rect = temp.get_rect()
+        self.quit_rect[0] = self.screen_dim[0] // 2 - temp.get_width() // 2
+        self.quit_rect[1] = int(self.screen_dim[1] * 0.6)
+        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.6)))
+        if self.state == "Resume":
+            temp = self.title.render("Score: " + str(self.score), False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.75)))
