@@ -57,7 +57,7 @@ class LevelManager():
 
         # Music by AlexisOrtizSofield from Pixabay
         pygame.mixer.music.load("audio\\music.mp3")
-        pygame.mixer.music.set_volume(0.8)
+        pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
 
         # Obstacle Spawn Data
@@ -72,10 +72,10 @@ class LevelManager():
                 target_x = x * self.CHUNK_SIZE + x_pos
                 target_y = y * self.CHUNK_SIZE + y_pos
                 tile_type = 0 # nothing
-                height = int(noise.pnoise1(target_x * 0.1, repeat=9999999) * 5)
-                if target_y > cal - height * 3:
+                height = int(noise.pnoise1(target_x * 0.1, repeat=100000) * 2)
+                if target_y > cal - height * 6:
                     tile_type = 2 # dirt
-                elif target_y == cal - height * 3:
+                elif target_y == cal - height * 6:
                     tile_type = 1 # grass
                 if tile_type != 0:
                     chunk_data.append([[target_x,target_y],tile_type])
