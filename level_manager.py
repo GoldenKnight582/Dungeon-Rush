@@ -214,7 +214,7 @@ class LevelManager():
     def change_turn(self):
         if self.turn == "Player":
             self.turn = "Enemy"
-            self.attack_delay = 0.33
+            self.attack_delay = 0.5
         else:
             self.turn = "Player"
         self.turn_count += 1
@@ -256,7 +256,7 @@ class LevelManager():
             self.draw_title_screen(self.start_hover, self.quit_hover)
         if self.state == "Runner":
             self.draw_level()
-            pygame.draw.rect(self.win, (0,0,0), (0,0,self.win.get_width(), 50))
+            pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
             self.win.blit(score, (self.win.get_width() - 200, 5))
         elif self.state == "Combat":
             if self.player.selection is not None:
@@ -291,13 +291,20 @@ class LevelManager():
             e.draw(self.win)
 
     def draw_combat_screen(self, enemy_list, selection):
-        self.player.draw()
-        if self.current_opponent:
-            self.current_opponent.draw(self.win)
         # Color Palette
         menu_space_color = (176, 166, 156)
         text_color = (255, 73, 48)
         offset = self.player.selection - 1
+        self.player.draw()
+        if self.current_opponent:
+            self.current_opponent.draw(self.win)
+        if len(self.combat_encounter) > 1:
+            # Show Upcoming Enemy
+            temp = self.normal.render("Next Enemy:", False, text_color)
+            pygame.draw.rect(self.win, (20, 20, 20), (645, 140, temp.get_width() + 15, temp.get_height() + 60))
+            pygame.draw.rect(self.win, (230, 60, 0), (645, 140, temp.get_width() + 15, temp.get_height() + 60), 5)
+            self.win.blit(temp, (650, 150))
+            self.combat_encounter[1].draw_portrait(self.win)
         # Menu Options
         for i in range(len(self.combat_menu["Main"])):
             temp = self.header.render(self.combat_menu["Main"][i + 1], False, text_color)
@@ -305,7 +312,7 @@ class LevelManager():
         # Selection Arrow
         if selection != 0:
             if self.cur_menu == "Abilities":
-                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 525), (50, 545),
+                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 525), (50, 555),
                                                           (95, 540)))
             elif self.cur_menu == "Swapping":
                 pygame.draw.polygon(self.win, (0, 0, 0), ((50, 565), (50, 595),
@@ -331,7 +338,7 @@ class LevelManager():
             if selection != 0:
                 pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + offset * 40), (350, 515 + offset * 40),
                                                           (395, 500 + offset * 40)))
-        if self.cur_menu == "Swapping":
+        elif self.cur_menu == "Swapping":
             # Menu Options
             align = 0
             for i in self.combat_menu["Swapping"]:

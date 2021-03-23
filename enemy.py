@@ -25,6 +25,12 @@ class Enemy:
             collision = True
         return collision
 
+    def draw(self, surf):
+        pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
+
+    def draw_portrait(self, surf):
+        pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius / 2)
+
 
 class BasicEnemyTypeTest(Enemy):
 
@@ -36,6 +42,3 @@ class BasicEnemyTypeTest(Enemy):
         self.defense = 10
         self.luck = 0.02
         self.speed = 250
-
-    def draw(self, surf):
-        pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)

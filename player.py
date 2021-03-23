@@ -14,6 +14,7 @@ class Player:
         self.radius = 20
         self.jump_power = 0
         self.speed = 9
+        self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
         self.selection = None
@@ -35,7 +36,7 @@ class Player:
                 collisions.append(tile)
         return collisions
 
-    def move_and_collide(self, tiles):
+    def move_and_collide(self, tiles, dt):
         collision_types = {"bottom": False, "right": False}
 #        collisions = self.collision_test(tiles)
 #        for tile in collisions:
@@ -43,7 +44,7 @@ class Player:
 #                self.rect.right = tile.left
 #                self.x = self.rect.right - self.radius
 #                collision_types["right"] = True
-        self.y += self.jump_power
+        self.y += self.jump_power * self.speed * dt
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
         collisions = self.collision_test(tiles)
         for tile in collisions:
@@ -59,13 +60,16 @@ class Player:
 
     def update(self, game_state, tiles, dt, cur_turn, party):
         if game_state == "Runner":
-            self.jump_power += 1.5
-            if self.jump_power > 15:
-                self.jump_power = 15
+            self.jump_power += 12 * self.speed * dt
+            if self.jump_power > 35:
+                self.jump_power = 35
 
-            collisions = self.move_and_collide(tiles)
+            collisions = self.move_and_collide(tiles, dt)
             if collisions["bottom"]:
                 self.jump_power = 0.25
+                self.can_jump = True
+
+        print(self.jump_power)
 
         if game_state == "Combat":
             # Fortify Check
@@ -87,7 +91,9 @@ class Player:
         cur_class = self.__class__.__name__
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
-                self.jump_power = -20
+                if self.can_jump:
+                    self.jump_power = -60
+                    self.can_jump = False
             elif evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
                     cur_class = "Wizard"
