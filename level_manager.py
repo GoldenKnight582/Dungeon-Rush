@@ -25,7 +25,7 @@ class LevelManager():
         self.normal = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 20)
 
         # Combat Stuff
-        self.combat_menu = {"Main": {1: "Attack", 2: "Special", 3: "Swap"}, "Swapping":
+        self.combat_menu = {"Main": {1: "Attack", 2: "Abilities", 3: "Swap"}, "Swapping":
                             {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
                             self.player.abilities}
         self.attack_delay = 0
@@ -40,7 +40,7 @@ class LevelManager():
         self.dirt_img = pygame.image.load('images\\rock.png')
         self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255,255,255))
-        self.tile_index = {1:self.grass_img, 2:self.dirt_img, 3:self.plant_img}
+        self.tile_index = {1: self.grass_img, 2: self.dirt_img, 3: self.plant_img}
         self.tile_rects = []
         self.cave_img = pygame.image.load('Images\\cave.png')
         # credits for cave img = http://pixeljoint.com/forum/forum_posts.asp?TID=15971&PD=0
@@ -57,7 +57,7 @@ class LevelManager():
 
         # Music by AlexisOrtizSofield from Pixabay
         pygame.mixer.music.load("audio\\music.mp3")
-        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.set_volume(0.8)
         pygame.mixer.music.play(-1)
 
         # Obstacle Spawn Data
@@ -134,7 +134,7 @@ class LevelManager():
                     self.state = "Combat"
             # Despawn offscreen enemies
             for e in self.onscreen_enemies:
-                if e.x - e.radius <= 0:
+                if e.x + e.radius <= 0:
                     self.onscreen_enemies.remove(e)
 
         if self.state == "Combat":
@@ -248,7 +248,7 @@ class LevelManager():
 
     def draw(self):
         score = self.header.render("Score:" + str(int(self.score)), False, (255, 255, 0))
-        self.win.blit(self.cave_img,(self.cave_scroll_x, 0))
+        self.win.blit(self.cave_img, (self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
@@ -296,84 +296,58 @@ class LevelManager():
             self.current_opponent.draw(self.win)
         # Color Palette
         menu_space_color = (176, 166, 156)
-        outline_color = (255, 152, 48)
         text_color = (255, 73, 48)
-        # Menu Area
-#        pygame.draw.rect(self.win, menu_space_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 401))
-#        pygame.draw.rect(self.win, outline_color, (0, 401, self.screen_dim[0], self.screen_dim[1] - 401), 5)
         offset = self.player.selection - 1
         # Menu Options
-        temp = self.header.render("Attack", False, text_color)
-        self.win.blit(temp, (100, self.screen_dim[1] * 0.6))
-        temp = self.header.render("Abilities", False, text_color)
-        self.win.blit(temp, (100, self.screen_dim[1] * 0.65))
-        temp = self.header.render("Swap", False, text_color)
-        self.win.blit(temp, (100, self.screen_dim[1] * 0.7))
-        # Player Health
-        temp = self.header.render(str(self.player.health), False, text_color)
-        self.win.blit(temp, (self.player.x - self.player.radius * 1.5, self.player.y - 100))
-        # Opponent Health
-        temp = self.header.render(str(self.current_opponent.health), False, text_color)
-        if self.current_opponent.health >= 100:
-            self.win.blit(temp, (self.current_opponent.x - self.current_opponent.radius * 1.5, self.current_opponent.y - 100))
-        else:
-            self.win.blit(temp, (self.current_opponent.x - self.current_opponent.radius - 5, self.current_opponent.y - 100))
+        for i in range(len(self.combat_menu["Main"])):
+            temp = self.header.render(self.combat_menu["Main"][i + 1], False, text_color)
+            self.win.blit(temp, (100, (self.screen_dim[1] * (0.6 + 0.05 * i))))
         # Selection Arrow
         if selection != 0:
-            if self.combat_menu["Main"][selection] == "Attack" and self.cur_menu == "Main":
-                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 485), (50, 515), (95, 500)))
-            if self.combat_menu["Main"][selection] == "Special" and self.cur_menu == "Main" or self.cur_menu == "Abilities":
-                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 525), (50, 555), (95, 540)))
-            if self.combat_menu["Main"][selection] == "Swap" and self.cur_menu == "Main" or self.cur_menu == "Swapping":
-                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 565), (50, 595), (95, 580)))
+            if self.cur_menu == "Abilities":
+                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 525), (50, 545),
+                                                          (95, 540)))
+            elif self.cur_menu == "Swapping":
+                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 565), (50, 595),
+                                                          (95, 580)))
+            else:
+                pygame.draw.polygon(self.win, (0, 0, 0), ((50, 485 + offset * 40), (50, 515 + (offset * 40)),
+                                                          (95, 500 + offset * 40)))
+        # Player Health
+        temp = self.header.render(str(self.player.health), False, text_color)
+        self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 100))
+        # Opponent Health
+        temp = self.header.render(str(self.current_opponent.health), False, text_color)
+        self.win.blit(temp, (self.current_opponent.x - temp.get_width() // 2, self.current_opponent.y - 100))
         # Turn Info
         temp = self.header.render(self.turn + " Turn!", False, text_color, menu_space_color)
         self.win.blit(temp, (50, 725))
+        # Ability Submenu
         if self.cur_menu == "Abilities":
             for i in range(len(self.player.abilities)):
-                temp = self.header.render(self.player.abilities[i], False, text_color, menu_space_color)
+                temp = self.header.render(self.player.abilities[i], False, text_color)
                 self.win.blit(temp, (400, (self.screen_dim[1] * (0.6 + 0.05 * i))))
-                # Selection Arrow
-                if selection != 0:
-                    pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + offset * 40), (350, 515 + (offset * 40)),
-                                                              (395, 500 + offset * 40)))
+            # Selection Arrow
+            if selection != 0:
+                pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + offset * 40), (350, 515 + offset * 40),
+                                                          (395, 500 + offset * 40)))
         if self.cur_menu == "Swapping":
-            if self.player.__class__ == player.Warrior:
-                # Menu Options
-                temp = self.header.render("Archer", False, text_color, menu_space_color)
-                self.win.blit(temp, (400, self.screen_dim[1] * 0.6))
-                temp = self.header.render("Wizard", False, text_color, menu_space_color)
-                self.win.blit(temp, (400, self.screen_dim[1] * 0.65))
-                # Selection Arrow
-                if selection != 0:
-                    if self.combat_menu["Swapping"][selection] == "Archer":
-                        pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485), (350, 515), (395, 500)))
-                    if self.combat_menu["Swapping"][selection] == "Wizard":
-                        pygame.draw.polygon(self.win, (0, 0, 0), ((350, 525), (350, 555), (395, 540)))
-            if self.player.__class__ == player.Archer:
-                # Menu Options
-                temp = self.header.render("Warrior", False, text_color, menu_space_color)
-                self.win.blit(temp, (400, self.screen_dim[1] * 0.6))
-                temp = self.header.render("Wizard", False, text_color, menu_space_color)
-                self.win.blit(temp, (400, self.screen_dim[1] * 0.65))
-                # Selection Arrow
-                if selection != 0:
-                    if self.combat_menu["Swapping"][selection] == "Warrior":
-                        pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485), (350, 515), (395, 500)))
-                    if self.combat_menu["Swapping"][selection] == "Wizard":
-                        pygame.draw.polygon(self.win, (0, 0, 0), ((350, 525), (350, 555), (395, 540)))
-            if self.player.__class__ == player.Wizard:
-                # Menu Options
-                temp = self.header.render("Warrior", False, text_color, menu_space_color)
-                self.win.blit(temp, (400, self.screen_dim[1] * 0.6))
-                temp = self.header.render("Archer", False, text_color, menu_space_color)
-                self.win.blit(temp, (400, self.screen_dim[1] * 0.65))
-                # Selection Arrow
-                if selection != 0:
-                    if self.combat_menu["Swapping"][selection] == "Warrior":
-                        pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485), (350, 515), (395, 500)))
-                    if self.combat_menu["Swapping"][selection] == "Archer":
-                        pygame.draw.polygon(self.win, (0, 0, 0), ((350, 525), (350, 555), (395, 540)))
+            # Menu Options
+            align = 0
+            for i in self.combat_menu["Swapping"]:
+                if self.combat_menu["Swapping"][i] != self.player.__class__.__name__:
+                    temp = self.header.render(self.combat_menu["Swapping"][i], False, text_color)
+                    align = 0
+                    if self.player.__class__ == player.Warrior:
+                        align = 1
+                    elif self.player.__class__ == player.Archer:
+                        if i == 3:
+                            align = 1
+                    self.win.blit(temp, (400, self.screen_dim[1] * (0.6 + 0.05 * (i - 1 - align))))
+            # Selection Arrow
+            if selection != 0:
+                pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + (offset - align) * 40), (350, 515 + (offset - align) * 40),
+                                                          (395, 500 + (offset - align) * 40)))
 
     def draw_title_screen(self, start_highlight=False, quit_highlight=False):
         bg_color = (150, 150, 150)
