@@ -129,6 +129,7 @@ class LevelManager():
                     self.onscreen_enemies.remove(e)
                     for e in self.combat_encounter:
                         e.x = 600
+                        e.y - 380
                     for character in self.party:
                         self.party[character].y = 380
                     self.state = "Combat"
@@ -281,6 +282,11 @@ class LevelManager():
                 target_chunk = str(target_x) + ';' + str(target_y)
                 if target_chunk not in self.game_map:
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
+                    for tile in self.game_map[target_chunk]:
+                        if tile[1] == 1 and self.enemy_spawn_timer <= 0:
+                            # Spawn enemies
+                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1] - 20), "Runner"))
+                            self.enemy_spawn_timer = random.uniform(2, 3.5)
                     self.score += 1
                     self.distance += 1
                 for tile in self.game_map[target_chunk]:
