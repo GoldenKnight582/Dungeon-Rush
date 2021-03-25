@@ -184,6 +184,7 @@ class LevelManager():
                         self.change_turn()
                         self.player.selection_made = False
             if self.current_opponent.health <= 0:
+                self.score += 50
                 self.combat_encounter.remove(self.current_opponent)
             if not self.combat_encounter:
                 self.state = "Runner"
@@ -248,20 +249,21 @@ class LevelManager():
             self.player.handle_combat_input(event, self.cur_menu)
 
     def draw(self):
-        score = self.header.render("Score:" + str(int(self.score)), False, (255, 255, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
         if self.state == "Title" or self.state == "Resume":
             self.draw_title_screen(self.start_hover, self.quit_hover)
-        if self.state == "Runner":
+        elif self.state == "Runner":
             self.draw_level()
-            pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
-            self.win.blit(score, (self.win.get_width() - 200, 5))
         elif self.state == "Combat":
             if self.player.selection is not None:
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
+        if self.state == "Runner" or self.state == "Combat":
+            score = self.header.render("Score:" + str(int(self.score)), False, (255, 255, 0))
+            pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
+            self.win.blit(score, (self.win.get_width() - 200, 5))
         pygame.display.flip()
 
     def draw_level(self):

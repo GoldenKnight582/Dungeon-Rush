@@ -69,8 +69,6 @@ class Player:
                 self.jump_power = 0.25
                 self.can_jump = True
 
-        print(self.jump_power)
-
         if game_state == "Combat":
             # Fortify Check
             if self.fortify_on:
