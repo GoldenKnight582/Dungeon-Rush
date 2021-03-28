@@ -13,12 +13,16 @@ class Enemy:
 #        self.width *= scale
 #        self.height *= scale
         self.game_state = state
-        self.radius = None
+        self.radius = 20
+        self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
         self.speed = 250
         self.enemy_point = 100
+        self.weapon_collision = False
 
     def update(self, dt, player_x, player_y):
         self.x -= self.speed * dt
+        self.rect.x = self.x - self.radius
+        self.rect.y = self.y - self.radius
         collision = False
         # Collision Check
         if ((self.x - player_x) ** 2 + (self.y - player_y) ** 2) ** 0.5 <= self.radius + 20:
@@ -38,6 +42,8 @@ class BasicEnemyTypeTest(Enemy):
 
     def draw(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
+        # Debug Collision
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius / 2)

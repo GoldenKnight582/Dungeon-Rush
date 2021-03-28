@@ -58,7 +58,7 @@ class Player:
 #                collision_types["top"] = True
         return collision_types
 
-    def update(self, game_state, tiles, dt, cur_turn, party):
+    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         if game_state == "Runner":
             self.jump_power += 12 * self.speed * dt
             if self.jump_power > 35:
@@ -140,7 +140,7 @@ class Player:
                         else:
                             if self.selection < 1:
                                 self.selection = 2
-                if evt.key == pygame.K_s:
+                elif evt.key == pygame.K_s:
                     self.selection += 1
                     if menu == "Main":
                         if self.selection > 3:
@@ -160,7 +160,7 @@ class Player:
                         else:
                             if self.selection > 2:
                                 self.selection = 1
-                if evt.key == pygame.K_RETURN:
+                elif evt.key == pygame.K_RETURN:
                     self.selection_made = True
             if evt.key == pygame.K_BACKSPACE:
                 if menu == "Swapping" or menu == "Abilities":
@@ -181,6 +181,9 @@ class Warrior(Player):
         self.attack = 60
         self.defense = 40
         self.luck = 0.05
+        self.strike_status = "Cooldown"
+        self.strike_time = 0.5
+        self.strike_cooldown = 0.5
         self.abilities = ["Fortify", "Overwhelm"]
 
     def do_ability(self, opponent, party):
@@ -189,10 +192,39 @@ class Warrior(Player):
                 party[character].fortify_on = True
                 party[character].defense += 20
 
-    def update(self, game_state, tiles, dt, cur_turn, party):
-        super().update(game_state, tiles, dt, cur_turn, party)
+    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
+        super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
+        if self.strike_status == "Use":
+            self.strike_time -= dt
+            self.strike(enemy_list)
+            if self.strike_time <= 0:
+                self.strike_status = "Cooldown"
+                self.strike_cooldown = 0.5
+        if self.strike_status == "Cooldown":
+            self.strike_cooldown -= dt
+            if self.strike_cooldown <= 0:
+                self.strike_status = "Ready"
+        print(self.strike_status)
 
+    def handle_running_input(self, evt):
+        if evt.type == pygame.MOUSEBUTTONDOWN:
+            if evt.button == 1:
+                if self.strike_status == "Ready":
+                    self.strike_status = "Use"
+                    self.strike_time = 0.5
+        cur_class = super().handle_running_input(evt)
+        return cur_class
 
+    def strike(self, enemies):
+        collision_rect = pygame.Rect(self.x + self.radius, self.y - self.radius - 10, 60, 70)
+        for e in enemies:
+            if collision_rect.colliderect(e.rect):
+                e.weapon_collision = True
+
+    def draw(self):
+        super().draw()
+        if self.strike_status == "Use":
+            pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
 
 class Archer(Player):
 
