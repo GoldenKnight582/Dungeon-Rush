@@ -15,7 +15,7 @@ class Enemy:
         self.game_state = state
         self.radius = 20
         self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
-        self.speed = 200
+        self.speed = 202
         self.enemy_point = 100
         self.weapon_collision = False
 
