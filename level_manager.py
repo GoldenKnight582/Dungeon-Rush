@@ -66,6 +66,13 @@ class LevelManager():
         self.spawn_range = (1.7, 3.2)
         self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
 
+        #spawning of attacks
+        self.warrior_attack_img = pygame.image.load("Images\\sword.png")
+        self.warrior_attack_img_resize = pygame.transform.scale(self.warrior_attack_img, (100,100))
+        self.effect_images = self.warrior_attack_img_resize
+        self.cur_effect_img = self.effect_images
+        self.effect_image_timer = 0.0
+
     def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
         chunk_data = []
@@ -199,6 +206,10 @@ class LevelManager():
             if not self.combat_encounter:
                 self.state = "Runner"
 
+            # bliting of image timer
+            if self.effect_image_timer > 0:
+                self.effect_image_timer -= delta_time
+
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(attacked.defense - 15, attacked.defense)
         if damage < 0:
@@ -207,6 +218,11 @@ class LevelManager():
         if random.randint(crit_chance, 100) == crit_chance:
             damage *= 2
         attacked.health -= damage
+
+        if self.player == self.party["Warrior"]:
+            self.effect_image_timer = 1
+
+
 
     def menu_change(self, next_menu):
         self.player.selection_made = False
@@ -262,6 +278,8 @@ class LevelManager():
     def draw(self):
         self.win.blit(self.cave_img, (self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
+        if self.effect_image_timer > 0:
+            self.win.blit(self.cur_effect_img, (350, 325))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
         if self.state == "Title" or self.state == "Resume":
@@ -276,6 +294,7 @@ class LevelManager():
             pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
             self.win.blit(score, (self.win.get_width() - score.get_width() - 15, 5))
         pygame.display.flip()
+
 
     def draw_level(self):
         self.player.draw()

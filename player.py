@@ -174,6 +174,9 @@ class Player:
 #        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
 
 
+
+
+
 class Warrior(Player):
 
     def __init__(self, start_pos, image, scale, surf):
@@ -185,6 +188,8 @@ class Warrior(Player):
         self.strike_time = 0
         self.strike_cooldown = 0
         self.abilities = ["Fortify", "Overwhelm"]
+        self.attack_image_timer = 0
+        self.attack_img = ('images\\sword.png')
 
     def do_ability(self, opponent, party):
         if self.selection == 1:
