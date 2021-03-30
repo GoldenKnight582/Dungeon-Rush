@@ -1,4 +1,5 @@
 import pygame
+import math
 
 
 class Player:
@@ -13,7 +14,7 @@ class Player:
 #        self.height *= scale
         self.radius = 20
         self.jump_power = 0
-        self.speed = 9
+        self.speed = 7
         self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -183,7 +184,7 @@ class Warrior(Player):
         self.luck = 0.05
         self.strike_status = "Cooldown"
         self.strike_time = 0.5
-        self.strike_cooldown = 0.5
+        self.strike_cooldown = 0
         self.abilities = ["Fortify", "Overwhelm"]
 
     def do_ability(self, opponent, party):
@@ -200,11 +201,12 @@ class Warrior(Player):
             if self.strike_time <= 0:
                 self.strike_status = "Cooldown"
                 self.strike_cooldown = 0.5
+
+    def cooldowns(self, dt):
         if self.strike_status == "Cooldown":
             self.strike_cooldown -= dt
             if self.strike_cooldown <= 0:
                 self.strike_status = "Ready"
-        print(self.strike_status)
 
     def handle_running_input(self, evt):
         if evt.type == pygame.MOUSEBUTTONDOWN:
@@ -226,6 +228,7 @@ class Warrior(Player):
         if self.strike_status == "Use":
             pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
 
+
 class Archer(Player):
 
     def __init__(self, start_pos, image, scale, surf):
@@ -234,10 +237,82 @@ class Archer(Player):
         self.attack = 45
         self.defense = 20
         self.luck = 0.08
+        self.arrow = None
+        self.snipe_cooldown = 0
         self.abilities = ["Rapidfire", "Take Cover"]
+
+    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
+        super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
+
+    def cooldowns(self, dt):
+        if self.arrow == None:
+            self.snipe_cooldown -= dt
+
+    def handle_running_input(self, evt):
+        if evt.type == pygame.MOUSEBUTTONDOWN:
+            if evt.button == 1:
+                if self.snipe_cooldown <= 0:
+                    self.snipe(evt.pos)
+        cur_class = super().handle_running_input(evt)
+        return cur_class
+
+    def snipe(self, mouse_pos):
+        adjacent = mouse_pos[0] - self.x
+        opposite = -1 * (mouse_pos[1] - self.y)  # Account for inverted y-axis
+        angle = math.atan2(opposite, adjacent)
+        start_x = self.x + self.radius
+        self.arrow = Arrow(start_x, self.y, self.surf)
+        self.arrow.horizontal_speed = self.arrow.speed * math.cos(angle)
+        self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
+        self.snipe_cooldown = 0.75
 
     def draw(self):
         pygame.draw.circle(self.surf, (255, 255, 0), (int(self.x), int(self.y)), self.radius)
+
+
+class Arrow:
+
+    def __init__(self, start_x, start_y, surf):
+        self.x = start_x
+        self.y = start_y
+#       self.image = pygame.image.load(" ")
+        self.radius = 5
+        self.color = (153, 85, 49)
+        self.speed = 600
+        self.horizontal_speed = 0
+        self.vertical_speed = 0
+        self.surf = surf
+        self.width_edge = surf.get_width()
+        self.height_edge = surf.get_height()
+
+    def update(self, dt, enemies):
+        # Movement
+        self.x += self.horizontal_speed * dt
+        self.y += self.vertical_speed * dt
+
+        # Collision with enemies
+        collision_rect = pygame.Rect(int(self.x), int(self.y), 15, 5)
+        for e in enemies:
+            if collision_rect.colliderect(e.rect):
+                e.weapon_collision = True
+                hit = True
+                return hit
+
+        # Boundary check
+        if self.y + self.radius > self.height_edge:
+            oob = True  # Out of bounds
+        elif self.y - self.radius < 0:
+            oob = True
+        elif self.x - self.radius < 0:
+            oob = True
+        elif self.x + self.radius > self.width_edge:
+            oob = True
+        else:
+            oob = False
+        return oob
+
+    def draw(self):
+        pygame.draw.rect(self.surf, self.color, (int(self.x), int(self.y), 15, 5))
 
 
 class Wizard(Player):
@@ -249,6 +324,9 @@ class Wizard(Player):
         self.defense = 10
         self.luck = 0.1
         self.abilities = ["Thunderbolt", "Blaze"]
+
+    def cooldowns(self, dt):
+        pass
 
     def draw(self):
         pygame.draw.circle(self.surf, (0, 0, 255), (int(self.x), int(self.y)), self.radius)

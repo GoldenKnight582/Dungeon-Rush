@@ -15,6 +15,7 @@ class LevelManager():
                       player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
                       player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
         self.player = self.party["Warrior"]
+        self.arrow = self.party["Archer"].arrow
         self.combat_encounter = []
         self.current_opponent = None
         self.cur_menu = "Main"
@@ -104,9 +105,15 @@ class LevelManager():
                     self.quit_hover = False
 
         elif self.state == "Runner":
-#            for character in self.party:
-#                self.party[character].update(self.state, self.tile_rects, delta_time, self.turn_count, self.party, self.onscreen_enemies)
+            for character in self.party:
+                self.party[character].cooldowns(delta_time)
             self.player.update(self.state, self.tile_rects, delta_time, self.turn_count, self.party, self.onscreen_enemies)
+            self.arrow = self.party["Archer"].arrow
+            if self.arrow is not None:
+                result = self.arrow.update(delta_time, self.onscreen_enemies)
+                if result:
+                    self.arrow = None
+                    self.party["Archer"].arrow = None
             self.cave_scroll_x -= 3
             for e in self.onscreen_enemies:
                 if e.x <= self.distance:
@@ -190,6 +197,7 @@ class LevelManager():
                 self.combat_encounter.remove(self.current_opponent)
             if not self.combat_encounter:
                 self.state = "Runner"
+                self.party["Warrior"].strike_status = "Ready"
 
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(attacked.defense - 15, attacked.defense)
@@ -271,6 +279,8 @@ class LevelManager():
 
     def draw_level(self):
         self.player.draw()
+        if self.arrow is not None:
+            self.arrow.draw()
         self.true_scroll[0] += self.player.speed
         #self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
         #self.true_scroll[0] += 0
@@ -358,12 +368,13 @@ class LevelManager():
                     align = 0
                     if self.player.__class__ == player.Warrior:
                         align = 1
-                    elif self.player.__class__ == player.Archer:
-                        if i == 3:
+                    elif self.player.__class__ == player.Archer and i == 3:
                             align = 1
                     self.win.blit(temp, (400, self.screen_dim[1] * (0.6 + 0.05 * (i - 1 - align))))
             # Selection Arrow
             if selection != 0:
+                if self.player.__class__ == player.Archer and selection == 1:
+                    align = 0
                 pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + (offset - align) * 40), (350, 515 + (offset - align) * 40),
                                                           (395, 500 + (offset - align) * 40)))
 
