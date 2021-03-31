@@ -72,8 +72,8 @@ class LevelManager():
         self.effect_images = self.warrior_attack_img_resize
         self.cur_effect_img = self.effect_images
         self.effect_image_timer = 0.0
-        self.effect_speed = 1
-        self.effect_origin = 350
+        self.effect_speed = 10
+        self.effect_origin = 225
 
     def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
@@ -213,7 +213,7 @@ class LevelManager():
                 self.effect_image_timer -= delta_time
                 self.effect_origin += delta_time + self.effect_speed
             if self.effect_image_timer < 0:
-                self.effect_origin = 350
+                self.effect_origin = 225
 
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(attacked.defense - 15, attacked.defense)
@@ -224,8 +224,8 @@ class LevelManager():
             damage *= 2
         attacked.health -= damage
 
-        if self.player == self.party["Warrior"]:
-            self.effect_image_timer = 1
+        if self.player == self.party["Warrior"] and self.turn == "Player":
+            self.effect_image_timer = 0.25
 
 
 
