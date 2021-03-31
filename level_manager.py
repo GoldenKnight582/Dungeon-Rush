@@ -72,6 +72,8 @@ class LevelManager():
         self.effect_images = self.warrior_attack_img_resize
         self.cur_effect_img = self.effect_images
         self.effect_image_timer = 0.0
+        self.effect_speed = 1
+        self.effect_origin = 350
 
     def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
@@ -209,6 +211,9 @@ class LevelManager():
             # bliting of image timer
             if self.effect_image_timer > 0:
                 self.effect_image_timer -= delta_time
+                self.effect_origin += delta_time + self.effect_speed
+            if self.effect_image_timer < 0:
+                self.effect_origin = 350
 
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(attacked.defense - 15, attacked.defense)
@@ -279,7 +284,7 @@ class LevelManager():
         self.win.blit(self.cave_img, (self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
         if self.effect_image_timer > 0:
-            self.win.blit(self.cur_effect_img, (350, 325))
+            self.win.blit(self.cur_effect_img, (self.effect_origin, 325))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
         if self.state == "Title" or self.state == "Resume":
