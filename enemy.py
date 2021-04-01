@@ -15,7 +15,7 @@ class Enemy:
         self.game_state = state
         self.radius = 20
         self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
-        self.speed = 202
+        self.speed = 215
         self.enemy_point = 100
         self.weapon_collision = False
 
@@ -46,4 +46,4 @@ class BasicEnemyTypeTest(Enemy):
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius / 2)
+        pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius // 2)

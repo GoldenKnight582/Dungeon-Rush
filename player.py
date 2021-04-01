@@ -14,7 +14,8 @@ class Player:
 #        self.height *= scale
         self.radius = 20
         self.jump_power = 0
-        self.speed = 7
+        self.grav = 10
+        self.speed = 3
         self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -61,9 +62,9 @@ class Player:
 
     def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         if game_state == "Runner":
-            self.jump_power += 12 * self.speed * dt
-            if self.jump_power > 35:
-                self.jump_power = 35
+            self.jump_power += self.grav * dt + 2
+            if self.jump_power > 65:
+                self.jump_power = 65
 
             collisions = self.move_and_collide(tiles, dt)
             if collisions["bottom"]:
@@ -91,7 +92,7 @@ class Player:
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
                 if self.can_jump:
-                    self.jump_power = -60
+                    self.jump_power = -100
                     self.can_jump = False
             elif evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
