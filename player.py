@@ -2,6 +2,7 @@ import pygame
 import math
 
 
+
 class Player:
     def __init__(self, start_pos, image, scale, surf):
         self.x = start_pos[0]
@@ -185,8 +186,7 @@ class Warrior(Player):
         self.luck = 0.05
         self.runner_moves = {"Strike": [0, 0, 0.5]}
         self.abilities = ["Fortify", "Overwhelm"]
-        self.attack_image_timer = 0
-        self.attack_img = ('images\\sword.png')
+
 
     def do_ability(self, opponent, party):
         if self.selection == 1:

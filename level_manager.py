@@ -12,8 +12,8 @@ class LevelManager():
         self.clock = pygame.time.Clock()
         self.state = state
         self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Archer":
-            player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
-                          player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
+                      player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
+                      player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
         self.player = self.party["Warrior"]
         self.arrow = self.party["Archer"].arrow
         self.combat_encounter = []
@@ -27,8 +27,8 @@ class LevelManager():
 
         # Combat Stuff
         self.combat_menu = {"Main": {1: "Attack", 2: "Abilities", 3: "Swap"}, "Swapping":
-            {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
-                                self.player.abilities}
+                            {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
+                            self.player.abilities}
         self.attack_delay = 0
         self.turn = "Player"
         self.turn_count = 1
@@ -68,7 +68,8 @@ class LevelManager():
 
         # spawning of attacks
         self.warrior_attack_img = pygame.image.load("Images\\sword.png")
-        self.warrior_attack_img_resize = pygame.transform.scale(self.warrior_attack_img, (100, 100))
+        self.warrior_attack_img_resize = pygame.transform.scale(self.warrior_attack_img, (100,100))
+        self.thunderbolt_image = pygame.image.load("Images\\lightning.png")
         self.effect_images = self.warrior_attack_img_resize
         self.cur_effect_img = self.effect_images
         self.effect_image_timer = 0.0
@@ -228,6 +229,13 @@ class LevelManager():
 
         if self.player == self.party["Warrior"] and self.turn == "Player":
             self.effect_image_timer = 0.25
+            self.cur_effect_img = self.warrior_attack_img_resize
+
+
+
+
+
+
 
     def menu_change(self, next_menu):
         self.player.selection_made = False
@@ -344,8 +352,7 @@ class LevelManager():
                 for tile in self.game_map[target_chunk]:
                     self.win.blit(self.tile_index[tile[1]], (tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1]))
                     if tile[1] in [1, 2]:
-                        self.tile_rects.append(
-                            pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
+                        self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
         for a in range(len(self.player.runner_moves)):
@@ -419,9 +426,8 @@ class LevelManager():
             if selection != 0:
                 if self.player.__class__ == player.Archer and selection == 1:
                     align = 0
-                pygame.draw.polygon(self.win, (0, 0, 0),
-                                    ((350, 485 + (offset - align) * 40), (350, 515 + (offset - align) * 40),
-                                     (395, 500 + (offset - align) * 40)))
+                pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + (offset - align) * 40), (350, 515 + (offset - align) * 40),
+                                                          (395, 500 + (offset - align) * 40)))
 
     def draw_title_screen(self, start_highlight=False, quit_highlight=False):
         bg_color = (150, 150, 150)
@@ -430,8 +436,7 @@ class LevelManager():
         self.win.fill(bg_color)
         self.win.blit(self.logo, (self.screen_dim[0] // 2 - self.logo.get_width() // 2, int(self.screen_dim[1] * 0.1)))
         temp = self.title.render("Dungeon Rush", False, title_color, bg_color)
-        self.win.blit(temp, (
-        self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] // 3 - temp.get_height() // 2))
+        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] // 3 - temp.get_height() // 2))
         temp = self.header.render("By Tyler Cobb and Chase Minor", False, (0, 0, 0), bg_color)
         self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.37))
 
