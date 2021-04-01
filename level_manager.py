@@ -69,6 +69,7 @@ class LevelManager():
         #spawning of attacks
         self.warrior_attack_img = pygame.image.load("Images\\sword.png")
         self.warrior_attack_img_resize = pygame.transform.scale(self.warrior_attack_img, (100,100))
+        self.thunderbolt_image = pygame.image.load("Images\\lightning.png")
         self.effect_images = self.warrior_attack_img_resize
         self.cur_effect_img = self.effect_images
         self.effect_image_timer = 0.0
@@ -215,6 +216,10 @@ class LevelManager():
             if self.effect_image_timer < 0:
                 self.effect_origin = 225
 
+
+
+
+
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(attacked.defense - 15, attacked.defense)
         if damage < 0:
@@ -226,6 +231,11 @@ class LevelManager():
 
         if self.player == self.party["Warrior"] and self.turn == "Player":
             self.effect_image_timer = 0.25
+            self.cur_effect_img = self.warrior_attack_img_resize
+
+
+
+
 
 
 
