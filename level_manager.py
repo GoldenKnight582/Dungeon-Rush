@@ -12,8 +12,8 @@ class LevelManager():
         self.clock = pygame.time.Clock()
         self.state = state
         self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Archer":
-                      player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
-                      player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
+            player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
+                          player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
         self.player = self.party["Warrior"]
         self.arrow = self.party["Archer"].arrow
         self.combat_encounter = []
@@ -27,8 +27,8 @@ class LevelManager():
 
         # Combat Stuff
         self.combat_menu = {"Main": {1: "Attack", 2: "Abilities", 3: "Swap"}, "Swapping":
-                            {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
-                            self.player.abilities}
+            {1: "Warrior", 2: "Archer", 3: "Wizard"}, "Abilities":
+                                self.player.abilities}
         self.attack_delay = 0
         self.turn = "Player"
         self.turn_count = 1
@@ -40,7 +40,7 @@ class LevelManager():
         self.grass_img = pygame.image.load('images\\cobblestone.jpg')
         self.dirt_img = pygame.image.load('images\\rock.png')
         self.plant_img = pygame.image.load('images\\plant.png').convert()
-        self.plant_img.set_colorkey((255,255,255))
+        self.plant_img.set_colorkey((255, 255, 255))
         self.tile_index = {1: self.grass_img, 2: self.dirt_img, 3: self.plant_img}
         self.tile_rects = []
         self.cave_img = pygame.image.load('Images\\cave.png')
@@ -66,9 +66,9 @@ class LevelManager():
         self.spawn_range = (1.7, 3.2)
         self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
 
-        #spawning of attacks
+        # spawning of attacks
         self.warrior_attack_img = pygame.image.load("Images\\sword.png")
-        self.warrior_attack_img_resize = pygame.transform.scale(self.warrior_attack_img, (100,100))
+        self.warrior_attack_img_resize = pygame.transform.scale(self.warrior_attack_img, (100, 100))
         self.effect_images = self.warrior_attack_img_resize
         self.cur_effect_img = self.effect_images
         self.effect_image_timer = 0.0
@@ -82,14 +82,14 @@ class LevelManager():
             for x_pos in range(self.CHUNK_SIZE):
                 target_x = x * self.CHUNK_SIZE + x_pos
                 target_y = y * self.CHUNK_SIZE + y_pos
-                tile_type = 0 # nothing
+                tile_type = 0  # nothing
                 height = int(noise.pnoise1(target_x * 0.1, repeat=100000) * 2)
                 if target_y > cal - height * 6:
-                    tile_type = 2 # dirt
+                    tile_type = 2  # dirt
                 elif target_y == cal - height * 6:
-                    tile_type = 1 # grass
+                    tile_type = 1  # grass
                 if tile_type != 0:
-                    chunk_data.append([[target_x,target_y],tile_type])
+                    chunk_data.append([[target_x, target_y], tile_type])
         return chunk_data
 
     def update(self):
@@ -115,9 +115,10 @@ class LevelManager():
                     self.quit_hover = False
 
         elif self.state == "Runner":
-            for character in self.party:
-                self.party[character].global_timers(delta_time)
-            self.player.update(self.state, self.tile_rects, delta_time, self.turn_count, self.party, self.onscreen_enemies)
+            # Refresh all cooldowns
+            self.runner_cooldowns(delta_time)
+            self.player.update(self.state, self.tile_rects, delta_time, self.turn_count, self.party,
+                               self.onscreen_enemies)
             self.arrow = self.party["Archer"].arrow
             if self.arrow is not None:
                 result = self.arrow.update(delta_time, self.onscreen_enemies)
@@ -140,10 +141,11 @@ class LevelManager():
                     self.score += 150
                     break
                 hit = e.update(delta_time, self.player.x, self.player.y)
-                if hit and self.party["Wizard"].shield_time <= 0:
+                if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0:
                     self.combat_encounter = [e]
                     for i in range(random.randint(1, 2)):
-                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state)
+                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20),
+                                                             self.state)
                         self.combat_encounter.append(new_enemy)
                     self.onscreen_enemies.remove(e)
                     for e in self.combat_encounter:
@@ -227,8 +229,6 @@ class LevelManager():
         if self.player == self.party["Warrior"] and self.turn == "Player":
             self.effect_image_timer = 0.25
 
-
-
     def menu_change(self, next_menu):
         self.player.selection_made = False
         if self.cur_menu == "Swapping":
@@ -244,6 +244,16 @@ class LevelManager():
             self.party[character].x = self.player.x
             self.party[character].y = self.player.y
             self.party[character].jump_power = self.player.jump_power
+
+    def runner_cooldowns(self, dt):
+        for character in self.party:
+            for ability in self.party[character].runner_moves:
+                if self.party[character].runner_moves[ability][0] > 0:
+                    self.party[character].runner_moves[ability][0] -= dt
+                    if self.party[character].runner_moves[ability][0] <= 0:
+                        self.party[character].runner_moves[ability][1] = self.party[character].runner_moves[ability][2]
+                elif self.party[character].runner_moves[ability][1] > 0:
+                    self.party[character].runner_moves[ability][1] -= dt
 
     def change_turn(self):
         if self.turn == "Player":
@@ -283,6 +293,10 @@ class LevelManager():
     def draw(self):
         self.win.blit(self.cave_img, (self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
+        if self.state == "Runner" or self.state == "Combat":
+            score = self.header.render("Score: " + str(int(self.score)), False, (255, 255, 0))
+            pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
+            self.win.blit(score, (self.win.get_width() - score.get_width() - 15, 5))
         if self.effect_image_timer > 0:
             self.win.blit(self.cur_effect_img, (self.effect_origin, 325))
         if self.cave_scroll_x <= -self.cave_img.get_width():
@@ -294,48 +308,52 @@ class LevelManager():
         elif self.state == "Combat":
             if self.player.selection is not None:
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
-        if self.state == "Runner" or self.state == "Combat":
-            score = self.header.render("Score: " + str(int(self.score)), False, (255, 255, 0))
-            pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
-            self.win.blit(score, (self.win.get_width() - score.get_width() - 15, 5))
         pygame.display.flip()
-
 
     def draw_level(self):
         self.player.draw()
-        if self.party["Wizard"].shield_time > 0:
-            self.win.blit(self.party["Wizard"].shield_surf, (int(self.player.x - self.player.radius), int(self.player.y - self.player.radius)))
+        if self.party["Wizard"].runner_moves["Shield"][0] > 0:
+            self.win.blit(self.party["Wizard"].shield_surf,
+                          (int(self.player.x - self.player.radius), int(self.player.y - self.player.radius)))
         if self.arrow is not None:
             self.arrow.draw()
         self.true_scroll[0] += self.player.speed
-        #self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
-        #self.true_scroll[0] += 0
+        # self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
+        # self.true_scroll[0] += 0
         self.true_scroll[1] += 0
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
-        
+
         self.tile_rects = []
         for y in range(7):
             for x in range(8):
-                target_x = x - 1 + int(round(scroll[0]/(self.CHUNK_SIZE*16)))
-                target_y = y - 1 + int(round(scroll[1]/(self.CHUNK_SIZE*16)))
+                target_x = x - 1 + int(round(scroll[0] / (self.CHUNK_SIZE * 16)))
+                target_y = y - 1 + int(round(scroll[1] / (self.CHUNK_SIZE * 16)))
                 target_chunk = str(target_x) + ';' + str(target_y)
                 if target_chunk not in self.game_map:
-                    self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
+                    self.game_map[target_chunk] = self.generate_chunk(target_x, target_y)
                     for tile in self.game_map[target_chunk]:
                         if tile[1] == 1 and self.enemy_spawn_timer <= 0:
                             # Spawn enemies
-                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner"))
+                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest(
+                                (tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner"))
                             self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
                     self.score += 1
                     self.distance += 1
                 for tile in self.game_map[target_chunk]:
                     self.win.blit(self.tile_index[tile[1]], (tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1]))
                     if tile[1] in [1, 2]:
-                        self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
+                        self.tile_rects.append(
+                            pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
+        for a in range(len(self.player.runner_moves)):
+            size = 40
+            halfsize = 20
+            rect = pygame.Rect(self.screen_dim[0] // 2 - halfsize - (a * (size + 5)), 5, size, size)
+            pygame.draw.rect(self.win, (255, 255, 255), rect,1)
+            pygame.draw.line(self.win, (179, 0, 119), ())
 
     def draw_combat_screen(self, enemy_list, selection):
         # Color Palette
@@ -395,14 +413,15 @@ class LevelManager():
                     if self.player.__class__ == player.Warrior:
                         align = 1
                     elif self.player.__class__ == player.Archer and i == 3:
-                            align = 1
+                        align = 1
                     self.win.blit(temp, (400, self.screen_dim[1] * (0.6 + 0.05 * (i - 1 - align))))
             # Selection Arrow
             if selection != 0:
                 if self.player.__class__ == player.Archer and selection == 1:
                     align = 0
-                pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + (offset - align) * 40), (350, 515 + (offset - align) * 40),
-                                                          (395, 500 + (offset - align) * 40)))
+                pygame.draw.polygon(self.win, (0, 0, 0),
+                                    ((350, 485 + (offset - align) * 40), (350, 515 + (offset - align) * 40),
+                                     (395, 500 + (offset - align) * 40)))
 
     def draw_title_screen(self, start_highlight=False, quit_highlight=False):
         bg_color = (150, 150, 150)
@@ -411,7 +430,8 @@ class LevelManager():
         self.win.fill(bg_color)
         self.win.blit(self.logo, (self.screen_dim[0] // 2 - self.logo.get_width() // 2, int(self.screen_dim[1] * 0.1)))
         temp = self.title.render("Dungeon Rush", False, title_color, bg_color)
-        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] // 3 - temp.get_height() // 2))
+        self.win.blit(temp, (
+        self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] // 3 - temp.get_height() // 2))
         temp = self.header.render("By Tyler Cobb and Chase Minor", False, (0, 0, 0), bg_color)
         self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.37))
 

@@ -9,6 +9,7 @@ LM = level_manager.LevelManager(win, "Title")
 while not done:
     LM.update()
     done = LM.handle_input()
+    win.fill((0, 0, 0))
     LM.draw()
 
 pygame.quit()

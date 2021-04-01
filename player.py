@@ -175,9 +175,6 @@ class Player:
 #        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
 
 
-
-
-
 class Warrior(Player):
 
     def __init__(self, start_pos, image, scale, surf):
@@ -186,8 +183,7 @@ class Warrior(Player):
         self.attack = 60
         self.defense = 40
         self.luck = 0.05
-        self.strike_time = 0
-        self.strike_cooldown = 0
+        self.runner_moves = {"Strike": [0, 0, 0.5]}
         self.abilities = ["Fortify", "Overwhelm"]
         self.attack_image_timer = 0
         self.attack_img = ('images\\sword.png')
@@ -200,21 +196,14 @@ class Warrior(Player):
 
     def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
-        if self.strike_time > 0:
-            self.strike_time -= dt
+        if self.runner_moves["Strike"][0] > 0:
             self.strike(enemy_list)
-            if self.strike_time <= 0:
-                self.strike_cooldown = 0.5
-
-    def global_timers(self, dt):
-        if self.strike_cooldown > 0:
-            self.strike_cooldown -= dt
 
     def handle_running_input(self, evt):
         if evt.type == pygame.MOUSEBUTTONDOWN:
             if evt.button == 1:
-                if self.strike_cooldown <= 0:
-                    self.strike_time = 0.5
+                if self.runner_moves["Strike"][1] <= 0 and self.runner_moves["Strike"][0] <= 0:
+                    self.runner_moves["Strike"][0] = 0.5
         cur_class = super().handle_running_input(evt)
         return cur_class
 
@@ -226,7 +215,7 @@ class Warrior(Player):
 
     def draw(self):
         super().draw()
-        if self.strike_time > 0:
+        if self.runner_moves["Strike"][0] > 0:
             pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
 
 
@@ -239,20 +228,16 @@ class Archer(Player):
         self.defense = 20
         self.luck = 0.08
         self.arrow = None
-        self.snipe_cooldown = 0
+        self.runner_moves = {"Snipe": [0, 0]}
         self.abilities = ["Rapidfire", "Take Cover"]
 
     def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
 
-    def global_timers(self, dt):
-        if self.arrow == None:
-            self.snipe_cooldown -= dt
-
     def handle_running_input(self, evt):
         if evt.type == pygame.MOUSEBUTTONDOWN:
             if evt.button == 1:
-                if self.snipe_cooldown <= 0:
+                if self.runner_moves["Snipe"][1] <= 0:
                     self.snipe(evt.pos)
         cur_class = super().handle_running_input(evt)
         return cur_class
@@ -265,7 +250,7 @@ class Archer(Player):
         self.arrow = Arrow(start_x, self.y, self.surf)
         self.arrow.horizontal_speed = self.arrow.speed * math.cos(angle)
         self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
-        self.snipe_cooldown = 0.75
+        self.runner_moves["Snipe"][1] = 0.75
 
     def draw(self):
         pygame.draw.circle(self.surf, (255, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -324,29 +309,24 @@ class Wizard(Player):
         self.attack = 20
         self.defense = 10
         self.luck = 0.1
-        self.shield_time = 0
-        self.shield_cooldown = 0
-        self.shield_surf = pygame.surface.Surface((self.radius * 2, self.radius * 2))
+        self.runner_moves = {"Shield": [0, 0, 10]}
+        self.shield_surf = pygame.Surface((self.radius * 2, self.radius * 2))
         self.shield_surf.set_colorkey((0, 0, 0))
         self.shield_surf.set_alpha(150)
         pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.radius, self.radius), self.radius)
         self.abilities = ["Thunderbolt", "Blaze"]
 
-    def global_timers(self, dt):
-        if self.shield_time > 0:
-            self.shield_time -= dt
-            opacity = 50 * self.shield_time
+    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
+        super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
+        if self.runner_moves["Shield"][0] > 0:
+            opacity = 50 * self.runner_moves["Shield"][0]
             self.shield_surf.set_alpha(int(opacity))
-            if self.shield_time <= 0:
-                self.shield_cooldown = 10
-        if self.shield_cooldown > 0:
-            self.shield_cooldown -= dt
 
     def handle_running_input(self, evt):
         if evt.type == pygame.MOUSEBUTTONDOWN:
             if evt.button == 1:
-                if self.shield_cooldown <= 0:
-                    self.shield_time = 5
+                if self.runner_moves["Shield"][1] <= 0:
+                    self.runner_moves["Shield"][0] = 5
         cur_class = super().handle_running_input(evt)
         return cur_class
 
