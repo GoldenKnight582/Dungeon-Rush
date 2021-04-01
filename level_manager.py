@@ -20,6 +20,9 @@ class LevelManager():
         self.current_opponent = None
         self.cur_menu = "Main"
 
+        # UI
+        self.runner_abilities = {"Warrior": ["Strike", "idk"], "Archer": ["Shot", "Leap"], "Wizard": ["Shield", "Shrink"]}
+
         # Font
         self.title = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 45)
         self.header = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 30)
@@ -293,6 +296,10 @@ class LevelManager():
     def draw(self):
         self.win.blit(self.cave_img, (self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
+        if self.state == "Runner" or self.state == "Combat":
+            score = self.header.render("Score: " + str(int(self.score)), False, (255, 255, 0))
+            pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
+            self.win.blit(score, (self.win.get_width() - score.get_width() - 15, 5))
         if self.effect_image_timer > 0:
             self.win.blit(self.cur_effect_img, (self.effect_origin, 325))
         if self.cave_scroll_x <= -self.cave_img.get_width():
@@ -304,10 +311,6 @@ class LevelManager():
         elif self.state == "Combat":
             if self.player.selection is not None:
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
-        if self.state == "Runner" or self.state == "Combat":
-            score = self.header.render("Score: " + str(int(self.score)), False, (255, 255, 0))
-            pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
-            self.win.blit(score, (self.win.get_width() - score.get_width() - 15, 5))
         pygame.display.flip()
 
 
@@ -346,6 +349,10 @@ class LevelManager():
                         self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
+        for a in range(len(self.runner_abilities[self.player.__class__.__name__])):
+            size = 40
+            halfsize = 20
+            pygame.draw.rect(self.win, (255, 255, 255), (self.screen_dim[0] // 2 - halfsize - (a * (size + 5)), 5, size, size))
 
     def draw_combat_screen(self, enemy_list, selection):
         # Color Palette
