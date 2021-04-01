@@ -20,6 +20,9 @@ class LevelManager():
         self.current_opponent = None
         self.cur_menu = "Main"
 
+        # UI
+        self.runner_abilities = {"Warrior": ["Strike", "idk"], "Archer": ["Shot", "Leap"], "Wizard": ["Shield", "Shrink"]}
+
         # Font
         self.title = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 45)
         self.header = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 30)
@@ -83,14 +86,14 @@ class LevelManager():
             for x_pos in range(self.CHUNK_SIZE):
                 target_x = x * self.CHUNK_SIZE + x_pos
                 target_y = y * self.CHUNK_SIZE + y_pos
-                tile_type = 0  # nothing
+                tile_type = 0 # nothing
                 height = int(noise.pnoise1(target_x * 0.1, repeat=100000) * 2)
                 if target_y > cal - height * 6:
-                    tile_type = 2  # dirt
+                    tile_type = 2 # dirt
                 elif target_y == cal - height * 6:
-                    tile_type = 1  # grass
+                    tile_type = 1 # grass
                 if tile_type != 0:
-                    chunk_data.append([[target_x, target_y], tile_type])
+                    chunk_data.append([[target_x,target_y],tile_type])
         return chunk_data
 
     def update(self):
@@ -116,10 +119,9 @@ class LevelManager():
                     self.quit_hover = False
 
         elif self.state == "Runner":
-            # Refresh all cooldowns
-            self.runner_cooldowns(delta_time)
-            self.player.update(self.state, self.tile_rects, delta_time, self.turn_count, self.party,
-                               self.onscreen_enemies)
+            for character in self.party:
+                self.party[character].global_timers(delta_time)
+            self.player.update(self.state, self.tile_rects, delta_time, self.turn_count, self.party, self.onscreen_enemies)
             self.arrow = self.party["Archer"].arrow
             if self.arrow is not None:
                 result = self.arrow.update(delta_time, self.onscreen_enemies)
@@ -142,11 +144,10 @@ class LevelManager():
                     self.score += 150
                     break
                 hit = e.update(delta_time, self.player.x, self.player.y)
-                if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0:
+                if hit and self.party["Wizard"].shield_time <= 0:
                     self.combat_encounter = [e]
                     for i in range(random.randint(1, 2)):
-                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20),
-                                                             self.state)
+                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state)
                         self.combat_encounter.append(new_enemy)
                     self.onscreen_enemies.remove(e)
                     for e in self.combat_encounter:
@@ -217,6 +218,10 @@ class LevelManager():
                 self.effect_origin += delta_time + self.effect_speed
             if self.effect_image_timer < 0:
                 self.effect_origin = 225
+
+
+
+
 
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(attacked.defense - 15, attacked.defense)
@@ -318,6 +323,7 @@ class LevelManager():
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
         pygame.display.flip()
 
+
     def draw_level(self):
         self.player.draw()
         if self.party["Wizard"].runner_moves["Shield"][0] > 0:
@@ -332,20 +338,19 @@ class LevelManager():
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
-
+        
         self.tile_rects = []
         for y in range(7):
             for x in range(8):
-                target_x = x - 1 + int(round(scroll[0] / (self.CHUNK_SIZE * 16)))
-                target_y = y - 1 + int(round(scroll[1] / (self.CHUNK_SIZE * 16)))
+                target_x = x - 1 + int(round(scroll[0]/(self.CHUNK_SIZE*16)))
+                target_y = y - 1 + int(round(scroll[1]/(self.CHUNK_SIZE*16)))
                 target_chunk = str(target_x) + ';' + str(target_y)
                 if target_chunk not in self.game_map:
-                    self.game_map[target_chunk] = self.generate_chunk(target_x, target_y)
+                    self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
                     for tile in self.game_map[target_chunk]:
                         if tile[1] == 1 and self.enemy_spawn_timer <= 0:
                             # Spawn enemies
-                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest(
-                                (tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner"))
+                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner"))
                             self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
                     self.score += 1
                     self.distance += 1
