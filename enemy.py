@@ -3,7 +3,7 @@ import pygame
 
 class Enemy:
 
-    def __init__(self, start_pos, state):
+    def __init__(self, start_pos, state, scroll_speed):
         self.x = start_pos[0]
         self.y = start_pos[1]
 #        self.image = pygame.image.load(image)
@@ -15,7 +15,7 @@ class Enemy:
         self.game_state = state
         self.radius = 20
         self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
-        self.speed = 215
+        self.speed = 28.65 * scroll_speed
         self.enemy_point = 100
         self.weapon_collision = False
 
@@ -32,8 +32,8 @@ class Enemy:
 
 class BasicEnemyTypeTest(Enemy):
 
-    def __init__(self, start_pos, state):
-        super().__init__(start_pos, state)
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
         self.health = 100
         self.radius = 20
         self.attack = 30

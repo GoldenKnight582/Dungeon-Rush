@@ -2,7 +2,6 @@ import pygame
 import math
 
 
-
 class Player:
     def __init__(self, start_pos, image, scale, surf):
         self.x = start_pos[0]
@@ -15,8 +14,8 @@ class Player:
 #        self.height *= scale
         self.radius = 20
         self.jump_power = 0
-        self.grav = 10
-        self.speed = 3
+        self.grav = 90
+        self.speed = 5
         self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -47,7 +46,7 @@ class Player:
 #                self.rect.right = tile.left
 #                self.x = self.rect.right - self.radius
 #                collision_types["right"] = True
-        self.y += self.jump_power * self.speed * dt
+        self.y += self.jump_power * 3 * dt
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
         collisions = self.collision_test(tiles)
         for tile in collisions:
@@ -63,9 +62,9 @@ class Player:
 
     def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         if game_state == "Runner":
-            self.jump_power += self.grav * dt + 2
-            if self.jump_power > 65:
-                self.jump_power = 65
+            self.jump_power += (self.grav * dt) ** 2 + 2
+            if self.jump_power > 100:
+                self.jump_power = 100
 
             collisions = self.move_and_collide(tiles, dt)
             if collisions["bottom"]:
@@ -93,7 +92,7 @@ class Player:
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
                 if self.can_jump:
-                    self.jump_power = -100
+                    self.jump_power = -175
                     self.can_jump = False
             elif evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
@@ -187,7 +186,6 @@ class Warrior(Player):
         self.runner_moves = {"Strike": [0, 0, 0.5]}
         self.abilities = ["Fortify", "Overwhelm"]
 
-
     def do_ability(self, opponent, party):
         if self.selection == 1:
             for character in party:
@@ -228,11 +226,8 @@ class Archer(Player):
         self.defense = 20
         self.luck = 0.08
         self.arrow = None
-        self.runner_moves = {"Snipe": [0, 0]}
+        self.runner_moves = {"Snipe": [0, 0, 0.75]}
         self.abilities = ["Rapidfire", "Take Cover"]
-
-    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
-        super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
 
     def handle_running_input(self, evt):
         if evt.type == pygame.MOUSEBUTTONDOWN:
@@ -250,7 +245,7 @@ class Archer(Player):
         self.arrow = Arrow(start_x, self.y, self.surf)
         self.arrow.horizontal_speed = self.arrow.speed * math.cos(angle)
         self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
-        self.runner_moves["Snipe"][1] = 0.75
+        self.runner_moves["Snipe"][1] = self.runner_moves["Snipe"][2]
 
     def draw(self):
         pygame.draw.circle(self.surf, (255, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -325,7 +320,7 @@ class Wizard(Player):
     def handle_running_input(self, evt):
         if evt.type == pygame.MOUSEBUTTONDOWN:
             if evt.button == 1:
-                if self.runner_moves["Shield"][1] <= 0:
+                if self.runner_moves["Shield"][1] <= 0 and self.runner_moves["Shield"][0] <= 0:
                     self.runner_moves["Shield"][0] = 5
         cur_class = super().handle_running_input(evt)
         return cur_class

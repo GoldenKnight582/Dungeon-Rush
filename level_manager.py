@@ -75,7 +75,6 @@ class LevelManager():
         self.thunderbolt_image = pygame.image.load("Images\\lightning.png")
         self.effect_images = self.warrior_attack_img_resize
         self.cur_effect_img = self.effect_images
-        self.effect_image_timer = 0.0
         self.effect_speed = 10
         self.effect_origin = 225
 
@@ -100,6 +99,7 @@ class LevelManager():
         """
         General updates called every frame
         """
+        global mid_attack
         delta_time = self.clock.tick() / 1000
 
         # Title Screen Updates
@@ -118,9 +118,8 @@ class LevelManager():
                 else:
                     self.quit_hover = False
 
-        elif self.state == "Runner":
-            for character in self.party:
-                self.party[character].global_timers(delta_time)
+        if self.state == "Runner":
+            self.runner_cooldowns(delta_time)
             self.player.update(self.state, self.tile_rects, delta_time, self.turn_count, self.party, self.onscreen_enemies)
             self.arrow = self.party["Archer"].arrow
             if self.arrow is not None:
@@ -144,17 +143,19 @@ class LevelManager():
                     self.score += 150
                     break
                 hit = e.update(delta_time, self.player.x, self.player.y)
-                if hit and self.party["Wizard"].shield_time <= 0:
+                if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0:
                     self.combat_encounter = [e]
                     for i in range(random.randint(1, 2)):
-                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state)
+                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
                         self.combat_encounter.append(new_enemy)
                     self.onscreen_enemies.remove(e)
-                    for e in self.combat_encounter:
-                        e.x = 600
-                        e.y = 380
+                    for ec in self.combat_encounter:
+                        ec.x = 600
+                        ec.y = 380
                     for character in self.party:
                         self.party[character].y = 380
+                    self.attack_delay = 0
+                    mid_attack = False
                     self.state = "Combat"
             # Despawn offscreen enemies
             for e in self.onscreen_enemies:
@@ -165,11 +166,24 @@ class LevelManager():
             self.attack_delay -= delta_time
             self.current_opponent = self.combat_encounter[0]
             if self.turn == "Player":
+                if self.attack_delay > 0:
+                    self.effect_origin += delta_time + self.effect_speed
                 if self.cur_menu == "Main":
                     if self.player.selection_made:
                         if self.player.selection == 1:
-                            self.attack(self.player, self.current_opponent)
-                            self.change_turn()
+                            if self.attack_delay <= 0 and not mid_attack:
+                                self.attack_delay = 0.25
+                                self.effect_origin = 215
+                                if self.player.__class__ == player.Warrior:
+                                    self.cur_effect_img = self.warrior_attack_img_resize
+                                elif self.player.__class__ == player.Archer:
+                                    self.cur_effect_img = self.warrior_attack_img_resize    # Swap with arrow image
+                                else:
+                                    self.cur_effect_img = self.warrior_attack_img_resize    # Swap with something else?
+                                mid_attack = True
+                            if self.attack_delay <= 0 and mid_attack:
+                                self.attack(self.player, self.current_opponent)
+                                mid_attack = False
                         elif self.player.selection == 2:
                             self.menu_change("Abilities")
                         elif self.player.selection == 3:
@@ -201,27 +215,19 @@ class LevelManager():
                             self.cur_menu = "Main"
                             self.change_turn()
             if self.turn == "Enemy":
+                if self.attack_delay > 0:
+                    self.effect_origin -= delta_time + self.effect_speed
                 if self.current_opponent:
                     if self.attack_delay <= 0:
+                        self.effect_origin = 500
+                        self.cur_effect_img = self.warrior_attack_img_resize
                         self.attack(self.current_opponent, self.player)
-                        self.change_turn()
                         self.player.selection_made = False
             if self.current_opponent.health <= 0:
                 self.score += 50
                 self.combat_encounter.remove(self.current_opponent)
             if not self.combat_encounter:
                 self.state = "Runner"
-
-            # bliting of image timer
-            if self.effect_image_timer > 0:
-                self.effect_image_timer -= delta_time
-                self.effect_origin += delta_time + self.effect_speed
-            if self.effect_image_timer < 0:
-                self.effect_origin = 225
-
-
-
-
 
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(attacked.defense - 15, attacked.defense)
@@ -231,16 +237,7 @@ class LevelManager():
         if random.randint(crit_chance, 100) == crit_chance:
             damage *= 2
         attacked.health -= damage
-
-        if self.player == self.party["Warrior"] and self.turn == "Player":
-            self.effect_image_timer = 0.25
-            self.cur_effect_img = self.warrior_attack_img_resize
-
-
-
-
-
-
+        self.change_turn()
 
     def menu_change(self, next_menu):
         self.player.selection_made = False
@@ -271,7 +268,7 @@ class LevelManager():
     def change_turn(self):
         if self.turn == "Player":
             self.turn = "Enemy"
-            self.attack_delay = 0.5
+            self.attack_delay = 0.25
         else:
             self.turn = "Player"
         self.turn_count += 1
@@ -310,8 +307,6 @@ class LevelManager():
             score = self.header.render("Score: " + str(int(self.score)), False, (255, 255, 0))
             pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
             self.win.blit(score, (self.win.get_width() - score.get_width() - 15, 5))
-        if self.effect_image_timer > 0:
-            self.win.blit(self.cur_effect_img, (self.effect_origin, 325))
         if self.cave_scroll_x <= -self.cave_img.get_width():
             self.cave_scroll_x = 0
         if self.state == "Title" or self.state == "Resume":
@@ -321,8 +316,9 @@ class LevelManager():
         elif self.state == "Combat":
             if self.player.selection is not None:
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
+                if self.attack_delay > 0:
+                    self.win.blit(self.cur_effect_img, (self.effect_origin, 325))
         pygame.display.flip()
-
 
     def draw_level(self):
         self.player.draw()
@@ -350,7 +346,7 @@ class LevelManager():
                     for tile in self.game_map[target_chunk]:
                         if tile[1] == 1 and self.enemy_spawn_timer <= 0:
                             # Spawn enemies
-                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner"))
+                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner", self.player.speed))
                             self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
                     self.score += 1
                     self.distance += 1
@@ -360,12 +356,16 @@ class LevelManager():
                         self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
-        for a in range(len(self.player.runner_moves)):
+        n = 0
+        for ability in self.player.runner_moves:
+            n += 1
             size = 40
             halfsize = 20
-            rect = pygame.Rect(self.screen_dim[0] // 2 - halfsize - (a * (size + 5)), 5, size, size)
-            pygame.draw.rect(self.win, (255, 255, 255), rect,1)
-            pygame.draw.line(self.win, (179, 0, 119), ())
+            rect = pygame.Rect(self.screen_dim[0] // 2 - halfsize - (n * (size + 5)), 5, size, size)
+            pygame.draw.rect(self.win, (255, 255, 255), rect, 1)
+            if self.player.runner_moves[ability][1] > 0:
+                y_calc = (1 - (self.player.runner_moves[ability][1] / self.player.runner_moves[ability][2])) / 2.5 * 100
+                pygame.draw.line(self.win, (179, 0, 119), (rect.left, rect.top + int(y_calc)), (rect.right, rect.top + int(y_calc)))
 
     def draw_combat_screen(self, enemy_list, selection):
         # Color Palette
@@ -466,7 +466,7 @@ class LevelManager():
         self.quit_rect = temp.get_rect()
         self.quit_rect[0] = self.screen_dim[0] // 2 - temp.get_width() // 2
         self.quit_rect[1] = int(self.screen_dim[1] * 0.6)
-        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.6)))
+        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.63)))
         if self.state == "Resume":
             temp = self.title.render("Score: " + str(self.score), False, title_color, bg_color)
             self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.75)))
