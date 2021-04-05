@@ -15,7 +15,7 @@ class Player:
         self.radius = 20
         self.jump_power = 0
         self.grav = 90
-        self.speed = 5
+        self.speed = 150
         self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -180,10 +180,11 @@ class Warrior(Player):
     def __init__(self, start_pos, image, scale, surf):
         super().__init__(start_pos, image, scale, surf)
         self.health = 250
+        self.max_health = self.health
         self.attack = 60
         self.defense = 40
         self.luck = 0.05
-        self.runner_moves = {"Strike": [0, 0, 0.5]}
+        self.runner_moves = {"Strike": [0, 0, 1]}
         self.abilities = ["Fortify", "Overwhelm"]
 
     def do_ability(self, opponent, party):
@@ -198,15 +199,15 @@ class Warrior(Player):
             self.strike(enemy_list)
 
     def handle_running_input(self, evt):
+        cur_class = super().handle_running_input(evt)
         if evt.type == pygame.MOUSEBUTTONDOWN:
             if evt.button == 1:
                 if self.runner_moves["Strike"][1] <= 0 and self.runner_moves["Strike"][0] <= 0:
                     self.runner_moves["Strike"][0] = 0.5
-        cur_class = super().handle_running_input(evt)
         return cur_class
 
     def strike(self, enemies):
-        collision_rect = pygame.Rect(self.x + self.radius, self.y - self.radius - 10, 60, 70)
+        collision_rect = pygame.Rect(self.x + self.radius, self.y - self.radius - 10, 50, 70)
         for e in enemies:
             if collision_rect.colliderect(e.rect):
                 e.weapon_collision = True
@@ -214,7 +215,7 @@ class Warrior(Player):
     def draw(self):
         super().draw()
         if self.runner_moves["Strike"][0] > 0:
-            pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
+            pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 50, 70), 1)
 
 
 class Archer(Player):
@@ -222,19 +223,20 @@ class Archer(Player):
     def __init__(self, start_pos, image, scale, surf):
         super().__init__(start_pos, image, scale, surf)
         self.health = 180
+        self.max_health = self.health
         self.attack = 45
         self.defense = 20
         self.luck = 0.08
         self.arrow = None
-        self.runner_moves = {"Snipe": [0, 0, 0.75]}
+        self.runner_moves = {"Snipe": [0, 0, 1.5]}
         self.abilities = ["Rapidfire", "Take Cover"]
 
     def handle_running_input(self, evt):
+        cur_class = super().handle_running_input(evt)
         if evt.type == pygame.MOUSEBUTTONDOWN:
             if evt.button == 1:
                 if self.runner_moves["Snipe"][1] <= 0:
                     self.snipe(evt.pos)
-        cur_class = super().handle_running_input(evt)
         return cur_class
 
     def snipe(self, mouse_pos):
@@ -301,6 +303,7 @@ class Wizard(Player):
     def __init__(self, start_pos, image, scale, surf):
         super().__init__(start_pos, image, scale, surf)
         self.health = 120
+        self.max_health = self.health
         self.attack = 20
         self.defense = 10
         self.luck = 0.1
@@ -318,11 +321,11 @@ class Wizard(Player):
             self.shield_surf.set_alpha(int(opacity))
 
     def handle_running_input(self, evt):
+        cur_class = super().handle_running_input(evt)
         if evt.type == pygame.MOUSEBUTTONDOWN:
             if evt.button == 1:
                 if self.runner_moves["Shield"][1] <= 0 and self.runner_moves["Shield"][0] <= 0:
                     self.runner_moves["Shield"][0] = 5
-        cur_class = super().handle_running_input(evt)
         return cur_class
 
     def draw(self):

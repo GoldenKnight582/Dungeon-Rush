@@ -15,7 +15,7 @@ class Enemy:
         self.game_state = state
         self.radius = 20
         self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
-        self.speed = 28.65 * scroll_speed
+        self.speed = scroll_speed
         self.enemy_point = 100
         self.weapon_collision = False
 
@@ -30,7 +30,7 @@ class Enemy:
         return collision
 
 
-class BasicEnemyTypeTest(Enemy):
+class BasicEnemy(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
@@ -47,3 +47,16 @@ class BasicEnemyTypeTest(Enemy):
 
     def draw_portrait(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius // 2)
+
+
+class BasicBoss(Enemy):
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 315
+        self.radius = 50
+        self.attack = 70
+        self.defense = 30
+        self.luck = 0
+
+    def draw(self, surf):
+        pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)

@@ -68,6 +68,7 @@ class LevelManager():
         self.onscreen_enemies = []
         self.spawn_range = (1.7, 3.2)
         self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+        self.available_enemies = [enemy.BasicEnemy]
 
         # spawning of attacks
         self.warrior_attack_img = pygame.image.load("Images\\sword.png")
@@ -77,6 +78,37 @@ class LevelManager():
         self.cur_effect_img = self.effect_images
         self.effect_speed = 10
         self.effect_origin = 225
+
+        # Level Data
+        self.level_dist = 250
+        self.level_timer = 120
+        self.cur_level = 1
+        self.level_boss = enemy.BasicBoss
+        self.boss_defeated = False
+        self.boss_encounter = False
+        self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.level_boss, self.level_dist, self.level_timer],
+                      2: [5, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 750, 160],
+                       3: [6, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 2000, 160]}
+
+    def level_changer(self):
+        """
+        Changes all difficulty parameters to the corresponding values in the levels dictionary
+        """
+        if self.distance >= self.levels[self.cur_level][4] and self.boss_defeated and self.cur_level + 1 in self.levels:
+            self.cur_level += 1
+            self.player.speed = self.levels[self.cur_level][0]
+            self.spawn_range = self.levels[self.cur_level][1]
+            self.available_enemies = self.levels[self.cur_level][2]
+            self.level_boss = self.levels[self.cur_level][3]
+            self.level_dist = self.levels[self.cur_level][4]
+            self.level_timer = self.levels[self.cur_level][5]
+            self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+            self.boss_defeated = False
+            for character in self.party:
+                self.party[character].health = self.party[character].max_health
+        else:
+            self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+            self.boss_defeated = False
 
     def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
@@ -101,6 +133,7 @@ class LevelManager():
         """
         global mid_attack
         delta_time = self.clock.tick() / 1000
+        self.level_timer -= delta_time
 
         # Title Screen Updates
         if self.state == "Title" or self.state == "Resume":
@@ -119,6 +152,7 @@ class LevelManager():
                     self.quit_hover = False
 
         if self.state == "Runner":
+            self.true_scroll[0] += self.player.speed * delta_time
             self.runner_cooldowns(delta_time)
             self.player.update(self.state, self.tile_rects, delta_time, self.turn_count, self.party, self.onscreen_enemies)
             self.arrow = self.party["Archer"].arrow
@@ -138,20 +172,22 @@ class LevelManager():
             self.enemy_spawn_timer -= delta_time
             # Enemy Collision and Combat Generation
             for e in self.onscreen_enemies:
-                if e.weapon_collision:
+                if e.weapon_collision and e.__class__ != enemy.BasicBoss:
                     self.onscreen_enemies.remove(e)
                     self.score += 150
                     break
                 hit = e.update(delta_time, self.player.x, self.player.y)
                 if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0:
+                    if e.__class__ == enemy.BasicBoss:
+                        self.boss_encounter = True
                     self.combat_encounter = [e]
                     for i in range(random.randint(1, 2)):
-                        new_enemy = enemy.BasicEnemyTypeTest((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
+                        new_enemy = enemy.BasicEnemy((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
                         self.combat_encounter.append(new_enemy)
                     self.onscreen_enemies.remove(e)
                     for ec in self.combat_encounter:
                         ec.x = 600
-                        ec.y = 380
+                        ec.y = 400 - e.radius
                     for character in self.party:
                         self.party[character].y = 380
                     self.attack_delay = 0
@@ -227,6 +263,10 @@ class LevelManager():
                 self.score += 50
                 self.combat_encounter.remove(self.current_opponent)
             if not self.combat_encounter:
+                if self.boss_encounter:
+                    self.boss_defeated = True
+                    self.boss_encounter = False
+                    self.level_changer()
                 self.state = "Runner"
 
     def attack(self, attackee, attacked):
@@ -301,14 +341,19 @@ class LevelManager():
                 return True
 
     def draw(self):
+        # Background
         self.win.blit(self.cave_img, (self.cave_scroll_x, 0))
         self.win.blit(self.cave_img, (self.cave_scroll_x + self.cave_img.get_width(), 0))
+        if self.cave_scroll_x <= -self.cave_img.get_width():
+            self.cave_scroll_x = 0
+        # Score and Timer
         if self.state == "Runner" or self.state == "Combat":
             score = self.header.render("Score: " + str(int(self.score)), False, (255, 255, 0))
             pygame.draw.rect(self.win, (0, 0, 0), (0, 0, self.win.get_width(), 50))
             self.win.blit(score, (self.win.get_width() - score.get_width() - 15, 5))
-        if self.cave_scroll_x <= -self.cave_img.get_width():
-            self.cave_scroll_x = 0
+            timer = self.header.render(str(int(self.level_timer)), False, (255, 255, 0))
+            self.win.blit(timer, (self.win.get_width() // 2 - timer.get_width() // 2, 5))
+        # State specific drawing
         if self.state == "Title" or self.state == "Resume":
             self.draw_title_screen(self.start_hover, self.quit_hover)
         elif self.state == "Runner":
@@ -327,14 +372,14 @@ class LevelManager():
                           (int(self.player.x - self.player.radius), int(self.player.y - self.player.radius)))
         if self.arrow is not None:
             self.arrow.draw()
-        self.true_scroll[0] += self.player.speed
         # self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
         # self.true_scroll[0] += 0
         self.true_scroll[1] += 0
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
-        
+
+        # Tile Generation and Enemy Spawning
         self.tile_rects = []
         for y in range(7):
             for x in range(8):
@@ -344,10 +389,13 @@ class LevelManager():
                 if target_chunk not in self.game_map:
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
                     for tile in self.game_map[target_chunk]:
-                        if tile[1] == 1 and self.enemy_spawn_timer <= 0:
+                        if tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance < self.level_dist:
                             # Spawn enemies
-                            self.onscreen_enemies.append(enemy.BasicEnemyTypeTest((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner", self.player.speed))
+                            self.onscreen_enemies.append(enemy.BasicEnemy((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner", self.player.speed))
                             self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+                        elif tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance >= self.level_dist:
+                            self.onscreen_enemies.append(self.level_boss((tile[0][0] * 16 - scroll[0] + 50, tile[0][1] * 16 - scroll[1] - 50), "Runner", self.player.speed))
+                            self.enemy_spawn_timer = 800
                     self.score += 1
                     self.distance += 1
                 for tile in self.game_map[target_chunk]:
@@ -356,12 +404,12 @@ class LevelManager():
                         self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
+        # Ability / Cooldown UI
         n = 0
         for ability in self.player.runner_moves:
             n += 1
             size = 40
-            halfsize = 20
-            rect = pygame.Rect(self.screen_dim[0] // 2 - halfsize - (n * (size + 5)), 5, size, size)
+            rect = pygame.Rect(self.screen_dim[0] * 0.4 - (n * (size + 5)), 5, size, size)
             pygame.draw.rect(self.win, (255, 255, 255), rect, 1)
             if self.player.runner_moves[ability][1] > 0:
                 y_calc = (1 - (self.player.runner_moves[ability][1] / self.player.runner_moves[ability][2])) / 2.5 * 100
