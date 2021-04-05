@@ -73,7 +73,6 @@ class LevelManager():
         # spawning of attacks
         self.warrior_attack_img = pygame.image.load("Images\\sword.png")
         self.warrior_attack_img_resize = pygame.transform.scale(self.warrior_attack_img, (100,100))
-        self.thunderbolt_image = pygame.image.load("Images\\lightning.png")
         self.effect_images = self.warrior_attack_img_resize
         self.cur_effect_img = self.effect_images
         self.effect_speed = 10
@@ -87,8 +86,8 @@ class LevelManager():
         self.boss_defeated = False
         self.boss_encounter = False
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.level_boss, self.level_dist, self.level_timer],
-                      2: [5, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 750, 160],
-                       3: [6, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 2000, 160]}
+                      2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 750, 160],
+                       3: [200, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 2000, 160]}
 
     def level_changer(self):
         """
@@ -199,6 +198,8 @@ class LevelManager():
                     self.onscreen_enemies.remove(e)
 
         if self.state == "Combat":
+            for character in self.party:
+                self.party[character].update(self.state, self.tile_rects, delta_time, self.turn_count, self.party, self.onscreen_enemies)
             self.attack_delay -= delta_time
             self.current_opponent = self.combat_encounter[0]
             if self.turn == "Player":
@@ -363,6 +364,8 @@ class LevelManager():
                 self.draw_combat_screen(self.combat_encounter, self.player.selection)
                 if self.attack_delay > 0:
                     self.win.blit(self.cur_effect_img, (self.effect_origin, 325))
+
+
         pygame.display.flip()
 
     def draw_level(self):
