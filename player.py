@@ -27,6 +27,7 @@ class Player:
         self.fortify_turn = None
         self.sound = pygame.mixer.Sound("audio\\bouncy.wav")
         self.sound.set_volume(0.5)
+        self.event = False
 
     def do_ability(self, opponent, party):
         pass
@@ -192,6 +193,8 @@ class Warrior(Player):
                 party[character].fortify_on = True
                 party[character].defense += 20
 
+
+
     def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
         if self.runner_moves["Strike"][0] > 0:
@@ -215,6 +218,9 @@ class Warrior(Player):
         super().draw()
         if self.runner_moves["Strike"][0] > 0:
             pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
+        if self.event == True:
+            pygame.draw.rect(self.surf, (0, 0, 255), (self.x + self.radius, self.y - self.radius - 10, 60, 70))
+
 
 
 class Archer(Player):
@@ -310,12 +316,23 @@ class Wizard(Player):
         self.shield_surf.set_alpha(150)
         pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.radius, self.radius), self.radius)
         self.abilities = ["Thunderbolt", "Blaze"]
+        self.timer = 0
+        self.light_img = pygame.image.load("images\\lightning.png")
+        self.light_img_resize =  pygame.transform.scale(self.light_img, (100,100))
+        self.effect_origin = 350
+        self.effect_speed = 10
 
     def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
         if self.runner_moves["Shield"][0] > 0:
             opacity = 50 * self.runner_moves["Shield"][0]
             self.shield_surf.set_alpha(int(opacity))
+
+        if self.timer >= 0:
+            self.timer -= dt
+            self.effect_origin += dt + self.effect_speed
+        if self.timer <= 0:
+            self.effect_origin = 300
 
     def handle_running_input(self, evt):
         if evt.type == pygame.MOUSEBUTTONDOWN:
@@ -325,5 +342,16 @@ class Wizard(Player):
         cur_class = super().handle_running_input(evt)
         return cur_class
 
+    def do_ability(self, opponent, party):
+        if self.selection == 1:
+            for character in party:
+                party[character].Thunderbolt_on = True
+                self.timer = 0.25
+
+
+
     def draw(self):
         pygame.draw.circle(self.surf, (0, 0, 255), (int(self.x), int(self.y)), self.radius)
+
+        if self.timer > 0:
+            self.surf.blit(self.light_img_resize, (self.effect_origin, 350))
