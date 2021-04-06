@@ -255,6 +255,21 @@ class Archer(Player):
         self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
         self.runner_moves["Snipe"][1] = self.runner_moves["Snipe"][2]
 
+    def do_ability(self, opponent, party):
+        if self.selection == 1:
+            return Rapidfire()
+
+class Rapidfire:
+    def __init__(self):
+        self.attack = 80
+        self.luck = 0.4
+        self.special_effect = "Pierce"
+        self.effect_chance = 0.8
+        arrow_img = pygame.image.load("images\\unnamed.png")
+        self.image = pygame.transform.scale(arrow_img, (100, 100))
+
+
+
 
 class Arrow:
 
@@ -296,6 +311,7 @@ class Arrow:
         else:
             oob = False
         return oob
+
 
     def draw(self):
         pygame.draw.rect(self.surf, self.color, (int(self.x), int(self.y), 15, 5))
