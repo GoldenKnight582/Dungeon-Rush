@@ -4,6 +4,7 @@ import math
 
 class Player:
     def __init__(self, start_pos, image, scale, surf):
+        self.color = None
         self.x = start_pos[0]
         self.y = start_pos[1]  
 #        self.image = pygame.image.load(image)
@@ -21,13 +22,14 @@ class Player:
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
         self.selection = None
         self.selection_made = False
+        self.special_effect = None
+        self.defense = 0
         self.abilities = []
-        self.fortify_on = False
-        self.fortify_track = None
-        self.fortify_turn = None
+        self.ability_cooldowns = [0, 0]
+        self.buffs = []
+        self.fortify = ["False", 0]
         self.sound = pygame.mixer.Sound("audio\\bouncy.wav")
         self.sound.set_volume(0.5)
-        self.event = False
 
     def do_ability(self, opponent, party):
         pass
@@ -61,7 +63,7 @@ class Player:
 #                collision_types["top"] = True
         return collision_types
 
-    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
+    def update(self, game_state, tiles, dt, enemy_list):
         if game_state == "Runner":
             self.jump_power += (self.grav * dt) ** 2 + 2
             if self.jump_power > 100:
@@ -72,21 +74,16 @@ class Player:
                 self.jump_power = 0.25
                 self.can_jump = True
 
-        if game_state == "Combat":
-            # Fortify Check
-            if self.fortify_on:
-                if self.fortify_track == None:
-                    self.fortify_turn = cur_turn - 1
-                    # - 1 because this code executes a frame AFTER the ability is activated
-                    self.fortify_track = 0
-                if cur_turn != self.fortify_turn and cur_turn % 2 == 1:
-                    self.fortify_track = (cur_turn - self.fortify_turn) // 2
-                if self.fortify_track == 3:
-                    self.fortify_turn = 0
-                    self.fortify_track = 0
-                    self.fortify_on = False
-                    for character in party:
-                        party[character].defense -= 20
+        elif game_state == "Combat":
+            # Apply / Remove Fortify buff
+            if "Fortify" in self.buffs and self.fortify[0] == "False":
+                self.defense *= 1.5
+                self.fortify[0] = "True"
+                self.fortify[1] = 4
+            if self.fortify[1] == 0 and self.fortify[0] == "True":
+                self.defense /= 1.5
+                self.buffs.remove("Fortify")
+                self.fortify[0] = "False"
 
     def handle_running_input(self, evt):
         cur_class = self.__class__.__name__
@@ -95,14 +92,14 @@ class Player:
                 if self.can_jump:
                     self.jump_power = -175
                     self.can_jump = False
-            elif evt.key == pygame.K_q:
+            if evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
                     cur_class = "Wizard"
                 elif self.__class__.__name__ == "Archer":
                     cur_class = "Warrior"
                 else:
                     cur_class = "Archer"
-            elif evt.key == pygame.K_e:
+            if evt.key == pygame.K_e:
                 if self.__class__.__name__ == "Warrior":
                     cur_class = "Archer"
                 elif self.__class__.__name__ == "Archer":
@@ -171,38 +168,43 @@ class Player:
                     self.selection_made = True
 
     def draw(self):
-        pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
+        pygame.draw.circle(self.surf, (self.color), (int(self.x), int(self.y)), self.radius)
         # Collision rect for debug
 #        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
+
+    def draw_portrait(self, x):
+        pygame.draw.circle(self.surf, self.color, (int(x), 25), self.radius // 2)
 
 
 class Warrior(Player):
 
     def __init__(self, start_pos, image, scale, surf):
         super().__init__(start_pos, image, scale, surf)
+        self.color = (0, 255, 0)
         self.health = 250
         self.max_health = self.health
         self.attack = 60
         self.defense = 40
         self.luck = 0.05
-        self.runner_moves = {"Strike": [0, 0, 1]}
+        self.dodge = 0.03
+        self.runner_moves = {"Strike": [0.0, 0, 1]}
         self.abilities = ["Fortify", "Overwhelm"]
+        self.ability_cooldowns = [0, 0, 7, 0]
 
     def do_ability(self, opponent, party):
-        if self.selection == 1:
+        if self.selection == 1 and self.ability_cooldowns[0] == 0:
             for character in party:
-                party[character].fortify_on = True
-                party[character].defense += 20
+                party[character].buffs.append("Fortify")
 
-    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
-        super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
+    def update(self, game_state, tiles, dt, enemy_list):
+        super().update(game_state, tiles, dt, enemy_list)
         if self.runner_moves["Strike"][0] > 0:
             self.strike(enemy_list)
 
     def handle_running_input(self, evt):
         cur_class = super().handle_running_input(evt)
         if evt.type == pygame.MOUSEBUTTONDOWN:
-            if evt.button == 1:
+            if evt.button == 1 and self.can_jump:
                 if self.runner_moves["Strike"][1] <= 0 and self.runner_moves["Strike"][0] <= 0:
                     self.runner_moves["Strike"][0] = 0.5
         return cur_class
@@ -217,23 +219,23 @@ class Warrior(Player):
         super().draw()
         if self.runner_moves["Strike"][0] > 0:
             pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
-        if self.event:
-            pygame.draw.rect(self.surf, (0, 0, 255), (self.x + self.radius, self.y - self.radius - 10, 60, 70))
-
 
 
 class Archer(Player):
 
     def __init__(self, start_pos, image, scale, surf):
         super().__init__(start_pos, image, scale, surf)
+        self.color = (255, 255, 0)
         self.health = 180
         self.max_health = self.health
         self.attack = 45
         self.defense = 20
         self.luck = 0.08
+        self.dodge = 0.06
         self.arrow = None
-        self.runner_moves = {"Snipe": [0, 0, 1.5]}
+        self.runner_moves = {"Snipe": [0, 0, 2.5]}
         self.abilities = ["Rapidfire", "Take Cover"]
+        self.ability_cooldowns = [0, 0, 0, 0]
 
     def handle_running_input(self, evt):
         cur_class = super().handle_running_input(evt)
@@ -252,9 +254,6 @@ class Archer(Player):
         self.arrow.horizontal_speed = self.arrow.speed * math.cos(angle)
         self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
         self.runner_moves["Snipe"][1] = self.runner_moves["Snipe"][2]
-
-    def draw(self):
-        pygame.draw.circle(self.surf, (255, 255, 0), (int(self.x), int(self.y)), self.radius)
 
 
 class Arrow:
@@ -306,34 +305,21 @@ class Wizard(Player):
 
     def __init__(self, start_pos, image, scale, surf):
         super().__init__(start_pos, image, scale, surf)
+        self.color = (0, 0, 255)
         self.health = 120
         self.max_health = self.health
         self.attack = 20
         self.defense = 10
         self.luck = 0.1
+        self.dodge = 0.1
         self.runner_moves = {"Shield": [0, 0, 10]}
         self.shield_surf = pygame.Surface((self.radius * 2, self.radius * 2))
         self.shield_surf.set_colorkey((0, 0, 0))
         self.shield_surf.set_alpha(150)
         pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.radius, self.radius), self.radius)
         self.abilities = ["Thunderbolt", "Blaze"]
-        self.timer = 0
-        self.light_img = pygame.image.load("images\\lightning.png")
-        self.light_img_resize =  pygame.transform.scale(self.light_img, (100,100))
-        self.effect_origin = 350
-        self.effect_speed = 10
-
-    def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
-        super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
-        if self.runner_moves["Shield"][0] > 0:
-            opacity = 50 * self.runner_moves["Shield"][0]
-            self.shield_surf.set_alpha(int(opacity))
-
-        if self.timer >= 0:
-            self.timer -= dt
-            self.effect_origin += dt + self.effect_speed
-        if self.timer <= 0:
-            self.effect_origin = 300
+        self.ability_cooldowns = [0, 0, 5, 0]   # First two numbers are current cooldown, second two are corresponding
+        # starting cooldowns
 
     def handle_running_input(self, evt):
         cur_class = super().handle_running_input(evt)
@@ -345,13 +331,15 @@ class Wizard(Player):
 
     def do_ability(self, opponent, party):
         if self.selection == 1:
-            for character in party:
-                party[character].Thunderbolt_on = True
-                self.timer = 0.25
+            return Thunderbolt()
 
 
+class Thunderbolt:
+    def __init__(self):
+        self.attack = 60
+        self.luck = 0.15
+        self.special_effect = "Stun"
+        self.effect_chance = 0.8
+        bolt_img = pygame.image.load("images\\lightning.png")
+        self.image = pygame.transform.scale(bolt_img, (100, 100))
 
-    def draw(self):
-        pygame.draw.circle(self.surf, (0, 0, 255), (int(self.x), int(self.y)), self.radius)
-        if self.timer > 0:
-            self.surf.blit(self.light_img_resize, (self.effect_origin, 350))

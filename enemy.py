@@ -18,16 +18,27 @@ class Enemy:
         self.speed = scroll_speed
         self.enemy_point = 100
         self.weapon_collision = False
+        self.special_effect = None
+        self.debuffs = []
+        self.stunned = ["False", 0]
 
-    def update(self, dt, player_x, player_y):
-        self.x -= self.speed * dt
-        self.rect.x = self.x - self.radius
-        self.rect.y = self.y - self.radius
-        collision = False
-        # Collision Check
-        if ((self.x - player_x) ** 2 + (self.y - player_y) ** 2) ** 0.5 <= self.radius + 20:
-            collision = True
-        return collision
+    def update(self, dt, player_x, player_y, state):
+        if state == "Runner":
+            self.x -= self.speed * dt
+            self.rect.x = self.x - self.radius
+            self.rect.y = self.y - self.radius
+            collision = False
+            # Collision Check
+            if ((self.x - player_x) ** 2 + (self.y - player_y) ** 2) ** 0.5 <= self.radius + 20:
+                collision = True
+            return collision
+        elif state == "Combat":
+            if "Stun" in self.debuffs and self.stunned[0] == "False":
+                self.stunned[0] = "True"
+                self.stunned[1] = 3
+            if self.stunned[1] == 0 and self.stunned[0] == "True":
+                self.debuffs.remove("Stun")
+                self.stunned[0] = "False"
 
 
 class BasicEnemy(Enemy):
@@ -39,6 +50,7 @@ class BasicEnemy(Enemy):
         self.attack = 30
         self.defense = 10
         self.luck = 0.02
+        self.dodge = 0.02
 
     def draw(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
@@ -57,6 +69,7 @@ class BasicBoss(Enemy):
         self.attack = 70
         self.defense = 30
         self.luck = 0
+        self.dodge = 0
 
     def draw(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
