@@ -87,8 +87,8 @@ class LevelManager():
         self.boss_defeated = False
         self.boss_encounter = False
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.level_boss, self.level_dist, self.level_timer],
-                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 350, 240],
-                       3: [200, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 500, 300]}
+                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 350, 130],
+                       3: [250, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 500, 140]}
 
     def level_changer(self):
         """
@@ -300,6 +300,8 @@ class LevelManager():
                     self.boss_encounter = False
                     self.level_changer()
                 self.state = "Runner"
+                self.player.x = 200
+                self.player.y = self.screen_dim[1] // 2 - 20
 
     def attack(self, attackee, attacked):
         damage = attackee.attack - random.randint(int(attacked.defense - 15), int(attacked.defense))
