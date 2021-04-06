@@ -322,6 +322,9 @@ class Wizard(Player):
         self.light_img_resize =  pygame.transform.scale(self.light_img, (100,100))
         self.effect_origin = 350
         self.effect_speed = 10
+        self.blaze_img = pygame.image.load("images\\blaze.png")
+        self.blaze_img_resize = pygame.transform.scale(self.blaze_img, (100, 100))
+        self.cur_img = self.light_img_resize
 
     def update(self, game_state, tiles, dt, cur_turn, party, enemy_list):
         super().update(game_state, tiles, dt, cur_turn, party, enemy_list)
@@ -348,10 +351,17 @@ class Wizard(Player):
             for character in party:
                 party[character].Thunderbolt_on = True
                 self.timer = 0.25
+                self.cur_img = self.light_img_resize
+        if self.selection == 2:
+            for character in party:
+                party[character].Blaze_on = True
+                self.timer = 0.25
+                self.cur_img = self.blaze_img_resize
+
 
 
 
     def draw(self):
         pygame.draw.circle(self.surf, (0, 0, 255), (int(self.x), int(self.y)), self.radius)
         if self.timer > 0:
-            self.surf.blit(self.light_img_resize, (self.effect_origin, 350))
+            self.surf.blit(self.cur_img, (self.effect_origin, 350))
