@@ -287,6 +287,7 @@ class LevelManager():
                 else:
                     if self.current_opponent.stunned[0] == "True":
                         self.change_turn()
+                        self.attack_delay = 0
                     else:
                         if self.attack_delay > 0:
                             self.effect_origin -= delta_time + self.effect_speed
