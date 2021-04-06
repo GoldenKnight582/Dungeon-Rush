@@ -72,6 +72,8 @@ class LevelManager():
         self.warrior_attack_img_resize = pygame.transform.scale(warrior_attack_img, (100,100))
         bolt_img = pygame.image.load("images\\lightning.png")
         self.bolt_img_icon = pygame.transform.scale(bolt_img, (36, 36))
+        blaze_img = pygame.image.load("images\\blaze.png")
+        self.blaze_img_icon = pygame.transform.scale(blaze_img, (36, 36))
         self.cur_effect_img = None
         self.effect_speed = 10
         self.effect_origin = 225
@@ -262,12 +264,18 @@ class LevelManager():
                         elif self.player.selection == 1:
                             self.player = self.party["Warrior"]
                             self.change_turn()
+                            if self.current_opponent.stunned[0] == "True":
+                                self.attack_delay = 0
                         elif self.player.selection == 2:
                             self.player = self.party["Archer"]
                             self.change_turn()
+                            if self.current_opponent.stunned[0] == "True":
+                                self.attack_delay = 0
                         elif self.player.selection == 3:
                             self.player = self.party["Wizard"]
                             self.change_turn()
+                            if self.current_opponent.stunned[0] == "True":
+                                self.attack_delay = 0
             self.current_opponent.update(delta_time, self.player.x, self.player.y, "Combat")
             if self.turn == "Enemy":
                 if self.current_opponent.stunned[0] == "True":
@@ -343,6 +351,9 @@ class LevelManager():
             self.cur_effect_img = self.warrior_attack_img_resize
             if self.current_opponent.stunned[0] == "True":  # Stun turn timer
                 self.current_opponent.stunned[1] -= 1
+            if self.current_opponent.burned[0] == "True":  # Burn turn timer
+                self.current_opponent.health -= 15
+                self.current_opponent.burned[1] -= 1
         else:
             for character in self.party:
                 if self.party[character].ability_cooldowns[0] > 0:  # Cooldown for ability 1
@@ -491,6 +502,11 @@ class LevelManager():
             # Debuffs Notifications
             if "Stun" in self.current_opponent.debuffs:
                 self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 60))
+            elif "Burn" in self.current_opponent.debuffs:
+                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 60))
+            elif "Stun" in self.current_opponent.debuffs and "Burn" in self.current_opponent.debuffs:
+                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 25, self.current_opponent.y - 60))
+                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 15, self.current_opponent.y - 60))
         if len(self.combat_encounter) > 1:
             # Show Upcoming Enemy
             temp = self.normal.render("Next Enemy:", False, text_color)

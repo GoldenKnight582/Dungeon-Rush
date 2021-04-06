@@ -21,6 +21,7 @@ class Enemy:
         self.special_effect = None
         self.debuffs = []
         self.stunned = ["False", 0]
+        self.burned = ["False", 0]
 
     def update(self, dt, player_x, player_y, state):
         if state == "Runner":
@@ -39,6 +40,12 @@ class Enemy:
             if self.stunned[1] == 0 and self.stunned[0] == "True":
                 self.debuffs.remove("Stun")
                 self.stunned[0] = "False"
+            if "Burn" in self.debuffs and self.burned[0] == "False":
+                self.burned[0] = "True"
+                self.burned[1] = 2
+            if self.burned[1] == 0 and self.burned[0] == "True":
+                self.debuffs.remove("Burn")
+                self.burned[0] = "False"
 
 
 class BasicEnemy(Enemy):

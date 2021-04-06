@@ -318,7 +318,7 @@ class Wizard(Player):
         self.shield_surf.set_alpha(150)
         pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.radius, self.radius), self.radius)
         self.abilities = ["Thunderbolt", "Blaze"]
-        self.ability_cooldowns = [0, 0, 5, 0]   # First two numbers are current cooldown, second two are corresponding
+        self.ability_cooldowns = [0, 0, 5, 7]   # First two numbers are current cooldown, second two are corresponding
         # starting cooldowns
 
     def handle_running_input(self, evt):
@@ -332,6 +332,8 @@ class Wizard(Player):
     def do_ability(self, opponent, party):
         if self.selection == 1:
             return Thunderbolt()
+        if self.selection == 2:
+            return Blaze()
 
 
 class Thunderbolt:
@@ -342,4 +344,14 @@ class Thunderbolt:
         self.effect_chance = 0.8
         bolt_img = pygame.image.load("images\\lightning.png")
         self.image = pygame.transform.scale(bolt_img, (100, 100))
+
+
+class Blaze:
+    def __init__(self):
+        self.attack = 80
+        self.luck = 0.1
+        self.special_effect = "Burn"
+        self.effect_chance = 0.6
+        blaze_img = pygame.image.load("images\\blaze.png")
+        self.image = pygame.transform.scale(blaze_img, (100, 100))
 
