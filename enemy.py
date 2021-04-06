@@ -20,8 +20,10 @@ class Enemy:
         self.weapon_collision = False
         self.special_effect = None
         self.debuffs = []
+        self.defense = 0
         self.stunned = ["False", 0]
         self.burned = ["False", 0]
+        self.pierced = ["False", 0]
 
     def update(self, dt, player_x, player_y, state):
         if state == "Runner":
@@ -34,6 +36,7 @@ class Enemy:
                 collision = True
             return collision
         elif state == "Combat":
+            # Add / Remove Debuffs
             if "Stun" in self.debuffs and self.stunned[0] == "False":
                 self.stunned[0] = "True"
                 self.stunned[1] = 3
@@ -46,6 +49,14 @@ class Enemy:
             if self.burned[1] == 0 and self.burned[0] == "True":
                 self.debuffs.remove("Burn")
                 self.burned[0] = "False"
+            if "Pierce" in self.debuffs and self.pierced[0] == "False":
+                self.pierced[0] = "True"
+                self.defense /= 2
+                self.pierced[1] = 2
+            if self.pierced[1] == 0 and self.pierced[0] == "True":
+                self.debuffs.remove("Pierce")
+                self.defense *= 2
+                self.pierced[0] = "False"
 
 
 class BasicEnemy(Enemy):

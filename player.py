@@ -24,10 +24,13 @@ class Player:
         self.selection_made = False
         self.special_effect = None
         self.defense = 0
+        self.dodge = 0
+        self.base_dodge = 0
         self.abilities = []
         self.ability_cooldowns = [0, 0]
         self.buffs = []
         self.fortify = ["False", 0]
+        self.cover = ["False", 0]
         self.sound = pygame.mixer.Sound("audio\\bouncy.wav")
         self.sound.set_volume(0.5)
 
@@ -84,6 +87,15 @@ class Player:
                 self.defense /= 1.5
                 self.buffs.remove("Fortify")
                 self.fortify[0] = "False"
+            # Apply / Remove Cover buff
+            if "Cover" in self.buffs and self.cover[0] == "False":
+                self.dodge = 0.25
+                self.cover[0] = "True"
+                self.cover[1] = 4
+            if self.cover[1] == 0 and self.cover[0] == "True":
+                self.dodge = self.base_dodge
+                self.buffs.remove("Cover")
+                self.cover[0] = "False"
 
     def handle_running_input(self, evt):
         cur_class = self.__class__.__name__
@@ -187,6 +199,7 @@ class Warrior(Player):
         self.defense = 40
         self.luck = 0.05
         self.dodge = 0.03
+        self.base_dodge = 0.03
         self.runner_moves = {"Strike": [0.0, 0, 1]}
         self.abilities = ["Fortify", "Overwhelm"]
         self.ability_cooldowns = [0, 0, 7, 0]
@@ -232,10 +245,11 @@ class Archer(Player):
         self.defense = 20
         self.luck = 0.08
         self.dodge = 0.06
+        self.base_dodge = 0.06
         self.arrow = None
         self.runner_moves = {"Snipe": [0, 0, 2.5]}
         self.abilities = ["Rapidfire", "Take Cover"]
-        self.ability_cooldowns = [0, 0, 0, 0]
+        self.ability_cooldowns = [0, 0, 6, 7]
 
     def handle_running_input(self, evt):
         cur_class = super().handle_running_input(evt)
@@ -258,6 +272,10 @@ class Archer(Player):
     def do_ability(self, opponent, party):
         if self.selection == 1:
             return Rapidfire()
+        if self.selection == 2 and self.ability_cooldowns[1] == 0:
+            for character in party:
+                party[character].buffs.append("Cover")
+
 
 class Rapidfire:
     def __init__(self):
@@ -266,9 +284,7 @@ class Rapidfire:
         self.special_effect = "Pierce"
         self.effect_chance = 0.8
         arrow_img = pygame.image.load("images\\unnamed.png")
-        self.image = pygame.transform.scale(arrow_img, (100, 100))
-
-
+        self.image = pygame.transform.scale(arrow_img, (arrow_img.get_width() // 4, arrow_img.get_height() // 4))
 
 
 class Arrow:
@@ -276,13 +292,15 @@ class Arrow:
     def __init__(self, start_x, start_y, surf):
         self.x = start_x
         self.y = start_y
-#       self.image = pygame.image.load(" ")
-        self.radius = 5
+        arrow_img = pygame.image.load("images\\unnamed.png")
+        self.image = pygame.transform.scale(arrow_img, (arrow_img.get_width() // 10, arrow_img.get_height() // 10))
         self.color = (153, 85, 49)
         self.speed = 700
         self.horizontal_speed = 0
         self.vertical_speed = 0
         self.surf = surf
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.width_edge = surf.get_width()
         self.height_edge = surf.get_height()
 
@@ -292,7 +310,7 @@ class Arrow:
         self.y += self.vertical_speed * dt
 
         # Collision with enemies
-        collision_rect = pygame.Rect(int(self.x), int(self.y), 15, 5)
+        collision_rect = pygame.Rect(int(self.x), int(self.y), self.width, self.height)
         for e in enemies:
             if collision_rect.colliderect(e.rect):
                 e.weapon_collision = True
@@ -300,21 +318,20 @@ class Arrow:
                 return hit
 
         # Boundary check
-        if self.y + self.radius > self.height_edge:
+        if self.y + self.height > self.height_edge:
             oob = True  # Out of bounds
-        elif self.y - self.radius < 0:
+        elif self.y  < 0:
             oob = True
-        elif self.x - self.radius < 0:
+        elif self.x < 0:
             oob = True
-        elif self.x + self.radius > self.width_edge:
+        elif self.x + self.width > self.width_edge:
             oob = True
         else:
             oob = False
         return oob
 
-
     def draw(self):
-        pygame.draw.rect(self.surf, self.color, (int(self.x), int(self.y), 15, 5))
+        self.surf.blit(self.image, (int(self.x), int(self.y)))
 
 
 class Wizard(Player):
@@ -328,6 +345,7 @@ class Wizard(Player):
         self.defense = 10
         self.luck = 0.1
         self.dodge = 0.1
+        self.base_dodge = 0.1
         self.runner_moves = {"Shield": [0, 0, 10]}
         self.shield_surf = pygame.Surface((self.radius * 2, self.radius * 2))
         self.shield_surf.set_colorkey((0, 0, 0))

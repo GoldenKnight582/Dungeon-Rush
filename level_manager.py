@@ -89,10 +89,7 @@ class LevelManager():
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.level_boss, self.level_dist, self.level_timer],
                        2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 750, 240],
                        3: [200, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 2000, 300],
-                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 750, 160],
-                       3: [200, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 2000, 160],
                        4: [200, (1.5, 3), [enemy.SecondEnemy], enemy.BasicBoss, 750, 160]}
-
 
     def level_changer(self):
         """
@@ -285,17 +282,20 @@ class LevelManager():
                                 self.attack_delay = 0
             self.current_opponent.update(delta_time, self.player.x, self.player.y, "Combat")
             if self.turn == "Enemy":
-                if self.current_opponent.stunned[0] == "True":
+                if self.current_opponent.health <= 0:
+                    self.score += 50
+                    self.combat_encounter.remove(self.current_opponent)
                     self.change_turn()
+                    self.attack_delay = 0
                 else:
-                    if self.attack_delay > 0:
-                        self.effect_origin -= delta_time + self.effect_speed
-                    elif self.attack_delay <= 0:
-                        self.attack(self.current_opponent, self.player)
+                    if self.current_opponent.stunned[0] == "True":
                         self.change_turn()
-            if self.current_opponent.health <= 0:
-                self.score += 50
-                self.combat_encounter.remove(self.current_opponent)
+                    else:
+                        if self.attack_delay > 0:
+                            self.effect_origin -= delta_time + self.effect_speed
+                        elif self.attack_delay <= 0:
+                            self.attack(self.current_opponent, self.player)
+                            self.change_turn()
             if not self.combat_encounter:
                 if self.boss_encounter:
                     self.boss_defeated = True
@@ -361,6 +361,8 @@ class LevelManager():
             if self.current_opponent.burned[0] == "True":  # Burn turn timer
                 self.current_opponent.health -= 15
                 self.current_opponent.burned[1] -= 1
+            if self.current_opponent.pierced[0] == "True":  # Pierce turn timer
+                self.current_opponent.pierced[1] -= 1
         else:
             for character in self.party:
                 if self.party[character].ability_cooldowns[0] > 0:  # Cooldown for ability 1
@@ -512,6 +514,9 @@ class LevelManager():
                 self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 60))
             elif "Burn" in self.current_opponent.debuffs:
                 self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 60))
+            elif "Pierce" in self.current_opponent.debuffs:
+                temp = self.normal.render("Defense Down!", False, (186, 24, 70))
+                self.win.blit(temp, (self.current_opponent.x - temp.get_width() // 2, self.current_opponent.y - 60))
             elif "Stun" in self.current_opponent.debuffs and "Burn" in self.current_opponent.debuffs:
                 self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 25, self.current_opponent.y - 60))
                 self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 15, self.current_opponent.y - 60))
