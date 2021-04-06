@@ -89,9 +89,9 @@ class Player:
                 self.fortify[0] = "False"
             # Apply / Remove Cover buff
             if "Cover" in self.buffs and self.cover[0] == "False":
-                self.dodge = 0.25
+                self.dodge = 0.33
                 self.cover[0] = "True"
-                self.cover[1] = 4
+                self.cover[1] = 5
             if self.cover[1] == 0 and self.cover[0] == "True":
                 self.dodge = self.base_dodge
                 self.buffs.remove("Cover")
@@ -202,12 +202,14 @@ class Warrior(Player):
         self.base_dodge = 0.03
         self.runner_moves = {"Strike": [0.0, 0, 1]}
         self.abilities = ["Fortify", "Overwhelm"]
-        self.ability_cooldowns = [0, 0, 7, 0]
+        self.ability_cooldowns = [0, 0, 7, 9]
 
     def do_ability(self, opponent, party):
         if self.selection == 1 and self.ability_cooldowns[0] == 0:
             for character in party:
                 party[character].buffs.append("Fortify")
+        elif self.selection == 2:
+            return Overwhelm()
 
     def update(self, game_state, tiles, dt, enemy_list):
         super().update(game_state, tiles, dt, enemy_list)
@@ -232,6 +234,16 @@ class Warrior(Player):
         super().draw()
         if self.runner_moves["Strike"][0] > 0:
             pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
+
+
+class Overwhelm:
+    def __init__(self):
+        self.attack = 100
+        self.luck = 0.15
+        self.special_effect = None
+        self.effect_chance = None
+        sword_img = pygame.image.load("images\\sword.png")
+        self.image = pygame.transform.scale(sword_img, (100, 100))
 
 
 class Archer(Player):

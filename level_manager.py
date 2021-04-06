@@ -68,7 +68,7 @@ class LevelManager():
         self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
 
         # spawning of attacks
-        warrior_attack_img = pygame.image.load("Images\\sword.png")
+        warrior_attack_img = pygame.image.load("images\\sword.png")
         self.warrior_attack_img_resize = pygame.transform.scale(warrior_attack_img, (100,100))
         bolt_img = pygame.image.load("images\\lightning.png")
         self.bolt_img_icon = pygame.transform.scale(bolt_img, (36, 36))
@@ -79,17 +79,16 @@ class LevelManager():
         self.effect_origin = 225
 
         # Level Data
-        self.level_dist = 250
+        self.level_dist = 150
         self.level_timer = 120
         self.cur_level = 1
-        self.available_enemies = [enemy.BasicEnemy]
+        self.available_enemies = [enemy.BasicEnemy, enemy.SecondEnemy]
         self.level_boss = enemy.BasicBoss
         self.boss_defeated = False
         self.boss_encounter = False
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.level_boss, self.level_dist, self.level_timer],
-                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 750, 240],
-                       3: [200, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 2000, 300],
-                       4: [200, (1.5, 3), [enemy.SecondEnemy], enemy.BasicBoss, 750, 160]}
+                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 350, 240],
+                       3: [200, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 500, 300]}
 
     def level_changer(self):
         """
@@ -187,11 +186,9 @@ class LevelManager():
                         self.boss_encounter = True
                     self.combat_encounter = [e]
                     for i in range(random.randint(1, 2)):
-                        new_enemy = enemy.BasicEnemy((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
-                        new_enemy_two = enemy.SecondEnemy((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20),
-                                                     self.state, self.player.speed)
+                        next_enemy = random.randint(0, len(self.available_enemies) - 1)
+                        new_enemy = self.available_enemies[next_enemy]((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
                         self.combat_encounter.append(new_enemy)
-                        self.combat_encounter.append(new_enemy_two)
                     self.onscreen_enemies.remove(e)
                     for ec in self.combat_encounter:
                         ec.x = 600
@@ -371,6 +368,8 @@ class LevelManager():
                     self.party[character].ability_cooldowns[1] -= 1
                 if self.party[character].fortify[0] == "True":   # Fortify turn timer
                     self.party[character].fortify[1] -= 1
+                if self.party[character].cover[0] == "True":
+                    self.party[character].cover[1] -= 1
             self.turn = "Player"
         self.menu_change("Main")
         self.turn_count += 1
@@ -462,8 +461,9 @@ class LevelManager():
                     for tile in self.game_map[target_chunk]:
                         if tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance < self.level_dist:
                             # Spawn enemies
-                            next_enemy = self.available_enemies[random.randint(0, len(self.available_enemies) - 1)]
-                            self.onscreen_enemies.append(next_enemy((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1] - 20), "Runner", self.player.speed))
+                            next_enemy = self.available_enemies[random.randint(0, len(self.available_enemies) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), "Runner", self.player.speed)
+                            next_enemy.y -= next_enemy.radius
+                            self.onscreen_enemies.append(next_enemy)
                             self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
                         elif tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance >= self.level_dist:
                             self.onscreen_enemies.append(self.level_boss((tile[0][0] * 16 - scroll[0] + 50, tile[0][1] * 16 - scroll[1] - 50), "Runner", self.player.speed))
@@ -504,22 +504,28 @@ class LevelManager():
         offset = self.player.selection - 1
         self.player.draw()
         # Buff Notifications
-        if "Fortify" in self.player.buffs:
+        if "Fortify" in self.player.buffs and "Cover" in self.player.buffs:
+            temp = self.normal.render("Defense and Dodge Up!", False, (11, 29, 227))
+            self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 60))
+        elif "Fortify" in self.player.buffs:
             temp = self.normal.render("Defense Up!", False, (11, 29, 227))
+            self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 60))
+        elif "Cover" in self.player.buffs:
+            temp = self.normal.render("Dodge Up!", False, (11, 29, 227))
             self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 60))
         if self.current_opponent:
             self.current_opponent.draw(self.win)
             # Debuffs Notifications
-            if "Stun" in self.current_opponent.debuffs:
-                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 60))
+            if "Stun" in self.current_opponent.debuffs and "Burn" in self.current_opponent.debuffs:
+                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 25, self.current_opponent.y - 150))
+                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 15, self.current_opponent.y - 150))
+            elif "Stun" in self.current_opponent.debuffs:
+                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 150))
             elif "Burn" in self.current_opponent.debuffs:
-                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 60))
-            elif "Pierce" in self.current_opponent.debuffs:
+                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 150))
+            if "Pierce" in self.current_opponent.debuffs:
                 temp = self.normal.render("Defense Down!", False, (186, 24, 70))
                 self.win.blit(temp, (self.current_opponent.x - temp.get_width() // 2, self.current_opponent.y - 60))
-            elif "Stun" in self.current_opponent.debuffs and "Burn" in self.current_opponent.debuffs:
-                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 25, self.current_opponent.y - 60))
-                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 15, self.current_opponent.y - 60))
         if len(self.combat_encounter) > 1:
             # Show Upcoming Enemy
             temp = self.normal.render("Next Enemy:", False, text_color)

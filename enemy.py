@@ -78,6 +78,7 @@ class BasicEnemy(Enemy):
     def draw_portrait(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius // 2)
 
+
 class SecondEnemy(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
