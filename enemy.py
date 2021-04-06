@@ -67,6 +67,25 @@ class BasicEnemy(Enemy):
     def draw_portrait(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius // 2)
 
+class SecondEnemy(Enemy):
+
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 60
+        self.radius = 10
+        self.attack = 20
+        self.defense = 5
+        self.luck = 0.02
+        self.dodge = 0.02
+
+    def draw(self, surf):
+        pygame.draw.circle(surf, (100, 100, 0), (int(self.x), int(self.y)), self.radius)
+        # Debug Collision
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+
+    def draw_portrait(self, surf):
+        pygame.draw.circle(surf, (100, 100, 0), (720, 200), self.radius // 2)
+
 
 class BasicBoss(Enemy):
     def __init__(self, start_pos, state, scroll_speed):
