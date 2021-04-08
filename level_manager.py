@@ -90,7 +90,7 @@ class LevelManager():
                        2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 350, 130],
                        3: [250, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 500, 140]}
 
-        self.chunk_timer = 5
+        self.chunk_timer = 2
         self.pit = False
 
     def level_changer(self):
@@ -122,7 +122,7 @@ class LevelManager():
                 target_y = y * self.CHUNK_SIZE + y_pos
                 tile_type = 0 # nothing
                 #height = int(noise.pnoise1(target_x * 0.1, repeat=100000) * 2)
-                if self.chunk_timer > 0:
+                if self.pit == False:
                     if target_y > cal:
                         tile_type = 2 # dirt
                     elif target_y == cal:
@@ -151,7 +151,7 @@ class LevelManager():
             if self.pit == True:
                 self.chunk_timer = 0.1
             else:
-                self.chunk_timer = 5
+                self.chunk_timer = 2
 
 
         # Title Screen Updates

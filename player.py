@@ -16,7 +16,7 @@ class Player:
         self.radius = 20
         self.jump_power = 0
         self.grav = 90
-        self.speed = 150
+        self.speed = 450
         self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -102,7 +102,7 @@ class Player:
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
                 if self.can_jump:
-                    self.jump_power = -175
+                    self.jump_power = -125
                     self.can_jump = False
             if evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
