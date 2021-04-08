@@ -82,7 +82,7 @@ class LevelManager():
         self.level_dist = 150
         self.level_timer = 120
         self.cur_level = 1
-        self.available_enemies = [enemy.BasicEnemy, enemy.SecondEnemy]
+        self.available_enemies = [enemy.SecondEnemy]
         self.level_boss = enemy.BasicBoss
         self.boss_defeated = False
         self.boss_encounter = False
@@ -199,7 +199,7 @@ class LevelManager():
                     self.onscreen_enemies.remove(e)
                     self.score += 150
                     break
-                hit = e.update(delta_time, self.player.x, self.player.y, "Runner")
+                hit = e.update(delta_time, self.player.rect, "Runner")
                 if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0 or hit and e.__class__ == enemy.BasicBoss:
                     if e.__class__ == enemy.BasicBoss:
                         self.boss_encounter = True
@@ -296,7 +296,7 @@ class LevelManager():
                             self.change_turn()
                             if self.current_opponent.stunned[0] == "True":
                                 self.attack_delay = 0
-            self.current_opponent.update(delta_time, self.player.x, self.player.y, "Combat")
+            self.current_opponent.update(delta_time, self.player.rect, "Combat")
             if self.turn == "Enemy":
                 if self.current_opponent.health <= 0:
                     self.score += 50
