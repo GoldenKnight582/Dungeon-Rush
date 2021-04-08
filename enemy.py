@@ -91,14 +91,11 @@ class SecondEnemy(Enemy):
         self.dodge = 0.02
         self.wolf_img = pygame.image.load("images\\wolf.png")
         self.wolf_img_flip = pygame.transform.flip(self.wolf_img, True, False)
-        self.rect = pygame.Rect(int(self.x + 25),int(self.y - self.wolf_img_flip.get_height() / 2), int(self.wolf_img_flip.get_width() - 25) ,int(self.wolf_img_flip.get_height()) - 25)
-
-
-
-
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.wolf_img_flip.get_width() - 25), int(self.wolf_img_flip.get_height()) - 25)
+        self.height = int(self.wolf_img_flip.get_height()) - 10
 
     def draw(self, surf):
-        surf.blit(self.wolf_img_flip, (int(self.x), (int(self.y - 80))))
+        surf.blit(self.wolf_img_flip, (int(self.x), int(self.y)))
         pygame.draw.rect(surf, (255,0,0), self.rect, 1)
         # Debug Collision
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
