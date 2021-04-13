@@ -145,6 +145,7 @@ class BasicBoss(Enemy):
         self.radius = 50
         self.attack = 70
         self.defense = 30
+        self.height = 100
         self.luck = 0
         self.dodge = 0
 

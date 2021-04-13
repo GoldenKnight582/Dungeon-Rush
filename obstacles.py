@@ -32,8 +32,8 @@ class Obstacle:
 class Barricade(Obstacle):
     def __init__(self, start_pos, scroll_speed):
         super().__init__(start_pos, scroll_speed)
-        self.width = 20
-        self.height = 20
+        self.width = 30
+        self.height = 150
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
 
