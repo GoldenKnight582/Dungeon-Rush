@@ -520,8 +520,8 @@ class LevelManager():
             self.current_opponent.draw(self.win)
             # Debuffs Notifications
             if "Stun" in self.current_opponent.debuffs and "Burn" in self.current_opponent.debuffs:
-                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 25, self.current_opponent.y - 150))
-                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 15, self.current_opponent.y - 150))
+                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 20, self.current_opponent.y - 150))
+                self.win.blit(self.blaze_img_icon, (self.current_opponent.x + 20, self.current_opponent.y - 150))
             elif "Stun" in self.current_opponent.debuffs:
                 self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 150))
             elif "Burn" in self.current_opponent.debuffs:
