@@ -83,7 +83,7 @@ class LevelManager():
         self.level_dist = 1000
         self.level_timer = 60
         self.cur_level = 1
-        self.available_enemies = [enemy.SecondEnemy]
+        self.available_enemies = [enemy.BasicEnemy,enemy.SecondEnemy]
         self.level_boss = enemy.BasicBoss
         self.boss_defeated = False
         self.boss_encounter = False

@@ -70,14 +70,18 @@ class BasicEnemy(Enemy):
         self.defense = 10
         self.luck = 0.02
         self.dodge = 0.02
+        self.slime_img = pygame.image.load("images\\Slime.png")
+        self.slime_small_img = pygame.image.load("images\\Slime_small.png")
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.slime_img.get_width()),int(self.slime_img.get_height()) - 10)
+        self.height = int(self.slime_img.get_height()) - 10
 
     def draw(self, surf):
-        pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
+        surf.blit(self.slime_img, (int(self.x), int(self.y)))
         # Debug Collision
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        pygame.draw.circle(surf, (255, 0, 0), (720, 200), self.radius // 2)
+        surf.blit(self.slime_small_img, (700,200))
 
 
 class SecondEnemy(Enemy):
