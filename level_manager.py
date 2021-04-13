@@ -17,6 +17,7 @@ class LevelManager():
                       player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
         self.player = self.party["Warrior"]
         self.cur_menu = "Main"
+        self.respawning = False
 
         # Font
         self.title = pygame.font.Font("Fonts\\Orbitron-Regular.ttf", 45)
@@ -135,6 +136,17 @@ class LevelManager():
                     chunk_data.append([[target_x,target_y],tile_type])
         return chunk_data
 
+    def respawn(self, dt):
+        self.player.y = self.screen_dim[1] // 2 - 20
+        for tile in self.tile_rects:
+            if tile.x > self.player.x:
+                self.player.x = tile.x
+                self.player.update(self.state, self.tile_rects, dt, self.onscreen_enemies)
+                if self.player.can_jump:
+                    self.true_scroll[0] += tile.x - self.true_scroll[0]
+                    break
+        self.respawning = False
+
     def update(self):
         """
         General updates called every frame
@@ -143,17 +155,18 @@ class LevelManager():
         delta_time = self.clock.tick() / 1000
         self.level_timer -= delta_time
 
-        if self.chunk_timer >= 0:
-            self.chunk_timer -= delta_time
-        if self.chunk_timer <= 0:
-            self.pit = not self.pit
-            if self.pit:
-                self.chunk_timer = random.uniform(0.1, 0.3)
-            else:
-                self.chunk_timer = random.uniform(1.5, 2)
-        if self.player.y < self.screen_dim[1] // 2:
-            for character in self.party:
-                self.party[character].health -= 20
+        if not self.respawning:
+            if self.chunk_timer >= 0:
+                self.chunk_timer -= delta_time
+            if self.chunk_timer <= 0:
+                self.pit = not self.pit
+                if self.pit:
+                    self.chunk_timer = random.uniform(0.1, 0.3)
+                else:
+                    self.chunk_timer = random.uniform(1.5, 2)
+            if self.player.y < self.screen_dim[1] // 2:
+                for character in self.party:
+                    self.party[character].health -= 20
 
 
         # Title Screen Updates
@@ -173,9 +186,15 @@ class LevelManager():
                     self.quit_hover = False
 
         if self.state == "Runner":
-            self.true_scroll[0] += self.player.speed * delta_time
-            self.runner_cooldowns(delta_time)
+            if not self.respawning:
+                self.true_scroll[0] += self.player.speed * delta_time
+                self.cave_scroll_x -= 50 * delta_time
+                self.runner_cooldowns(delta_time)
             self.player.update(self.state, self.tile_rects, delta_time, self.onscreen_enemies)
+            if self.player.y > self.screen_dim[1] // 2 - 19:
+                self.respawning = True
+            if self.player.y > self.screen_dim[1]:
+                self.respawn(delta_time)
             # Updates for abilities that extend beyond just the player
             self.arrow = self.party["Archer"].arrow
             if self.party["Archer"].arrow is not None:
@@ -190,7 +209,6 @@ class LevelManager():
                 self.player.speed += 100
             elif self.party["Archer"].runner_moves["Dash"][0] <= 0:
                 self.player.speed = self.levels[self.cur_level][0]
-            self.cave_scroll_x -= 50 * delta_time
             for e in self.onscreen_enemies:
                 if e.x <= self.distance:
                     self.score += e.enemy_point
@@ -207,28 +225,29 @@ class LevelManager():
                     self.onscreen_enemies.remove(e)
                     self.score += 150
                     break
-                hit = e.update(delta_time, self.player.rect, "Runner")
-                if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0 or hit and e.__class__ == enemy.BasicBoss:
-                    if e.__class__ == enemy.BasicBoss:
-                        self.boss_encounter = True
-                    self.combat_encounter = [e]
-                    for i in range(random.randint(1, 2)):
-                        next_enemy = random.randint(0, len(self.available_enemies) - 1)
-                        new_enemy = self.available_enemies[next_enemy]((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
-                        self.combat_encounter.append(new_enemy)
-                    self.onscreen_enemies.remove(e)
-                    for ec in self.combat_encounter:
-                        ec.x = 600
-                        ec.y = 400 - e.height // 2
-                    for character in self.party:
-                        self.party[character].y = 380
-                    self.attack_delay = 0
-                    mid_attack = False
-                    self.state = "Combat"
-            # Despawn offscreen enemies
-            for e in self.onscreen_enemies:
-                if e.x + e.radius <= 0:
-                    self.onscreen_enemies.remove(e)
+                if not self.respawning:
+                    hit = e.update(delta_time, self.player.rect, "Runner")
+                    if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0 or hit and e.__class__ == enemy.BasicBoss:
+                        if e.__class__ == enemy.BasicBoss:
+                            self.boss_encounter = True
+                        self.combat_encounter = [e]
+                        for i in range(random.randint(1, 2)):
+                            next_enemy = random.randint(0, len(self.available_enemies) - 1)
+                            new_enemy = self.available_enemies[next_enemy]((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
+                            self.combat_encounter.append(new_enemy)
+                        self.onscreen_enemies.remove(e)
+                        for ec in self.combat_encounter:
+                            ec.x = 600
+                            ec.y = 400 - e.height // 2
+                        for character in self.party:
+                            self.party[character].y = 380
+                        self.attack_delay = 0
+                        mid_attack = False
+                        self.state = "Combat"
+                # Despawn offscreen enemies
+                for e in self.onscreen_enemies:
+                    if e.x + e.radius <= 0:
+                        self.onscreen_enemies.remove(e)
 
         if self.state == "Combat":
             for character in self.party:
