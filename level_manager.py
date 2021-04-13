@@ -535,7 +535,6 @@ class LevelManager():
                             if enemy_or_hazard > 30:
                                 # Spawn enemies
                                 next_enemy = self.available_enemies[random.randint(0, len(self.available_enemies) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), "Runner", self.player.speed)
-                                next_enemy.y -= next_enemy.radius
                                 self.onscreen_enemies.append(next_enemy)
                             else:
                                 # Spawn an obstacle hazard
