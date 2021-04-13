@@ -66,7 +66,7 @@ class Player:
 #                collision_types["top"] = True
         return collision_types
 
-    def update(self, game_state, tiles, dt, enemy_list):
+    def update(self, game_state, tiles, dt, enemy_list, hazard_list):
         if game_state == "Runner":
             self.jump_power += (self.grav * dt) ** 2 + 2
             if self.jump_power > 100:
@@ -213,10 +213,10 @@ class Warrior(Player):
         elif self.selection == 2:
             return Overwhelm()
 
-    def update(self, game_state, tiles, dt, enemy_list):
-        super().update(game_state, tiles, dt, enemy_list)
+    def update(self, game_state, tiles, dt, enemy_list, hazard_list):
+        super().update(game_state, tiles, dt, enemy_list, hazard_list)
         if self.runner_moves["Strike"][0] > 0:
-            self.strike(enemy_list)
+            self.strike(enemy_list, hazard_list)
 
     def handle_running_input(self, evt):
         cur_class = super().handle_running_input(evt)
@@ -226,11 +226,14 @@ class Warrior(Player):
                     self.runner_moves["Strike"][0] = 0.5
         return cur_class
 
-    def strike(self, enemies):
+    def strike(self, enemies, hazards):
         collision_rect = pygame.Rect(self.x + self.radius, self.y - self.radius - 10, 50, 70)
         for e in enemies:
             if collision_rect.colliderect(e.rect):
                 e.weapon_collision = True
+        for h in hazards:
+            if collision_rect.colliderect(h.rect):
+                h.weapon_collision = True
 
     def draw(self):
         super().draw()

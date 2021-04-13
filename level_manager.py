@@ -2,7 +2,7 @@ import pygame
 import random
 import player
 import enemy
-import noise
+import obstacles
 
 
 class LevelManager():
@@ -65,8 +65,9 @@ class LevelManager():
 
         # Obstacle Spawn Data
         self.onscreen_enemies = []
+        self.onscreen_hazards = []
         self.spawn_range = (1.7, 3.2)
-        self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+        self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
 
         # spawning of attacks
         warrior_attack_img = pygame.image.load("images\\sword.png")
@@ -84,12 +85,13 @@ class LevelManager():
         self.level_timer = 60
         self.cur_level = 1
         self.available_enemies = [enemy.BasicEnemy,enemy.SecondEnemy]
+        self.available_hazards = [obstacles.Barricade]
         self.level_boss = enemy.BasicBoss
         self.boss_defeated = False
         self.boss_encounter = False
-        self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.level_boss, self.level_dist, self.level_timer],
-                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 500, 110],
-                       3: [175, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 1000, 90]}
+        self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.available_hazards, self.level_boss, self.level_dist, self.level_timer],
+                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], [obstacles.Barricade], enemy.BasicBoss, 500, 110],
+                       3: [175, (1.5, 3), [enemy.BasicEnemy], [obstacles.Barricade], enemy.BasicBoss, 1000, 90]}
 
         self.chunk_timer = 2
         self.pit = False
@@ -98,20 +100,21 @@ class LevelManager():
         """
         Changes all difficulty parameters to the corresponding values in the levels dictionary
         """
-        if self.distance >= self.levels[self.cur_level][4] and self.boss_defeated and self.cur_level + 1 in self.levels:
+        if self.distance >= self.levels[self.cur_level][5] and self.boss_defeated and self.cur_level + 1 in self.levels:
             self.cur_level += 1
             self.spawn_range = self.levels[self.cur_level][1]
             self.available_enemies = self.levels[self.cur_level][2]
-            self.level_boss = self.levels[self.cur_level][3]
-            self.level_dist = self.levels[self.cur_level][4]
-            self.level_timer = self.levels[self.cur_level][5]
-            self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+            self.available_hazards = self.levels[self.cur_level][2]
+            self.level_boss = self.levels[self.cur_level][4]
+            self.level_dist = self.levels[self.cur_level][5]
+            self.level_timer = self.levels[self.cur_level][6]
+            self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
             self.boss_defeated = False
             for character in self.party:
                 self.party[character].speed = self.levels[self.cur_level][0]
                 self.party[character].health = self.party[character].max_health
         else:
-            self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+            self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
             self.boss_defeated = False
 
     def generate_chunk(self, x, y):
@@ -142,9 +145,11 @@ class LevelManager():
         for tile in self.tile_rects:
             if tile.x > self.player.x:
                 self.true_scroll[0] += self.player.speed * dt
-                self.player.update(self.state, self.tile_rects, dt, self.onscreen_enemies)
+                self.player.update(self.state, self.tile_rects, dt, self.onscreen_enemies, self.onscreen_hazards)
                 for e in self.onscreen_enemies:
                     e.update(dt, self.player.rect, self.state)
+                for h in self.onscreen_hazards:
+                    h.update(dt, self.player.rect)
                 if self.player.can_jump:
                     self.respawning = False
                     break
@@ -156,7 +161,6 @@ class LevelManager():
         global mid_attack, special_attack
         delta_time = self.clock.tick() / 1000
         self.level_timer -= delta_time
-
         if not self.respawning:
             if self.chunk_timer >= 0:
                 self.chunk_timer -= delta_time
@@ -190,7 +194,7 @@ class LevelManager():
                 self.true_scroll[0] += self.player.speed * delta_time
                 self.cave_scroll_x -= 50 * delta_time
                 self.runner_cooldowns(delta_time)
-                self.player.update(self.state, self.tile_rects, delta_time, self.onscreen_enemies)
+                self.player.update(self.state, self.tile_rects, delta_time, self.onscreen_enemies, self.onscreen_hazards)
             if self.player.y > self.screen_dim[1] // 2 + 150:
                 self.respawning = True
                 for character in self.party:
@@ -211,14 +215,20 @@ class LevelManager():
                 self.player.speed += 100
             for e in self.onscreen_enemies:
                 if e.x <= self.distance:
-                    self.score += e.enemy_point
-                    e.enemy_point = 0
+                    self.score += e.clear_points
+                    e.clear_points = 0
                 e.y = 400 - e.height
                 e.speed = self.player.speed     # Make sure to match if dash is on
+            for h in self.onscreen_hazards:
+                if h.x <= self.distance:
+                    self.score += h.clear_points
+                    h.clear_points = 0
+                h.y = 400 - h.height
+                h.speed = self.player.speed
             # Sync the current jump power for the whole party
             self.sync_party()
             # Spawn timer
-            self.enemy_spawn_timer -= delta_time
+            self.object_spawn_timer -= delta_time
             # Enemy Collision and Combat Generation
             for e in self.onscreen_enemies:
                 if e.weapon_collision and e.__class__ != enemy.BasicBoss:
@@ -245,13 +255,25 @@ class LevelManager():
                         mid_attack = False
                         self.state = "Combat"
                 # Despawn offscreen enemies
-                for e in self.onscreen_enemies:
-                    if e.x + e.radius <= 0:
-                        self.onscreen_enemies.remove(e)
+                if e.x + e.radius <= 0:
+                    self.onscreen_enemies.remove(e)
+            for h in self.onscreen_hazards:
+                if h.__class__ == obstacles.Barricade and  h.weapon_collision:
+                    self.onscreen_hazards.remove(h)
+                    self.score += h.clear_points + 50
+                    break
+                if not self.respawning:
+                    hit = h.update(delta_time, self.player.rect)
+                    if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0:
+                        for character in self.party:
+                            self.party[character].health -= int(self.party[character].max_health * 0.1)
+                        self.respawn(delta_time)
+                if h.x <= 0:
+                    self.onscreen_hazards.remove(h)
 
         if self.state == "Combat":
             for character in self.party:
-                self.party[character].update(self.state, self.tile_rects, delta_time, self.onscreen_enemies)
+                self.party[character].update(self.state, self.tile_rects, delta_time, self.onscreen_enemies, self.onscreen_hazards)
             self.attack_delay -= delta_time
             self.current_opponent = self.combat_encounter[0]
             if self.turn == "Player":
@@ -508,15 +530,22 @@ class LevelManager():
                 if target_chunk not in self.game_map:
                     self.game_map[target_chunk] = self.generate_chunk(target_x,target_y)
                     for tile in self.game_map[target_chunk]:
-                        if tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance < self.level_dist:
-                            # Spawn enemies
-                            next_enemy = self.available_enemies[random.randint(0, len(self.available_enemies) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), "Runner", self.player.speed)
-                            next_enemy.y -= next_enemy.radius
-                            self.onscreen_enemies.append(next_enemy)
-                            self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
-                        elif tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance >= self.level_dist:
+                        if tile[1] == 1 and self.object_spawn_timer <= 0 and self.distance < self.level_dist:
+                            enemy_or_hazard = random.randint(1, 100)
+                            if enemy_or_hazard > 30:
+                                # Spawn enemies
+                                next_enemy = self.available_enemies[random.randint(0, len(self.available_enemies) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), "Runner", self.player.speed)
+                                next_enemy.y -= next_enemy.radius
+                                self.onscreen_enemies.append(next_enemy)
+                            else:
+                                # Spawn an obstacle hazard
+                                next_hazard = self.available_hazards[random.randint(0, len(self.available_hazards) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), self.player.speed)
+                                next_hazard.y -= next_hazard.height
+                                self.onscreen_hazards.append(next_hazard)
+                            self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+                        elif tile[1] == 1 and self.object_spawn_timer <= 0 and self.distance >= self.level_dist:
                             self.onscreen_enemies.append(self.level_boss((tile[0][0] * 16 - scroll[0] + 50, tile[0][1] * 16 - scroll[1] - 50), "Runner", self.player.speed))
-                            self.enemy_spawn_timer = 800
+                            self.object_spawn_timer = 800
                     self.score += 1
                     self.distance += 1
                 for tile in self.game_map[target_chunk]:
@@ -525,6 +554,8 @@ class LevelManager():
                         self.tile_rects.append(pygame.Rect(tile[0][0] * 16 - scroll[0], tile[0][1] * 16 - scroll[1], 16, 16))
         for e in self.onscreen_enemies:
             e.draw(self.win)
+        for h in self.onscreen_hazards:
+            h.draw(self.win)
         # Cur Player / Player Portrait UI
         n = 0
         for character in self.party:

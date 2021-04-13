@@ -17,7 +17,7 @@ class Enemy:
         #self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
         self.rect = None
         self.speed = scroll_speed
-        self.enemy_point = 100
+        self.clear_points = 100
         self.weapon_collision = False
         self.special_effect = None
         self.debuffs = []
@@ -31,7 +31,6 @@ class Enemy:
             self.x -= self.speed * dt
             self.rect.x = self.x
             self.rect.y = self.y
-            collision = False
             # Collision Check
             if self.rect.colliderect(player_rect):
                 collision = True
