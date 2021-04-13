@@ -83,7 +83,7 @@ class LevelManager():
         self.level_dist = 1000
         self.level_timer = 60
         self.cur_level = 1
-        self.available_enemies = [enemy.BasicEnemy,enemy.SecondEnemy]
+        self.available_enemies = [enemy.BasicEnemy,enemy.SecondEnemy,enemy.ThirdEnemy]
         self.level_boss = enemy.BasicBoss
         self.boss_defeated = False
         self.boss_encounter = False
@@ -511,7 +511,6 @@ class LevelManager():
                         if tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance < self.level_dist:
                             # Spawn enemies
                             next_enemy = self.available_enemies[random.randint(0, len(self.available_enemies) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), "Runner", self.player.speed)
-                            next_enemy.y -= next_enemy.radius
                             self.onscreen_enemies.append(next_enemy)
                             self.enemy_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
                         elif tile[1] == 1 and self.enemy_spawn_timer <= 0 and self.distance >= self.level_dist:
