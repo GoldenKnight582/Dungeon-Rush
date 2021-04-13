@@ -16,7 +16,7 @@ class Player:
         self.radius = 20
         self.jump_power = 0
         self.grav = 90
-        self.speed = 150
+        self.speed = 450
         self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -102,7 +102,7 @@ class Player:
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
                 if self.can_jump:
-                    self.jump_power = -175
+                    self.jump_power = -125
                     self.can_jump = False
             if evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
@@ -196,7 +196,7 @@ class Warrior(Player):
         self.health = 250
         self.max_health = self.health
         self.attack = 60
-        self.defense = 40
+        self.defense = 35
         self.luck = 0.05
         self.dodge = 0.03
         self.base_dodge = 0.03
@@ -259,7 +259,7 @@ class Archer(Player):
         self.dodge = 0.06
         self.base_dodge = 0.06
         self.arrow = None
-        self.runner_moves = {"Snipe": [0, 0, 2.5]}
+        self.runner_moves = {"Snipe": [0, 0, 2.5], "Dash": [0, 0, 2]}
         self.abilities = ["Rapidfire", "Take Cover"]
         self.ability_cooldowns = [0, 0, 6, 7]
 
@@ -269,6 +269,9 @@ class Archer(Player):
             if evt.button == 1:
                 if self.runner_moves["Snipe"][1] <= 0:
                     self.snipe(evt.pos)
+            elif evt.button == 3:
+                if self.runner_moves["Dash"][1] <= 0:
+                    self.runner_moves["Dash"][0] = 0.2
         return cur_class
 
     def snipe(self, mouse_pos):

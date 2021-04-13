@@ -79,16 +79,19 @@ class LevelManager():
         self.effect_origin = 225
 
         # Level Data
-        self.level_dist = 150
-        self.level_timer = 120
+        self.level_dist = 1000
+        self.level_timer = 60
         self.cur_level = 1
-        self.available_enemies = [enemy.BasicEnemy, enemy.SecondEnemy]
+        self.available_enemies = [enemy.SecondEnemy]
         self.level_boss = enemy.BasicBoss
         self.boss_defeated = False
         self.boss_encounter = False
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.level_boss, self.level_dist, self.level_timer],
-                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 350, 130],
-                       3: [250, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 500, 140]}
+                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], enemy.BasicBoss, 500, 110],
+                       3: [175, (1.5, 3), [enemy.BasicEnemy], enemy.BasicBoss, 1000, 90]}
+
+        self.chunk_timer = 2
+        self.pit = False
 
     def level_changer(self):
         """
@@ -118,11 +121,16 @@ class LevelManager():
                 target_x = x * self.CHUNK_SIZE + x_pos
                 target_y = y * self.CHUNK_SIZE + y_pos
                 tile_type = 0 # nothing
-                height = int(noise.pnoise1(target_x * 0.1, repeat=100000) * 2)
-                if target_y > cal - height * 6:
-                    tile_type = 2 # dirt
-                elif target_y == cal - height * 6:
-                    tile_type = 1 # grass
+                if self.pit == False:
+                    if target_y > cal:
+                        tile_type = 2 # dirt
+                    elif target_y == cal:
+                        tile_type = 1 # grass
+                if self.pit:
+                    if target_y > cal:
+                        tile_type = 0 # dirt
+                    elif target_y == cal:
+                        tile_type = 0 # grass
                 if tile_type != 0:
                     chunk_data.append([[target_x,target_y],tile_type])
         return chunk_data
@@ -134,6 +142,19 @@ class LevelManager():
         global mid_attack, special_attack
         delta_time = self.clock.tick() / 1000
         self.level_timer -= delta_time
+
+        if self.chunk_timer >= 0:
+            self.chunk_timer -= delta_time
+        if self.chunk_timer <= 0:
+            self.pit = not self.pit
+            if self.pit:
+                self.chunk_timer = random.uniform(0.1, 0.3)
+            else:
+                self.chunk_timer = random.uniform(1.5, 2)
+        if self.player.y < self.screen_dim[1] // 2:
+            for character in self.party:
+                self.party[character].health -= 20
+
 
         # Title Screen Updates
         if self.state == "Title" or self.state == "Resume":
@@ -165,11 +186,17 @@ class LevelManager():
             if self.party["Wizard"].runner_moves["Shield"][0] > 0:
                 opacity = 50 * self.party["Wizard"].runner_moves["Shield"][0]
                 self.party["Wizard"].shield_surf.set_alpha(int(opacity))
+            if self.party["Archer"].runner_moves["Dash"][0] > 0:
+                self.player.speed += 100
+            elif self.party["Archer"].runner_moves["Dash"][0] <= 0:
+                self.player.speed = self.levels[self.cur_level][0]
             self.cave_scroll_x -= 50 * delta_time
             for e in self.onscreen_enemies:
                 if e.x <= self.distance:
                     self.score += e.enemy_point
                     e.enemy_point = 0
+                e.y = 400 - e.height
+                e.speed = self.player.speed     # Make sure to match if dash is on
             # Sync the current jump power for the whole party
             self.sync_party()
             # Spawn timer
@@ -180,7 +207,7 @@ class LevelManager():
                     self.onscreen_enemies.remove(e)
                     self.score += 150
                     break
-                hit = e.update(delta_time, self.player.x, self.player.y, "Runner")
+                hit = e.update(delta_time, self.player.rect, "Runner")
                 if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0 or hit and e.__class__ == enemy.BasicBoss:
                     if e.__class__ == enemy.BasicBoss:
                         self.boss_encounter = True
@@ -192,7 +219,7 @@ class LevelManager():
                     self.onscreen_enemies.remove(e)
                     for ec in self.combat_encounter:
                         ec.x = 600
-                        ec.y = 400 - e.radius
+                        ec.y = 400 - e.height // 2
                     for character in self.party:
                         self.party[character].y = 380
                     self.attack_delay = 0
@@ -277,7 +304,7 @@ class LevelManager():
                             self.change_turn()
                             if self.current_opponent.stunned[0] == "True":
                                 self.attack_delay = 0
-            self.current_opponent.update(delta_time, self.player.x, self.player.y, "Combat")
+            self.current_opponent.update(delta_time, self.player.rect, "Combat")
             if self.turn == "Enemy":
                 if self.current_opponent.health <= 0:
                     self.score += 50

@@ -14,7 +14,8 @@ class Enemy:
 #        self.height *= scale
         self.game_state = state
         self.radius = 20
-        self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+        #self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+        self.rect = None
         self.speed = scroll_speed
         self.enemy_point = 100
         self.weapon_collision = False
@@ -25,16 +26,15 @@ class Enemy:
         self.burned = ["False", 0]
         self.pierced = ["False", 0]
 
-    def update(self, dt, player_x, player_y, state):
+    def update(self, dt, player_rect, state):
         if state == "Runner":
             self.x -= self.speed * dt
-            self.rect.x = self.x - self.radius
-            self.rect.y = self.y - self.radius
+            self.rect.x = self.x
+            self.rect.y = self.y
             collision = False
             # Collision Check
-            if ((self.x - player_x) ** 2 + (self.y - player_y) ** 2) ** 0.5 <= self.radius + 20:
-                collision = True
-            return collision
+            if self.rect.colliderect(player_rect):
+                return collision
         elif state == "Combat":
             # Add / Remove Debuffs
             if "Stun" in self.debuffs and self.stunned[0] == "False":
@@ -89,9 +89,14 @@ class SecondEnemy(Enemy):
         self.defense = 5
         self.luck = 0.02
         self.dodge = 0.02
+        self.wolf_img = pygame.image.load("images\\wolf.png")
+        self.wolf_img_flip = pygame.transform.flip(self.wolf_img, True, False)
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.wolf_img_flip.get_width() - 25), int(self.wolf_img_flip.get_height()) - 25)
+        self.height = int(self.wolf_img_flip.get_height()) - 10
 
     def draw(self, surf):
-        pygame.draw.circle(surf, (100, 100, 0), (int(self.x), int(self.y)), self.radius)
+        surf.blit(self.wolf_img_flip, (int(self.x), int(self.y)))
+        pygame.draw.rect(surf, (255,0,0), self.rect, 1)
         # Debug Collision
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
