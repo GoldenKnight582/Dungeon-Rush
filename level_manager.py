@@ -164,9 +164,9 @@ class LevelManager():
                     self.chunk_timer = random.uniform(0.1, 0.3)
                 else:
                     self.chunk_timer = random.uniform(1.5, 2)
-            if self.player.y < self.screen_dim[1] // 2:
-                for character in self.party:
-                    self.party[character].health -= 20
+            # if self.player.y < self.screen_dim[1] // 2:
+            #     for character in self.party:
+            #         self.party[character].health -= 20
 
 
         # Title Screen Updates

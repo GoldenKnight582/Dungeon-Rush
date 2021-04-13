@@ -34,6 +34,7 @@ class Enemy:
             collision = False
             # Collision Check
             if self.rect.colliderect(player_rect):
+                collision = True
                 return collision
         elif state == "Combat":
             # Add / Remove Debuffs
@@ -91,17 +92,18 @@ class SecondEnemy(Enemy):
         self.dodge = 0.02
         self.wolf_img = pygame.image.load("images\\wolf.png")
         self.wolf_img_flip = pygame.transform.flip(self.wolf_img, True, False)
-        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.wolf_img_flip.get_width() - 25), int(self.wolf_img_flip.get_height()) - 25)
+        self.wolf_small_img = pygame.image.load("images\\wolf_small.png")
+        self.wolf_small_img_flip = pygame.transform.flip(self.wolf_small_img, True, False)
+        self.rect = pygame.Rect(int(self.x), int(self.y + 75), int(self.wolf_img_flip.get_width()), int(self.wolf_img_flip.get_height()) - 10)
         self.height = int(self.wolf_img_flip.get_height()) - 10
 
     def draw(self, surf):
         surf.blit(self.wolf_img_flip, (int(self.x), int(self.y)))
-        pygame.draw.rect(surf, (255,0,0), self.rect, 1)
         # Debug Collision
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        pygame.draw.circle(surf, (100, 100, 0), (720, 200), self.radius // 2)
+        surf.blit(self.wolf_small_img_flip, (700,180))
 
 
 class BasicBoss(Enemy):
