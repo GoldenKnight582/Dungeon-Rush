@@ -193,8 +193,8 @@ class LevelManager():
                 self.player.update(self.state, self.tile_rects, delta_time, self.onscreen_enemies)
             if self.player.y > self.screen_dim[1] // 2 + 150:
                 self.respawning = True
-                for character in range(len(self.party)):
-                    self.party[character].health -= self.party[character].max_health * 0.1
+                for character in self.party:
+                    self.party[character].health -= int(self.party[character].max_health * 0.1)
             if self.respawning:
                 self.respawn(delta_time)
             # Updates for abilities that extend beyond just the player
