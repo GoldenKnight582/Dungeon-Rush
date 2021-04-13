@@ -124,28 +124,30 @@ class LevelManager():
                 tile_type = 0 # nothing
                 if self.pit == False:
                     if target_y > cal:
-                        tile_type = 2 # dirt
+                        tile_type = 2  # dirt
                     elif target_y == cal:
-                        tile_type = 1 # grass
+                        tile_type = 1  # grass
                 if self.pit:
                     if target_y > cal:
-                        tile_type = 0 # dirt
+                        tile_type = 0  # dirt
                     elif target_y == cal:
-                        tile_type = 0 # grass
+                        tile_type = 0  # grass
                 if tile_type != 0:
                     chunk_data.append([[target_x,target_y],tile_type])
         return chunk_data
 
     def respawn(self, dt):
         self.player.y = self.screen_dim[1] // 2 - 20
+        self.player.speed = 100
         for tile in self.tile_rects:
             if tile.x > self.player.x:
-                self.player.x = tile.x
+                self.true_scroll[0] += self.player.speed * dt
                 self.player.update(self.state, self.tile_rects, dt, self.onscreen_enemies)
+                for e in self.onscreen_enemies:
+                    e.update(dt, self.player.rect, self.state)
                 if self.player.can_jump:
-                    self.true_scroll[0] += tile.x - self.true_scroll[0]
+                    self.respawning = False
                     break
-        self.respawning = False
 
     def update(self):
         """
@@ -164,10 +166,6 @@ class LevelManager():
                     self.chunk_timer = random.uniform(0.1, 0.3)
                 else:
                     self.chunk_timer = random.uniform(1.5, 2)
-            if self.player.y < self.screen_dim[1] // 2:
-                for character in self.party:
-                    self.party[character].health -= 20
-
 
         # Title Screen Updates
         if self.state == "Title" or self.state == "Resume":
@@ -187,13 +185,17 @@ class LevelManager():
 
         if self.state == "Runner":
             if not self.respawning:
+                if self.party["Archer"].runner_moves["Dash"][0] <= 0:
+                    self.player.speed = self.levels[self.cur_level][0]
                 self.true_scroll[0] += self.player.speed * delta_time
                 self.cave_scroll_x -= 50 * delta_time
                 self.runner_cooldowns(delta_time)
-            self.player.update(self.state, self.tile_rects, delta_time, self.onscreen_enemies)
-            if self.player.y > self.screen_dim[1] // 2 - 19:
+                self.player.update(self.state, self.tile_rects, delta_time, self.onscreen_enemies)
+            if self.player.y > self.screen_dim[1] // 2 + 150:
                 self.respawning = True
-            if self.player.y > self.screen_dim[1]:
+                for character in range(len(self.party)):
+                    self.party[character].health -= self.party[character].max_health * 0.1
+            if self.respawning:
                 self.respawn(delta_time)
             # Updates for abilities that extend beyond just the player
             self.arrow = self.party["Archer"].arrow
@@ -207,8 +209,6 @@ class LevelManager():
                 self.party["Wizard"].shield_surf.set_alpha(int(opacity))
             if self.party["Archer"].runner_moves["Dash"][0] > 0:
                 self.player.speed += 100
-            elif self.party["Archer"].runner_moves["Dash"][0] <= 0:
-                self.player.speed = self.levels[self.cur_level][0]
             for e in self.onscreen_enemies:
                 if e.x <= self.distance:
                     self.score += e.enemy_point

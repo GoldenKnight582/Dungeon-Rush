@@ -76,6 +76,8 @@ class Player:
             if collisions["bottom"]:
                 self.jump_power = 0.25
                 self.can_jump = True
+            if self.y >= 410:
+                self.can_jump = False
 
         elif game_state == "Combat":
             # Apply / Remove Fortify buff
