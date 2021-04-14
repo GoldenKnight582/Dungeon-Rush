@@ -60,7 +60,7 @@ class Enemy:
                 self.pierced[0] = "False"
 
 
-class BasicEnemy(Enemy):
+class Slimes(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
@@ -85,7 +85,7 @@ class BasicEnemy(Enemy):
         surf.blit(self.slime_small_img, (700,200))
 
 
-class SecondEnemy(Enemy):
+class Wolf(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
@@ -111,7 +111,8 @@ class SecondEnemy(Enemy):
     def draw_portrait(self, surf):
         surf.blit(self.wolf_small_img_flip, (700,180))
 
-class ThirdEnemy(Enemy):
+
+class Bird(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
@@ -148,6 +149,7 @@ class BasicBoss(Enemy):
         self.height = 100
         self.luck = 0
         self.dodge = 0
+        self.rect = pygame.Rect(int(self.x - self.radius), int(self.y - self.radius), self.radius * 2, self.radius * 2)
 
     def draw(self, surf):
         pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
