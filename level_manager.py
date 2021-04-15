@@ -266,9 +266,9 @@ class LevelManager():
                 if not self.respawning:
                     hit = h.update(delta_time, self.player.rect)
                     if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0:
-                        for character in self.party:
-                            self.party[character].health -= int(self.party[character].max_health * 0.1)
+                        self.player.health -= int(self.player.max_health * 0.05)
                         self.respawn(delta_time)
+                        self.onscreen_hazards.remove(h)
                 if h.x <= 0:
                     self.onscreen_hazards.remove(h)
 
