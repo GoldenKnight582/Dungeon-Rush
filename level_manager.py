@@ -402,6 +402,7 @@ class LevelManager():
             self.party[character].x = self.player.x
             self.party[character].y = self.player.y
             self.party[character].jump_power = self.player.jump_power
+            self.party[character].can_jump = self.player.can_jump
 
     def runner_cooldowns(self, dt):
         for character in self.party:
