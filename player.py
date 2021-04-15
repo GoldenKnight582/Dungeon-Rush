@@ -239,7 +239,7 @@ class Warrior(Player):
     def draw(self):
         super().draw()
         if self.runner_moves["Strike"][0] > 0:
-            self.surf.blit(self.sword, (self.x,self.y))
+            self.surf.blit(self.sword, (self.x + 25,self.y - 70))
 
 
 class Overwhelm:
