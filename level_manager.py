@@ -104,7 +104,7 @@ class LevelManager():
             self.cur_level += 1
             self.spawn_range = self.levels[self.cur_level][1]
             self.available_enemies = self.levels[self.cur_level][2]
-            self.available_hazards = self.levels[self.cur_level][2]
+            self.available_hazards = self.levels[self.cur_level][3]
             self.level_boss = self.levels[self.cur_level][4]
             self.level_dist = self.levels[self.cur_level][5]
             self.level_timer = self.levels[self.cur_level][6]
