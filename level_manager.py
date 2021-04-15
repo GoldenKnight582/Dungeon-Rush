@@ -86,12 +86,12 @@ class LevelManager():
         self.cur_level = 1
         self.available_enemies = [enemy.Slimes, enemy.Wolf]
         self.available_hazards = [obstacles.Barricade]
-        self.level_boss = enemy.BasicBoss
+        self.level_boss = enemy.EyeBoss
         self.boss_defeated = False
         self.boss_encounter = False
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.available_hazards, self.level_boss, self.level_dist, self.level_timer],
-                       2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.BasicBoss, 800, 90],
-                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.BasicBoss, 1400, 90]}
+                       2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.SpiderBoss, 800, 90],
+                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 1400, 90]}
 
         self.chunk_timer = 2
         self.pit = False
@@ -251,7 +251,7 @@ class LevelManager():
             self.object_spawn_timer -= delta_time
             # Enemy Collision and Combat Generation
             for e in self.onscreen_enemies:
-                if e.weapon_collision and e.__class__ != enemy.BasicBoss:
+                if e.weapon_collision and e.__class__ != enemy.EyeBoss and enemy.SpiderBoss:
                     self.onscreen_enemies.remove(e)
                     self.score += 150
                     break
@@ -261,7 +261,7 @@ class LevelManager():
                         if "Wizard" in self.party and self.party["Wizard"].runner_moves["Shield"][0] > 0:
                             pass
                         else:
-                            if e.__class__ == enemy.BasicBoss:
+                            if e.__class__ == enemy.EyeBoss and enemy.SpiderBoss:
                                 self.boss_encounter = True
                             self.combat_encounter = [e]
                             for i in range(random.randint(1, 2)):

@@ -163,7 +163,7 @@ class Tornado(Enemy):
         surf.blit(self.fire_small_img, (700, 180))
 
 
-class BasicBoss(Enemy):
+class EyeBoss(Enemy):
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
         self.health = 300
@@ -179,3 +179,20 @@ class BasicBoss(Enemy):
 
     def draw(self, surf):
         surf.blit(self.boss_img, (int(self.x), int(self.y)))
+
+class SpiderBoss(Enemy):
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 375
+        self.radius = 50
+        self.attack = 45
+        self.defense = 35
+        self.height = 50
+        self.luck = 0
+        self.dodge = 0
+        self.spider_img = pygame.image.load("images\\spider.png")
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.spider_img.get_width()), int(self.spider_img.get_height()) - 10)
+        self.height = int(self.spider_img.get_height()) - 10
+
+    def draw(self, surf):
+        surf.blit(self.spider_img, (int(self.x), int(self.y)))
