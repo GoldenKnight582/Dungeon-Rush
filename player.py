@@ -16,7 +16,7 @@ class Player:
         self.radius = 20
         self.jump_power = 0
         self.grav = 90
-        self.speed = 450
+        self.speed = 300
         self.can_jump = True
         self.surf = surf
         self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
@@ -205,6 +205,7 @@ class Warrior(Player):
         self.runner_moves = {"Strike": [0.0, 0, 1]}
         self.abilities = ["Fortify", "Overwhelm"]
         self.ability_cooldowns = [0, 0, 7, 9]
+        self.sword = pygame.image.load("images\\sword.png")
 
     def do_ability(self, opponent, party):
         if self.selection == 1 and self.ability_cooldowns[0] == 0:
@@ -238,7 +239,7 @@ class Warrior(Player):
     def draw(self):
         super().draw()
         if self.runner_moves["Strike"][0] > 0:
-            pygame.draw.rect(self.surf, (255, 0, 0), (self.x + self.radius, self.y - self.radius - 10, 60, 70), 1)
+            self.surf.blit(self.sword, (self.x + 25,self.y - 70))
 
 
 class Overwhelm:
@@ -258,11 +259,11 @@ class Archer(Player):
         self.color = (255, 255, 0)
         self.health = 180
         self.max_health = self.health
-        self.attack = 45
+        self.attack = 50
         self.defense = 20
         self.luck = 0.08
-        self.dodge = 0.06
-        self.base_dodge = 0.06
+        self.dodge = 0.1
+        self.base_dodge = 0.1
         self.arrow = None
         self.runner_moves = {"Snipe": [0, 0, 2.5], "Dash": [0, 0, 2]}
         self.abilities = ["Rapidfire", "Take Cover"]
@@ -299,7 +300,7 @@ class Archer(Player):
 
 class Rapidfire:
     def __init__(self):
-        self.attack = 80
+        self.attack = 95
         self.luck = 0.4
         self.special_effect = "Pierce"
         self.effect_chance = 0.8
@@ -364,8 +365,8 @@ class Wizard(Player):
         self.attack = 20
         self.defense = 10
         self.luck = 0.1
-        self.dodge = 0.1
-        self.base_dodge = 0.1
+        self.dodge = 0.06
+        self.base_dodge = 0.06
         self.runner_moves = {"Shield": [0, 0, 10]}
         self.shield_surf = pygame.Surface((self.radius * 2, self.radius * 2))
         self.shield_surf.set_colorkey((0, 0, 0))

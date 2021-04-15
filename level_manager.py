@@ -81,17 +81,17 @@ class LevelManager():
         self.effect_origin = 225
 
         # Level Data
-        self.level_dist = 1000
-        self.level_timer = 60
+        self.level_dist = 330
+        self.level_timer = 80
         self.cur_level = 1
-        self.available_enemies = [enemy.BasicEnemy,enemy.SecondEnemy]
+        self.available_enemies = [enemy.Slimes, enemy.Wolf]
         self.available_hazards = [obstacles.Barricade]
         self.level_boss = enemy.BasicBoss
         self.boss_defeated = False
         self.boss_encounter = False
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.available_hazards, self.level_boss, self.level_dist, self.level_timer],
-                       2: [150, (1.3, 2.5), [enemy.BasicEnemy], [obstacles.Barricade], enemy.BasicBoss, 500, 110],
-                       3: [175, (1.5, 3), [enemy.BasicEnemy], [obstacles.Barricade], enemy.BasicBoss, 1000, 90]}
+                       2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.BasicBoss, 800, 90],
+                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.BasicBoss, 1400, 90]}
 
         self.chunk_timer = 2
         self.pit = False
@@ -104,7 +104,7 @@ class LevelManager():
             self.cur_level += 1
             self.spawn_range = self.levels[self.cur_level][1]
             self.available_enemies = self.levels[self.cur_level][2]
-            self.available_hazards = self.levels[self.cur_level][2]
+            self.available_hazards = self.levels[self.cur_level][3]
             self.level_boss = self.levels[self.cur_level][4]
             self.level_dist = self.levels[self.cur_level][5]
             self.level_timer = self.levels[self.cur_level][6]
@@ -170,6 +170,21 @@ class LevelManager():
                     self.chunk_timer = random.uniform(0.1, 0.3)
                 else:
                     self.chunk_timer = random.uniform(1.5, 2)
+        for character in self.party:
+            if self.party[character].health <= 0:
+                del self.party[character]
+                if len(self.party) > 0:
+                    if "Warrior" in self.party:
+                        self.player = self.party["Warrior"]
+                        break
+                    if "Archer" in self.party:
+                        self.player = self.party["Archer"]
+                        break
+                    if "Wizard" in self.party:
+                        self.player = self.party["Wizard"]
+                        break
+                else:
+                    break
 
         # Title Screen Updates
         if self.state == "Title" or self.state == "Resume":
@@ -189,7 +204,10 @@ class LevelManager():
 
         if self.state == "Runner":
             if not self.respawning:
-                if self.party["Archer"].runner_moves["Dash"][0] <= 0:
+                if "Archer" in self.party:
+                    if self.party["Archer"].runner_moves["Dash"][0] <= 0:
+                        self.player.speed = self.levels[self.cur_level][0]
+                else:
                     self.player.speed = self.levels[self.cur_level][0]
                 self.true_scroll[0] += self.player.speed * delta_time
                 self.cave_scroll_x -= 50 * delta_time
@@ -202,17 +220,19 @@ class LevelManager():
             if self.respawning:
                 self.respawn(delta_time)
             # Updates for abilities that extend beyond just the player
-            self.arrow = self.party["Archer"].arrow
-            if self.party["Archer"].arrow is not None:
-                result = self.party["Archer"].arrow.update(delta_time, self.onscreen_enemies)
-                if result:
-                    self.arrow = None
-                    self.party["Archer"].arrow = None
-            if self.party["Wizard"].runner_moves["Shield"][0] > 0:
-                opacity = 50 * self.party["Wizard"].runner_moves["Shield"][0]
-                self.party["Wizard"].shield_surf.set_alpha(int(opacity))
-            if self.party["Archer"].runner_moves["Dash"][0] > 0:
-                self.player.speed += 100
+            if "Archer" in self.party:
+                self.arrow = self.party["Archer"].arrow
+                if self.party["Archer"].arrow is not None:
+                    result = self.party["Archer"].arrow.update(delta_time, self.onscreen_enemies)
+                    if result:
+                        self.arrow = None
+                        self.party["Archer"].arrow = None
+                if self.party["Archer"].runner_moves["Dash"][0] > 0:
+                    self.player.speed += 100
+            if "Wizard" in self.party:
+                if self.party["Wizard"].runner_moves["Shield"][0] > 0:
+                    opacity = 50 * self.party["Wizard"].runner_moves["Shield"][0]
+                    self.party["Wizard"].shield_surf.set_alpha(int(opacity))
             for e in self.onscreen_enemies:
                 if e.x <= self.distance:
                     self.score += e.clear_points
@@ -237,23 +257,26 @@ class LevelManager():
                     break
                 if not self.respawning:
                     hit = e.update(delta_time, self.player.rect, "Runner")
-                    if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0 or hit and e.__class__ == enemy.BasicBoss:
-                        if e.__class__ == enemy.BasicBoss:
-                            self.boss_encounter = True
-                        self.combat_encounter = [e]
-                        for i in range(random.randint(1, 2)):
-                            next_enemy = random.randint(0, len(self.available_enemies) - 1)
-                            new_enemy = self.available_enemies[next_enemy]((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
-                            self.combat_encounter.append(new_enemy)
-                        self.onscreen_enemies.remove(e)
-                        for ec in self.combat_encounter:
-                            ec.x = 600
-                            ec.y = 400 - e.height // 2
-                        for character in self.party:
-                            self.party[character].y = 380
-                        self.attack_delay = 0
-                        mid_attack = False
-                        self.state = "Combat"
+                    if hit:
+                        if "Wizard" in self.party and self.party["Wizard"].runner_moves["Shield"][0] > 0:
+                            pass
+                        else:
+                            if e.__class__ == enemy.BasicBoss:
+                                self.boss_encounter = True
+                            self.combat_encounter = [e]
+                            for i in range(random.randint(1, 2)):
+                                next_enemy = random.randint(0, len(self.available_enemies) - 1)
+                                new_enemy = self.available_enemies[next_enemy]((self.screen_dim[0] // 2, self.screen_dim[1] // 2 - 20), self.state, self.player.speed)
+                                self.combat_encounter.append(new_enemy)
+                            self.onscreen_enemies.remove(e)
+                            for ec in self.combat_encounter:
+                                ec.x = 600
+                                ec.y = 400 - e.height // 2
+                            for character in self.party:
+                                self.party[character].y = 380
+                            self.attack_delay = 0
+                            mid_attack = False
+                            self.state = "Combat"
                 # Despawn offscreen enemies
                 if e.x + e.radius <= 0:
                     self.onscreen_enemies.remove(e)
@@ -264,10 +287,13 @@ class LevelManager():
                     break
                 if not self.respawning:
                     hit = h.update(delta_time, self.player.rect)
-                    if hit and self.party["Wizard"].runner_moves["Shield"][0] <= 0:
-                        for character in self.party:
-                            self.party[character].health -= int(self.party[character].max_health * 0.1)
-                        self.respawn(delta_time)
+                    if hit:
+                        if "Wizard" in self.party and self.party["Wizard"].runner_moves["Shield"][0] > 0:
+                            pass
+                        else:
+                            self.player.health -= int(self.player.max_health * 0.05)
+                            self.respawn(delta_time)
+                            self.onscreen_hazards.remove(h)
                 if h.x <= 0:
                     self.onscreen_hazards.remove(h)
 
@@ -331,20 +357,29 @@ class LevelManager():
                         if self.player.selection == 0:
                             self.menu_change("Main")
                         elif self.player.selection == 1:
-                            self.player = self.party["Warrior"]
-                            self.change_turn()
-                            if self.current_opponent.stunned[0] == "True":
-                                self.attack_delay = 0
+                            if "Warrior" in self.party:
+                                self.player = self.party["Warrior"]
+                                self.change_turn()
+                                if self.current_opponent.stunned[0] == "True":
+                                    self.attack_delay = 0
+                            else:
+                                self.player.selection_made = False
                         elif self.player.selection == 2:
-                            self.player = self.party["Archer"]
-                            self.change_turn()
-                            if self.current_opponent.stunned[0] == "True":
-                                self.attack_delay = 0
+                            if "Archer" in self.party:
+                                self.player = self.party["Archer"]
+                                self.change_turn()
+                                if self.current_opponent.stunned[0] == "True":
+                                    self.attack_delay = 0
+                            else:
+                                self.player.selection_made = False
                         elif self.player.selection == 3:
-                            self.player = self.party["Wizard"]
-                            self.change_turn()
-                            if self.current_opponent.stunned[0] == "True":
-                                self.attack_delay = 0
+                            if "Wizard" in self.party:
+                                self.player = self.party["Wizard"]
+                                self.change_turn()
+                                if self.current_opponent.stunned[0] == "True":
+                                    self.attack_delay = 0
+                            else:
+                                self.player.selection_made = False
             self.current_opponent.update(delta_time, self.player.rect, "Combat")
             if self.turn == "Enemy":
                 if self.current_opponent.health <= 0:
@@ -402,6 +437,7 @@ class LevelManager():
             self.party[character].x = self.player.x
             self.party[character].y = self.player.y
             self.party[character].jump_power = self.player.jump_power
+            self.party[character].can_jump = self.player.can_jump
 
     def runner_cooldowns(self, dt):
         for character in self.party:
@@ -453,7 +489,15 @@ class LevelManager():
         event = pygame.event.poll()
 
         if self.state == "Runner":
-            self.player = self.party[self.player.handle_running_input(event)]
+            new_class = self.player.handle_running_input(event)
+            if new_class not in self.party:
+                if "Warrior" in self.party:
+                    new_class = "Warrior"
+                if "Archer" in self.party:
+                    new_class = "Archer"
+                if "Wizard" in self.party:
+                    new_class = "Wizard"
+            self.player = self.party[new_class]
         elif self.state == "Combat":
             self.player.handle_combat_input(event, self.cur_menu)
         if event.type == pygame.QUIT:
@@ -475,6 +519,10 @@ class LevelManager():
                     self.state = "Runner"
                 if event.button == 1 and self.quit_hover:
                     return True
+
+        # Non input game over
+        if len(self.party) == 0 or self.level_timer <= 0:
+            return True
 
     def draw(self):
         # Background
@@ -506,13 +554,15 @@ class LevelManager():
 
     def draw_level(self):
         self.player.draw()
-        if self.party["Wizard"].runner_moves["Shield"][0] > 0:
-            temp = self.normal.render(str(round(self.party["Wizard"].runner_moves["Shield"][0], 2)), False, (255, 255, 0))
-            self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - temp.get_height() - 20))
-            self.win.blit(self.party["Wizard"].shield_surf,
-                          (int(self.player.x - self.player.radius), int(self.player.y - self.player.radius)))
-        if self.party["Archer"].arrow:
-            self.party["Archer"].arrow.draw()
+        if "Wizard" in self.party:
+            if self.party["Wizard"].runner_moves["Shield"][0] > 0:
+                temp = self.normal.render(str(round(self.party["Wizard"].runner_moves["Shield"][0], 2)), False, (255, 255, 0))
+                self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - temp.get_height() - 20))
+                self.win.blit(self.party["Wizard"].shield_surf,
+                              (int(self.player.x - self.player.radius), int(self.player.y - self.player.radius)))
+        if "Archer" in self.party:
+            if self.party["Archer"].arrow:
+                self.party["Archer"].arrow.draw()
         # self.true_scroll[1] += (self.player.y-self.true_scroll[1]-106)/20
         # self.true_scroll[0] += 0
         self.true_scroll[1] += 0
@@ -539,6 +589,7 @@ class LevelManager():
                             else:
                                 # Spawn an obstacle hazard
                                 next_hazard = self.available_hazards[random.randint(0, len(self.available_hazards) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), self.player.speed)
+                                next_hazard.x += 40     # Offset so that barricades aren't spawning on the exact edge
                                 next_hazard.y -= next_hazard.height
                                 self.onscreen_hazards.append(next_hazard)
                             self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
@@ -658,7 +709,10 @@ class LevelManager():
             align = 0
             for i in self.combat_menu["Swapping"]:
                 if self.combat_menu["Swapping"][i] != self.player.__class__.__name__:
-                    temp = self.header.render(self.combat_menu["Swapping"][i], False, text_color)
+                    if self.combat_menu["Swapping"][i] in self.party:
+                        temp = self.header.render(self.combat_menu["Swapping"][i], False, text_color)
+                    else:
+                        temp = self.header.render(self.combat_menu["Swapping"][i], False, cooldown_color)
                     align = 0
                     if self.player.__class__ == player.Warrior:
                         align = 1

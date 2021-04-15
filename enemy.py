@@ -60,13 +60,13 @@ class Enemy:
                 self.pierced[0] = "False"
 
 
-class BasicEnemy(Enemy):
+class Slimes(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 100
+        self.health = 50
         self.radius = 20
-        self.attack = 30
+        self.attack = 20
         self.defense = 10
         self.luck = 0.02
         self.dodge = 0.02
@@ -85,16 +85,16 @@ class BasicEnemy(Enemy):
         surf.blit(self.slime_small_img, (700,200))
 
 
-class SecondEnemy(Enemy):
+class Wolf(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 60
+        self.health = 80
         self.radius = 10
-        self.attack = 20
-        self.defense = 5
-        self.luck = 0.02
-        self.dodge = 0.02
+        self.attack = 30
+        self.defense = 10
+        self.luck = 0.04
+        self.dodge = 0.07
         self.air = False
         self.wolf_img = pygame.image.load("images\\wolf.png")
         self.wolf_img_flip = pygame.transform.flip(self.wolf_img, True, False)
@@ -111,16 +111,17 @@ class SecondEnemy(Enemy):
     def draw_portrait(self, surf):
         surf.blit(self.wolf_small_img_flip, (700,180))
 
-class ThirdEnemy(Enemy):
+
+class Bird(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 85
+        self.health = 60
         self.radius = 10
-        self.attack = 25
+        self.attack = 40
         self.defense = 10
         self.luck = 0.02
-        self.dodge = 0.04
+        self.dodge = 0.08
         self.air = True
         self.bird_img = pygame.image.load("images\\bird.png")
         self.bird_img_flip = pygame.transform.flip(self.bird_img, True, False)
@@ -132,22 +133,49 @@ class ThirdEnemy(Enemy):
     def draw(self, surf):
         surf.blit(self.bird_img_flip, (int(self.x), int(self.y)))
         # Debug Collision
-        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.bird_small_img_flip, (700,180))
+        surf.blit(self.bird_small_img_flip, (700, 180))
+
+class Tornado(Enemy):
+
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 80
+        self.radius = 10
+        self.attack = 50
+        self.defense = 5
+        self.luck = 0.02
+        self.dodge = 0.1
+        self.air = True
+        self.fire_img = pygame.image.load("images\\fire.png")
+        self.fire_small_img = pygame.image.load("images\\fire_small.png")
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.fire_img.get_width()), int(self.fire_img.get_height()) - 10)
+        self.height = int(self.fire_img.get_height()) - 10
+
+    def draw(self, surf):
+        surf.blit(self.fire_img, (int(self.x), int(self.y)))
+        # Debug Collision
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+
+    def draw_portrait(self, surf):
+        surf.blit(self.fire_small_img, (700, 180))
 
 
 class BasicBoss(Enemy):
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 315
+        self.health = 300
         self.radius = 50
-        self.attack = 70
+        self.attack = 60
         self.defense = 30
-        self.height = 100
+        self.height = 50
         self.luck = 0
         self.dodge = 0
+        self.boss_img = pygame.image.load("images\\boss.png")
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.boss_img.get_width()), int(self.boss_img.get_height()) - 10)
+        self.height = int(self.boss_img.get_height()) - 20
 
     def draw(self, surf):
-        pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
+        surf.blit(self.boss_img, (int(self.x), int(self.y)))
