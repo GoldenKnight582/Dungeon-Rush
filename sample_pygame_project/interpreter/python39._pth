@@ -4,7 +4,3 @@ python39.zip
 
 # Uncomment to run site.main() automatically
 import site
-import enemy.py
-import level_manager.py
-import obstacles.py
-import player.py
