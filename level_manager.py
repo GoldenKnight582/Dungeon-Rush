@@ -12,9 +12,17 @@ class LevelManager():
         self.clock = pygame.time.Clock()
         self.debug = False
         self.state = state
-        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Archer":
-                      player.Archer((200, self.screen_dim[1] // 2 - 20), None, None, self.win), "Wizard":
-                      player.Wizard((200, self.screen_dim[1] // 2 - 20), None, None, self.win)}
+        warrior_sprites = pygame.image.load("Images\\Warrior Sheet.png")
+        wizard_sprites = pygame.image.load("Images\\Wizard Sheet.png")
+        archer_sprites = pygame.image.load("Images\\Archer Sheet.png")
+        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2), warrior_sprites, 1.5, self.win), "Archer":
+                      player.Archer((200, self.screen_dim[1] // 2), archer_sprites, 1.5, self.win), "Wizard":
+                      player.Wizard((200, self.screen_dim[1] // 2), wizard_sprites, 1.5, self.win)}
+        for character in self.party:
+            self.party[character].x -= self.party[character].width
+            self.party[character].y -= self.party[character].height
+            self.party[character].rect.x -= self.party[character].width
+            self.party[character].rect.y -= self.party[character].height
         self.player = self.party["Warrior"]
         self.cur_menu = "Main"
         self.respawning = False
@@ -271,14 +279,15 @@ class LevelManager():
                             self.onscreen_enemies.remove(e)
                             for ec in self.combat_encounter:
                                 ec.x = 600
-                                ec.y = 400 - e.height // 2
+                                ec.y = 400 - e.height
                             for character in self.party:
-                                self.party[character].y = 380
+                                self.party[character].y = self.screen_dim[1] // 2 - self.player.height
+                                self.party[character].cur_frame = 1
                             self.attack_delay = 0
                             mid_attack = False
                             self.state = "Combat"
                 # Despawn offscreen enemies
-                if e.x + e.radius <= 0:
+                if e.x <= 0 - e.width:
                     self.onscreen_enemies.remove(e)
             for h in self.onscreen_hazards:
                 if h.__class__ == obstacles.Barricade and  h.weapon_collision:
@@ -294,7 +303,7 @@ class LevelManager():
                             self.player.health -= int(self.player.max_health * 0.05)
                             self.respawn(delta_time)
                             self.onscreen_hazards.remove(h)
-                if h.x <= 0:
+                if h.x <= 0 - h.width:
                     self.onscreen_hazards.remove(h)
 
         if self.state == "Combat":
@@ -403,7 +412,6 @@ class LevelManager():
                     self.boss_encounter = False
                     self.level_changer()
                 self.state = "Runner"
-                self.player.x = 200
                 self.player.y = self.screen_dim[1] // 2 - 20
 
     def attack(self, attackee, attacked):
@@ -556,10 +564,8 @@ class LevelManager():
         self.player.draw()
         if "Wizard" in self.party:
             if self.party["Wizard"].runner_moves["Shield"][0] > 0:
-                temp = self.normal.render(str(round(self.party["Wizard"].runner_moves["Shield"][0], 2)), False, (255, 255, 0))
-                self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - temp.get_height() - 20))
                 self.win.blit(self.party["Wizard"].shield_surf,
-                              (int(self.player.x - self.player.radius), int(self.player.y - self.player.radius)))
+                              (int(self.player.x), int(self.player.y)))
         if "Archer" in self.party:
             if self.party["Archer"].arrow:
                 self.party["Archer"].arrow.draw()
@@ -610,10 +616,10 @@ class LevelManager():
         n = 0
         for character in self.party:
             n += 1
-            x = self.screen_dim[0] * 0.06 + ((n - 1) * self.player.radius * 2.5)
+            x = self.screen_dim[0] * 0.06 + ((n - 1) * self.player.portrait_width * 1.5)
             if self.party[character] == self.player:
                 pygame.draw.rect(self.win, (255, 255, 255),
-                                 (x - 12.5, 12, self.player.radius + 5, self.player.radius + 5))
+                                 (x, 5, self.player.portrait_width, self.player.portrait_height))
             self.party[character].draw_portrait(x)
         # Ability / Cooldown UI
         n = 0
@@ -680,7 +686,7 @@ class LevelManager():
                                                           (95, 500 + offset * 40)))
         # Player Health
         temp = self.header.render(str(self.player.health), False, text_color)
-        self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 100))
+        self.win.blit(temp, (self.player.x + self.player.half_width - temp.get_width() // 2, self.player.y - 100))
         # Opponent Health
         temp = self.header.render(str(self.current_opponent.health), False, text_color)
         self.win.blit(temp, (self.current_opponent.x - temp.get_width() // 2, self.current_opponent.y - 100))

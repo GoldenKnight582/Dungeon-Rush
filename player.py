@@ -3,26 +3,29 @@ import math
 
 
 class Player:
-    def __init__(self, start_pos, image, scale, surf):
+    def __init__(self, start_pos, sprite_sheet, scale, surf):
         self.color = None
         self.x = start_pos[0]
         self.y = start_pos[1]  
-#        self.image = pygame.image.load(image)
-#        self.width = self.image.get_width()
-#        self.height = self.image.get_height()
-#        self.scaled_image = pygame.transform.scale(self.image, (self.width * scale, self.height * scale))
-#        self.width *= scale
-#        self.height *= scale
-        self.radius = 20
+        ogsheet = sprite_sheet
+        self.ssheet = pygame.transform.scale(ogsheet, (int(ogsheet.get_width() * scale), int(ogsheet.get_height() * scale)))
+        self.width = self.ssheet.get_width() // 3
+        self.half_width = self.width // 2
+        self.height = self.ssheet.get_height()
+        self.portrait_image = ogsheet
+        self.portrait_width = ogsheet.get_width() // 3
+        self.portrait_height = ogsheet.get_height()
         self.jump_power = 0
         self.grav = 90
         self.speed = 300
         self.can_jump = True
         self.surf = surf
-        self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.selection = None
         self.selection_made = False
         self.special_effect = None
+        self.cur_frame = 0
+        self.anim_timer = 0.1
         self.defense = 0
         self.dodge = 0
         self.base_dodge = 0
@@ -53,12 +56,12 @@ class Player:
 #                self.x = self.rect.right - self.radius
 #                collision_types["right"] = True
         self.y += self.jump_power * 3 * dt
-        self.rect = pygame.draw.circle(self.surf, (0, 255, 0), (int(self.x), int(self.y)), self.radius)
+        self.rect.y = self.y
         collisions = self.collision_test(tiles)
         for tile in collisions:
             if self.jump_power > 0:
                 self.rect.bottom = tile.top
-                self.y = self.rect.bottom - self.radius
+                self.y = self.rect.top
                 collision_types["bottom"] = True
 #            elif self.jump_power < 0:
 #                self.rect.top = tile.bottom
@@ -68,9 +71,17 @@ class Player:
 
     def update(self, game_state, tiles, dt, enemy_list, hazard_list):
         if game_state == "Runner":
+            self.anim_timer -= dt
+            if self.anim_timer <= 0:
+                self.cur_frame += 1
+                self.anim_timer = 0.1
+                if self.cur_frame >= 3:
+                    self.cur_frame = 0
             self.jump_power += (self.grav * dt) ** 2 + 2
             if self.jump_power > 100:
                 self.jump_power = 100
+            if not self.can_jump:
+                self.cur_frame = 1
 
             collisions = self.move_and_collide(tiles, dt)
             if collisions["bottom"]:
@@ -182,18 +193,18 @@ class Player:
                     self.selection_made = True
 
     def draw(self):
-        pygame.draw.circle(self.surf, (self.color), (int(self.x), int(self.y)), self.radius)
+        self.surf.blit(self.ssheet, (int(self.x), int(self.y)), (self.width * self.cur_frame, 0, self.width, self.width))
         # Collision rect for debug
 #        pygame.draw.rect(self.surf, (255, 0, 0), self.rect, 1)
 
     def draw_portrait(self, x):
-        pygame.draw.circle(self.surf, self.color, (int(x), 25), self.radius // 2)
+        self.surf.blit(self.portrait_image, (int(x), 5), (self.portrait_width, 0, self.portrait_width, self.portrait_height))
 
 
 class Warrior(Player):
 
-    def __init__(self, start_pos, image, scale, surf):
-        super().__init__(start_pos, image, scale, surf)
+    def __init__(self, start_pos, sprite_sheet, scale, surf):
+        super().__init__(start_pos, sprite_sheet, scale, surf)
         self.color = (0, 255, 0)
         self.health = 250
         self.max_health = self.health
@@ -218,6 +229,8 @@ class Warrior(Player):
         super().update(game_state, tiles, dt, enemy_list, hazard_list)
         if self.runner_moves["Strike"][0] > 0:
             self.strike(enemy_list, hazard_list)
+        if game_state == "Combat":
+            self.runner_moves["Strike"][0] = 0
 
     def handle_running_input(self, evt):
         cur_class = super().handle_running_input(evt)
@@ -228,7 +241,7 @@ class Warrior(Player):
         return cur_class
 
     def strike(self, enemies, hazards):
-        collision_rect = pygame.Rect(self.x + self.radius, self.y - self.radius - 10, 50, 70)
+        collision_rect = pygame.Rect(self.x + self.width, self.y + 5, 50, 70)
         for e in enemies:
             if collision_rect.colliderect(e.rect):
                 e.weapon_collision = True
@@ -239,7 +252,7 @@ class Warrior(Player):
     def draw(self):
         super().draw()
         if self.runner_moves["Strike"][0] > 0:
-            self.surf.blit(self.sword, (self.x + 25,self.y - 70))
+            self.surf.blit(self.sword, (self.x + self.width, self.y - self.half_width))
 
 
 class Overwhelm:
@@ -254,8 +267,8 @@ class Overwhelm:
 
 class Archer(Player):
 
-    def __init__(self, start_pos, image, scale, surf):
-        super().__init__(start_pos, image, scale, surf)
+    def __init__(self, start_pos, sprite_sheet, scale, surf):
+        super().__init__(start_pos, sprite_sheet, scale, surf)
         self.color = (255, 255, 0)
         self.health = 180
         self.max_health = self.health
@@ -284,7 +297,7 @@ class Archer(Player):
         adjacent = mouse_pos[0] - self.x
         opposite = -1 * (mouse_pos[1] - self.y)  # Account for inverted y-axis
         angle = math.atan2(opposite, adjacent)
-        start_x = self.x + self.radius
+        start_x = self.x + self.width
         self.arrow = Arrow(start_x, self.y, self.surf)
         self.arrow.horizontal_speed = self.arrow.speed * math.cos(angle)
         self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
@@ -357,8 +370,8 @@ class Arrow:
 
 class Wizard(Player):
 
-    def __init__(self, start_pos, image, scale, surf):
-        super().__init__(start_pos, image, scale, surf)
+    def __init__(self, start_pos, sprite_sheet, scale, surf):
+        super().__init__(start_pos, sprite_sheet, scale, surf)
         self.color = (0, 0, 255)
         self.health = 120
         self.max_health = self.health
@@ -368,10 +381,10 @@ class Wizard(Player):
         self.dodge = 0.06
         self.base_dodge = 0.06
         self.runner_moves = {"Shield": [0, 0, 10]}
-        self.shield_surf = pygame.Surface((self.radius * 2, self.radius * 2))
+        self.shield_surf = pygame.Surface((self.width, self.width))
         self.shield_surf.set_colorkey((0, 0, 0))
         self.shield_surf.set_alpha(150)
-        pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.radius, self.radius), self.radius)
+        pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.half_width, self.half_width), self.half_width)
         self.abilities = ["Thunderbolt", "Blaze"]
         self.ability_cooldowns = [0, 0, 5, 7]   # First two numbers are current cooldown, second two are corresponding
         # starting cooldowns

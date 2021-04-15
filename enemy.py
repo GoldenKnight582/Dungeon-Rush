@@ -73,8 +73,9 @@ class Slimes(Enemy):
         self.air = False
         self.slime_img = pygame.image.load("images\\Slime.png")
         self.slime_small_img = pygame.image.load("images\\Slime_small.png")
-        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.slime_img.get_width()),int(self.slime_img.get_height()) - 10)
+        self.width = self.slime_img.get_width()
         self.height = int(self.slime_img.get_height()) - 10
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.width),int(self.height))
 
     def draw(self, surf):
         surf.blit(self.slime_img, (int(self.x), int(self.y)))
@@ -100,8 +101,9 @@ class Wolf(Enemy):
         self.wolf_img_flip = pygame.transform.flip(self.wolf_img, True, False)
         self.wolf_small_img = pygame.image.load("images\\wolf_small.png")
         self.wolf_small_img_flip = pygame.transform.flip(self.wolf_small_img, True, False)
-        self.rect = pygame.Rect(int(self.x), int(self.y + 75), int(self.wolf_img_flip.get_width()), int(self.wolf_img_flip.get_height()) - 10)
+        self.width = self.wolf_img_flip.get_width()
         self.height = int(self.wolf_img_flip.get_height()) - 10
+        self.rect = pygame.Rect(int(self.x), int(self.y + 75), int(self.width), int(self.height))
 
     def draw(self, surf):
         surf.blit(self.wolf_img_flip, (int(self.x), int(self.y)))
@@ -127,8 +129,9 @@ class Bird(Enemy):
         self.bird_img_flip = pygame.transform.flip(self.bird_img, True, False)
         self.bird_small_img = pygame.image.load("images\\Bird_small.png")
         self.bird_small_img_flip = pygame.transform.flip(self.bird_small_img, True, False)
-        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.bird_img_flip.get_width()), int(self.bird_img_flip.get_height()) - 10)
+        self.width = self.bird_img_flip.get_width()
         self.height = int(self.bird_img_flip.get_height()) + 75
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.width), int(self.bird_img_flip.get_height()) - 10)
 
     def draw(self, surf):
         surf.blit(self.bird_img_flip, (int(self.x), int(self.y)))
@@ -151,8 +154,9 @@ class Tornado(Enemy):
         self.air = True
         self.fire_img = pygame.image.load("images\\fire.png")
         self.fire_small_img = pygame.image.load("images\\fire_small.png")
-        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.fire_img.get_width()), int(self.fire_img.get_height()) - 10)
+        self.width = self.fire_img.get_width()
         self.height = int(self.fire_img.get_height()) - 10
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.width), int(self.height))
 
     def draw(self, surf):
         surf.blit(self.fire_img, (int(self.x), int(self.y)))
@@ -174,8 +178,9 @@ class BasicBoss(Enemy):
         self.luck = 0
         self.dodge = 0
         self.boss_img = pygame.image.load("images\\boss.png")
-        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.boss_img.get_width()), int(self.boss_img.get_height()) - 10)
+        self.width = int(self.boss_img.get_width())
         self.height = int(self.boss_img.get_height()) - 20
+        self.rect = pygame.Rect(int(self.x), int(self.y),self.width, self.height)
 
     def draw(self, surf):
         surf.blit(self.boss_img, (int(self.x), int(self.y)))
