@@ -185,6 +185,7 @@ class EyeBoss(Enemy):
     def draw(self, surf):
         surf.blit(self.boss_img, (int(self.x), int(self.y)))
 
+
 class SpiderBoss(Enemy):
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
@@ -196,8 +197,9 @@ class SpiderBoss(Enemy):
         self.luck = 0
         self.dodge = 0
         self.spider_img = pygame.image.load("images\\spider.png")
-        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.spider_img.get_width()), int(self.spider_img.get_height()) - 10)
+        self.width = int(self.spider_img.get_width())
         self.height = int(self.spider_img.get_height()) - 10
+        self.rect = pygame.Rect(int(self.x), int(self.y), self.width, self.height)
 
     def draw(self, surf):
         surf.blit(self.spider_img, (int(self.x), int(self.y)))
