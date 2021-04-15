@@ -138,6 +138,30 @@ class Bird(Enemy):
     def draw_portrait(self, surf):
         surf.blit(self.bird_small_img_flip, (700, 180))
 
+class Tornado(Enemy):
+
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 80
+        self.radius = 10
+        self.attack = 50
+        self.defense = 5
+        self.luck = 0.02
+        self.dodge = 0.1
+        self.air = True
+        self.fire_img = pygame.image.load("images\\fire.png")
+        self.fire_small_img = pygame.image.load("images\\fire_small.png")
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.fire_img.get_width()), int(self.fire_img.get_height()) - 10)
+        self.height = int(self.fire_img.get_height()) - 10
+
+    def draw(self, surf):
+        surf.blit(self.fire_img, (int(self.x), int(self.y)))
+        # Debug Collision
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+
+    def draw_portrait(self, surf):
+        surf.blit(self.fire_small_img, (700, 180))
+
 
 class BasicBoss(Enemy):
     def __init__(self, start_pos, state, scroll_speed):
