@@ -149,7 +149,9 @@ class BasicBoss(Enemy):
         self.height = 50
         self.luck = 0
         self.dodge = 0
-        self.rect = pygame.Rect(int(self.x - self.radius), int(self.y - self.radius), self.radius * 2, self.radius * 2)
+        self.boss_img = pygame.image.load("images\\boss.png")
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.boss_img.get_width()), int(self.boss_img.get_height()) - 10)
+        self.height = int(self.boss_img.get_height()) - 20
 
     def draw(self, surf):
-        pygame.draw.circle(surf, (255, 0, 0), (int(self.x), int(self.y)), self.radius)
+        surf.blit(self.boss_img, (int(self.x), int(self.y)))
