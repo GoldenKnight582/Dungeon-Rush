@@ -64,9 +64,9 @@ class Slimes(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 100
+        self.health = 50
         self.radius = 20
-        self.attack = 30
+        self.attack = 20
         self.defense = 10
         self.luck = 0.02
         self.dodge = 0.02
@@ -89,12 +89,12 @@ class Wolf(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 60
+        self.health = 80
         self.radius = 10
-        self.attack = 20
-        self.defense = 5
-        self.luck = 0.02
-        self.dodge = 0.02
+        self.attack = 30
+        self.defense = 10
+        self.luck = 0.04
+        self.dodge = 0.07
         self.air = False
         self.wolf_img = pygame.image.load("images\\wolf.png")
         self.wolf_img_flip = pygame.transform.flip(self.wolf_img, True, False)
@@ -116,12 +116,12 @@ class Bird(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 85
+        self.health = 60
         self.radius = 10
-        self.attack = 25
+        self.attack = 40
         self.defense = 10
         self.luck = 0.02
-        self.dodge = 0.04
+        self.dodge = 0.08
         self.air = True
         self.bird_img = pygame.image.load("images\\bird.png")
         self.bird_img_flip = pygame.transform.flip(self.bird_img, True, False)
@@ -142,9 +142,9 @@ class Bird(Enemy):
 class BasicBoss(Enemy):
     def __init__(self, start_pos, state, scroll_speed):
         super().__init__(start_pos, state, scroll_speed)
-        self.health = 315
+        self.health = 300
         self.radius = 50
-        self.attack = 70
+        self.attack = 60
         self.defense = 30
         self.height = 100
         self.luck = 0
