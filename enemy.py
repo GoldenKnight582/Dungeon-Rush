@@ -133,10 +133,10 @@ class Bird(Enemy):
     def draw(self, surf):
         surf.blit(self.bird_img_flip, (int(self.x), int(self.y)))
         # Debug Collision
-        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.bird_small_img_flip, (700,180))
+        surf.blit(self.bird_small_img_flip, (700, 180))
 
 
 class BasicBoss(Enemy):
@@ -146,7 +146,7 @@ class BasicBoss(Enemy):
         self.radius = 50
         self.attack = 60
         self.defense = 30
-        self.height = 100
+        self.height = 50
         self.luck = 0
         self.dodge = 0
         self.rect = pygame.Rect(int(self.x - self.radius), int(self.y - self.radius), self.radius * 2, self.radius * 2)
