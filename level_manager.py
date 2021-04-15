@@ -541,6 +541,7 @@ class LevelManager():
                             else:
                                 # Spawn an obstacle hazard
                                 next_hazard = self.available_hazards[random.randint(0, len(self.available_hazards) - 1)]((tile[0][0] * 16 - scroll[0] + 20, tile[0][1] * 16 - scroll[1]), self.player.speed)
+                                next_hazard.x += 40     # Offset so that barricades aren't spawning on the exact edge
                                 next_hazard.y -= next_hazard.height
                                 self.onscreen_hazards.append(next_hazard)
                             self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
