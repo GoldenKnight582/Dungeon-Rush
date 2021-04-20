@@ -6,15 +6,8 @@ class Enemy:
     def __init__(self, start_pos, state, scroll_speed):
         self.x = start_pos[0]
         self.y = start_pos[1]
-#        self.image = pygame.image.load(image)
-#        self.width = self.image.get_width()
-#        self.height = self.image.get_height()
-#        self.scaled_image = pygame.transform.scale(self.image, (self.width * scale, self.height * scale))
-#        self.width *= scale
-#        self.height *= scale
         self.game_state = state
         self.radius = 20
-        #self.rect = pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
         self.rect = None
         self.speed = scroll_speed
         self.clear_points = 100
@@ -99,8 +92,10 @@ class Wolf(Enemy):
         self.dodge = 0.07
         self.air = False
         self.wolf_img = pygame.image.load("images\\wolf.png")
+        self.wolf_img.convert()
         self.wolf_img_flip = pygame.transform.flip(self.wolf_img, True, False)
         self.wolf_small_img = pygame.image.load("images\\wolf_small.png")
+        self.wolf_small_img.convert()
         self.wolf_small_img_flip = pygame.transform.flip(self.wolf_small_img, True, False)
         self.width = self.wolf_img_flip.get_width()
         self.height = int(self.wolf_img_flip.get_height()) - 10
@@ -127,8 +122,10 @@ class Bird(Enemy):
         self.dodge = 0.08
         self.air = True
         self.bird_img = pygame.image.load("images\\bird.png")
+        self.bird_img.convert()
         self.bird_img_flip = pygame.transform.flip(self.bird_img, True, False)
         self.bird_small_img = pygame.image.load("images\\Bird_small.png")
+        self.bird_small_img.convert()
         self.bird_small_img_flip = pygame.transform.flip(self.bird_small_img, True, False)
         self.width = self.bird_img_flip.get_width()
         self.height = int(self.bird_img_flip.get_height()) + 75
@@ -155,7 +152,9 @@ class Tornado(Enemy):
         self.dodge = 0.1
         self.air = True
         self.fire_img = pygame.image.load("images\\fire.png")
+        self.fire_img.convert()
         self.fire_small_img = pygame.image.load("images\\fire_small.png")
+        self.fire_small_img.convert()
         self.width = self.fire_img.get_width()
         self.height = int(self.fire_img.get_height()) - 10
         self.rect = pygame.Rect(int(self.x), int(self.y), int(self.width), int(self.height))

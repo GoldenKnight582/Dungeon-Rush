@@ -12,12 +12,12 @@ class LevelManager():
         self.clock = pygame.time.Clock()
         self.debug = False
         self.state = state
-        warrior_sprites = pygame.image.load("Images\\Warrior Sheet.png")
-        wizard_sprites = pygame.image.load("Images\\Wizard Sheet.png")
-        archer_sprites = pygame.image.load("Images\\Archer Sheet.png")
-        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2), warrior_sprites, 1.5, self.win), "Archer":
-                      player.Archer((200, self.screen_dim[1] // 2), archer_sprites, 1.5, self.win), "Wizard":
-                      player.Wizard((200, self.screen_dim[1] // 2), wizard_sprites, 1.5, self.win)}
+        self.warrior_sprites = pygame.image.load("Images\\Warrior Sheet.png")
+        self.wizard_sprites = pygame.image.load("Images\\Wizard Sheet.png")
+        self.archer_sprites = pygame.image.load("Images\\Archer Sheet.png")
+        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2), self.warrior_sprites, 1.5, self.win), "Archer":
+                      player.Archer((200, self.screen_dim[1] // 2), self.archer_sprites, 1.5, self.win), "Wizard":
+                      player.Wizard((200, self.screen_dim[1] // 2), self.wizard_sprites, 1.5, self.win)}
         for character in self.party:
             self.party[character].x -= self.party[character].width
             self.party[character].y -= self.party[character].height
@@ -47,8 +47,8 @@ class LevelManager():
         self.CHUNK_SIZE = 16
         self.game_map = {}
         self.grass_img = pygame.image.load('images\\cobblestone.jpg')
-        self.dirt_img = pygame.image.load('images\\rock.png')
-        self.plant_img = pygame.image.load('images\\plant.png').convert()
+        self.dirt_img = pygame.image.load('images\\rock.png').convert()
+        self.plant_img = pygame.image.load('images\\plant.png')
         self.plant_img.set_colorkey((255, 255, 255))
         self.tile_index = {1: self.grass_img, 2: self.dirt_img, 3: self.plant_img}
         self.tile_rects = []
@@ -89,20 +89,32 @@ class LevelManager():
         self.effect_origin = 225
 
         # Level Data
-        self.level_dist = 330
-        self.level_timer = 80
-        self.cur_level = 1
-        self.available_enemies = [enemy.Slimes, enemy.Wolf]
-        self.available_hazards = [obstacles.Barricade]
-        self.level_boss = enemy.EyeBoss
         self.boss_defeated = False
         self.boss_encounter = False
-        self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.available_hazards, self.level_boss, self.level_dist, self.level_timer],
+        self.cur_level = 1
+        self.levels = {1: [300, (1.7, 3.2), [enemy.Slimes, enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 330, 80],
                        2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.SpiderBoss, 800, 90],
-                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 1400, 90]}
-
+                       3: [375, (1.5, 3), [enemy.Slimes, enemy.Bird, enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 1400, 90]}
+        self.spawn_range = self.levels[self.cur_level][1]
+        self.available_enemies = self.levels[self.cur_level][2]
+        self.available_hazards = self.levels[self.cur_level][3]
+        self.level_boss = self.levels[self.cur_level][4]
+        self.level_dist = self.levels[self.cur_level][5]
+        self.level_timer = self.levels[self.cur_level][6]
         self.chunk_timer = 2
         self.pit = False
+
+        self.time_loss_messages = ["The world as you know it is doomed.",
+                                   "All hail our new Slime overlords.",
+                                   "C'mon, pick up the pace.",
+                                   "Gotta be quicker than that.",
+                                   "Try again. You know you want to."]
+        self.party_death_messages = ["Yeah, you were supposed to dodge that.",
+                                     "Weaaaaaaaaak.",
+                                     "Thanks a lot, guys.",
+                                     "The world as you know it is doomed.",
+                                     "You're all fired."]
+        self.message = random.randint(0, len(self.time_loss_messages) - 1)
 
     def level_changer(self):
         """
@@ -124,6 +136,35 @@ class LevelManager():
         else:
             self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
             self.boss_defeated = False
+
+    def reset(self):
+        self.party = {"Warrior": player.Warrior((200, self.screen_dim[1] // 2), self.warrior_sprites, 1.5, self.win), "Archer":
+                      player.Archer((200, self.screen_dim[1] // 2), self.archer_sprites, 1.5, self.win), "Wizard":
+                      player.Wizard((200, self.screen_dim[1] // 2), self.wizard_sprites, 1.5, self.win)}
+        for character in self.party:
+            self.party[character].x -= self.party[character].width
+            self.party[character].y -= self.party[character].height
+            self.party[character].rect.x -= self.party[character].width
+            self.party[character].rect.y -= self.party[character].height
+        self.player = self.party["Warrior"]
+        self.chunk_timer = 2
+        self.pit = False
+        self.cur_level = 1
+        self.spawn_range = self.levels[self.cur_level][1]
+        self.available_enemies = self.levels[self.cur_level][2]
+        self.available_hazards = self.levels[self.cur_level][3]
+        self.level_boss = self.levels[self.cur_level][4]
+        self.level_dist = self.levels[self.cur_level][5]
+        self.level_timer = self.levels[self.cur_level][6]
+        self.object_spawn_timer = random.uniform(self.spawn_range[0], self.spawn_range[1])
+        self.boss_defeated = False
+        self.true_scroll = [0, 0]
+        self.game_map = {}
+        self.tile_rects = []
+        self.score = -57
+        self.distance = -57
+        self.message = random.randint(0, len(self.time_loss_messages) - 1)
+        self.state = "Runner"
 
     def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
@@ -168,7 +209,8 @@ class LevelManager():
         """
         global mid_attack, special_attack
         delta_time = self.clock.tick() / 1000
-        self.level_timer -= delta_time
+        if self.state == "Runner" or self.state == "Combat":
+            self.level_timer -= delta_time
         if not self.respawning:
             if self.chunk_timer >= 0:
                 self.chunk_timer -= delta_time
@@ -184,18 +226,21 @@ class LevelManager():
                 if len(self.party) > 0:
                     if "Warrior" in self.party:
                         self.player = self.party["Warrior"]
+                        self.menu_change("Main")
                         break
                     if "Archer" in self.party:
                         self.player = self.party["Archer"]
+                        self.menu_change("Main")
                         break
                     if "Wizard" in self.party:
                         self.player = self.party["Wizard"]
+                        self.menu_change("Main")
                         break
                 else:
                     break
 
         # Title Screen Updates
-        if self.state == "Title" or self.state == "Resume":
+        if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
             mouse_pos = pygame.mouse.get_pos()
             if self.start_rect:
                 if self.start_rect[0] - 5 < mouse_pos[0] < self.start_rect[0] + self.start_rect[2] + 5 and \
@@ -259,7 +304,7 @@ class LevelManager():
             self.object_spawn_timer -= delta_time
             # Enemy Collision and Combat Generation
             for e in self.onscreen_enemies:
-                if e.weapon_collision and e.__class__ != enemy.EyeBoss and enemy.SpiderBoss:
+                if e.weapon_collision and not e.boss:
                     self.onscreen_enemies.remove(e)
                     self.score += 150
                     break
@@ -285,16 +330,17 @@ class LevelManager():
                                 self.party[character].cur_frame = 1
                             self.attack_delay = 0
                             mid_attack = False
+                            self.menu_change("Main")
                             self.state = "Combat"
                 # Despawn offscreen enemies
                 if e.x <= 0 - e.width:
                     self.onscreen_enemies.remove(e)
             for h in self.onscreen_hazards:
-                if h.__class__ == obstacles.Barricade and  h.weapon_collision:
+                if h.__class__ == obstacles.Barricade and h.weapon_collision:
                     self.onscreen_hazards.remove(h)
                     self.score += h.clear_points + 50
                     break
-                if not self.respawning:
+                elif not self.respawning:
                     hit = h.update(delta_time, self.player.rect)
                     if hit:
                         if "Wizard" in self.party and self.party["Wizard"].runner_moves["Shield"][0] > 0:
@@ -512,7 +558,7 @@ class LevelManager():
             return True
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                if self.state == "Title" or self.state == "Resume":
+                if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
                     return True
                 else:
                     self.state = "Resume"
@@ -525,12 +571,19 @@ class LevelManager():
             if self.state == "Title" or self.state == "Resume":
                 if event.button == 1 and self.start_hover:
                     self.state = "Runner"
-                if event.button == 1 and self.quit_hover:
+                elif event.button == 1 and self.quit_hover:
+                    return True
+            elif self.state == "TimeUp" or self.state == "Ded":
+                if event.button == 1 and self.start_hover:
+                    self.reset()
+                elif event.button == 1 and self.quit_hover:
                     return True
 
         # Non input game over
-        if len(self.party) == 0 or self.level_timer <= 0:
-            return True
+        if len(self.party) == 0:
+            self.state = "Ded"
+        elif self.level_timer <= 0:
+            self.state = "TimeUp"
 
     def draw(self):
         # Background
@@ -546,7 +599,7 @@ class LevelManager():
             timer = self.header.render(str(int(self.level_timer)), False, (255, 255, 0))
             self.win.blit(timer, (self.win.get_width() // 2 - timer.get_width() // 2, 5))
         # State specific drawing
-        if self.state == "Title" or self.state == "Resume":
+        if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
             self.draw_title_screen(self.start_hover, self.quit_hover)
         elif self.state == "Runner":
             self.draw_level()
@@ -738,21 +791,35 @@ class LevelManager():
         highlight_color = (0, 170, 200)
         self.win.fill(bg_color)
         self.win.blit(self.logo, (self.screen_dim[0] // 2 - self.logo.get_width() // 2, int(self.screen_dim[1] * 0.1)))
-        temp = self.title.render("Dungeon Rush", False, title_color, bg_color)
-        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] // 3 - temp.get_height() // 2))
-        temp = self.header.render("By Tyler Cobb and Chase Minor", False, (0, 0, 0), bg_color)
-        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.37))
-
+        if self.state == "Title" or self.state == "Resume":
+            temp = self.title.render("Dungeon Rush", False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] // 3 - temp.get_height() // 2))
+            temp = self.header.render("By Tyler Cobb and Chase Minor", False, (0, 0, 0), bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.37))
+        elif self.state == "TimeUp":
+            temp = self.header.render("You didn't make it in time!", False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.37))
+            temp = self.header.render(self.time_loss_messages[self.message], False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.42))
+        elif self.state == "Ded":
+            temp = self.header.render("Your party has died.", False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.37))
+            temp = self.header.render(self.time_loss_messages[self.message], False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, self.screen_dim[1] * 0.42))
         if not start_highlight:
             if self.state == "Title":
                 temp = self.header.render("Start Game", False, title_color, bg_color)
             elif self.state == "Resume":
                 temp = self.header.render("Resume Game", False, title_color, bg_color)
+            elif self.state == "TimeUp" or self.state == "Ded":
+                temp = self.header.render("Restart Game", False, title_color, bg_color)
         else:
             if self.state == "Title":
                 temp = self.header.render("Start Game", False, highlight_color, bg_color)
             elif self.state == "Resume":
                 temp = self.header.render("Resume Game", False, highlight_color, bg_color)
+            elif self.state == "TimeUp" or self.state == "Ded":
+                temp = self.header.render("Restart Game", False, highlight_color, bg_color)
         self.start_rect = temp.get_rect()
         self.start_rect[0] = self.screen_dim[0] // 2 - temp.get_width() // 2
         self.start_rect[1] = int(self.screen_dim[1] * 0.55)
@@ -763,8 +830,8 @@ class LevelManager():
             temp = self.header.render("Quit Game", False, highlight_color, bg_color)
         self.quit_rect = temp.get_rect()
         self.quit_rect[0] = self.screen_dim[0] // 2 - temp.get_width() // 2
-        self.quit_rect[1] = int(self.screen_dim[1] * 0.6)
+        self.quit_rect[1] = int(self.screen_dim[1] * 0.63)
         self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.63)))
-        if self.state == "Resume":
+        if self.state != "Title":
             temp = self.title.render("Score: " + str(self.score), False, title_color, bg_color)
             self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.75)))
