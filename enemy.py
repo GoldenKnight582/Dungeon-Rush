@@ -128,7 +128,7 @@ class Bird(Enemy):
         self.bird_small_img.convert()
         self.bird_small_img_flip = pygame.transform.flip(self.bird_small_img, True, False)
         self.width = self.bird_img_flip.get_width()
-        self.height = int(self.bird_img_flip.get_height()) + 75
+        self.height = int(self.bird_img_flip.get_height()) + 45
         self.rect = pygame.Rect(int(self.x), int(self.y), int(self.width), int(self.bird_img_flip.get_height()) - 10)
 
     def draw(self, surf):
@@ -166,6 +166,57 @@ class Tornado(Enemy):
 
     def draw_portrait(self, surf):
         surf.blit(self.fire_small_img, (700, 180))
+
+class Snake(Enemy):
+
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 55
+        self.radius = 10
+        self.attack = 35
+        self.defense = 10
+        self.luck = 0.02
+        self.dodge = 0.1
+        self.air = True
+        self.snake_img = pygame.image.load("images\\snake.png")
+        self.snake_small_img = pygame.image.load("images\\snake_small.png")
+        self.width = self.snake_img.get_width()
+        self.height = int(self.snake_img.get_height()) + 45
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.width), int(self.snake_img.get_height()) - 10)
+
+    def draw(self, surf):
+        surf.blit(self.snake_img, (int(self.x), int(self.y)))
+        # Debug Collision
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+
+    def draw_portrait(self, surf):
+        surf.blit(self.snake_small_img, (700, 180))
+
+class Octo(Enemy):
+
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 80
+        self.radius = 10
+        self.attack = 30
+        self.defense = 40
+        self.luck = 0.02
+        self.dodge = 0.1
+        self.air = True
+        self.octo_img = pygame.image.load("images\\octo.png")
+        self.octo_small_img = pygame.image.load("images\\octo_small.png")
+        self.width = self.octo_img.get_width()
+        self.height = int(self.octo_img.get_height()) + 45
+        self.rect = pygame.Rect(int(self.x), int(self.y), int(self.width), int(self.octo_img.get_height()) - 10)
+
+    def draw(self, surf):
+        surf.blit(self.octo_img, (int(self.x), int(self.y)))
+        # Debug Collision
+#        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+
+    def draw_portrait(self, surf):
+        surf.blit(self.octo_small_img, (700, 180))
+
 
 
 class EyeBoss(Enemy):
@@ -206,3 +257,23 @@ class SpiderBoss(Enemy):
 
     def draw(self, surf):
         surf.blit(self.spider_img, (int(self.x), int(self.y)))
+
+class MinoBoss(Enemy):
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 450
+        self.radius = 50
+        self.attack = 50
+        self.defense = 35
+        self.height = 50
+        self.luck = 0
+        self.dodge = 0
+        self.boss = True
+        self.mino_img = pygame.image.load("images\\mino.png")
+        self.width = int(self.mino_img.get_width())
+        self.height = int(self.mino_img.get_height()) - 10
+        self.rect = pygame.Rect(int(self.x), int(self.y), self.width, self.height)
+
+    def draw(self, surf):
+        surf.blit(self.mino_img, (int(self.x), int(self.y)))
+

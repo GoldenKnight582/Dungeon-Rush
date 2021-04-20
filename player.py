@@ -281,6 +281,7 @@ class Archer(Player):
         self.runner_moves = {"Snipe": [0, 0, 2.5], "Dash": [0, 0, 2]}
         self.abilities = ["Rapidfire", "Take Cover"]
         self.ability_cooldowns = [0, 0, 6, 7]
+        self.sound = {"arrow": pygame.mixer.Sound("audio\\arrow.ogg")}
 
     def handle_running_input(self, evt):
         cur_class = super().handle_running_input(evt)
@@ -302,6 +303,8 @@ class Archer(Player):
         self.arrow.horizontal_speed = self.arrow.speed * math.cos(angle)
         self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
         self.runner_moves["Snipe"][1] = self.runner_moves["Snipe"][2]
+        self.sound["arrow"].play()
+        self.sound["arrow"].set_volume(0.3)
 
     def do_ability(self, opponent, party):
         if self.selection == 1:
@@ -337,11 +340,14 @@ class Arrow:
         self.height = self.image.get_height()
         self.width_edge = surf.get_width()
         self.height_edge = surf.get_height()
+        self.sound = {"arrow": pygame.mixer.Sound("audio\\arrow_hit.ogg")}
 
     def update(self, dt, enemies):
         # Movement
         self.x += self.horizontal_speed * dt
         self.y += self.vertical_speed * dt
+
+
 
         # Collision with enemies
         collision_rect = pygame.Rect(int(self.x), int(self.y), self.width, self.height)
@@ -349,6 +355,8 @@ class Arrow:
             if collision_rect.colliderect(e.rect):
                 e.weapon_collision = True
                 hit = True
+                self.sound["arrow"].play()
+                self.sound["arrow"].set_volume(0.3)
                 return hit
 
         # Boundary check
@@ -387,6 +395,8 @@ class Wizard(Player):
         pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.half_width, self.half_width), self.half_width)
         self.abilities = ["Thunderbolt", "Blaze"]
         self.ability_cooldowns = [0, 0, 5, 7]   # First two numbers are current cooldown, second two are corresponding
+        self.sound = {"fire": pygame.mixer.Sound("audio\\fire.ogg"),"thunder": pygame.mixer.Sound("audio\\thunder.ogg")}
+
         # starting cooldowns
 
     def handle_running_input(self, evt):
@@ -399,9 +409,15 @@ class Wizard(Player):
 
     def do_ability(self, opponent, party):
         if self.selection == 1:
+            self.sound["thunder"].play()
+            self.sound["thunder"].set_volume(0.3)
             return Thunderbolt()
         if self.selection == 2:
+            self.sound["fire"].play()
+            self.sound["fire"].set_volume(0.3)
             return Blaze()
+
+
 
 
 class Thunderbolt:

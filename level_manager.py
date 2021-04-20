@@ -47,8 +47,8 @@ class LevelManager():
         self.CHUNK_SIZE = 16
         self.game_map = {}
         self.grass_img = pygame.image.load('images\\cobblestone.jpg')
-        self.dirt_img = pygame.image.load('images\\rock.png').convert()
-        self.plant_img = pygame.image.load('images\\plant.png')
+        self.dirt_img = pygame.image.load('images\\rock.png')
+        self.plant_img = pygame.image.load('images\\plant.png').convert()
         self.plant_img.set_colorkey((255, 255, 255))
         self.tile_index = {1: self.grass_img, 2: self.dirt_img, 3: self.plant_img}
         self.tile_rects = []
@@ -68,7 +68,7 @@ class LevelManager():
 
         # Music by AlexisOrtizSofield from Pixabay
         pygame.mixer.music.load("audio\\music.mp3")
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play(-1)
 
         # Obstacle Spawn Data
@@ -94,7 +94,12 @@ class LevelManager():
         self.cur_level = 1
         self.levels = {1: [300, (1.7, 3.2), [enemy.Slimes, enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 330, 80],
                        2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.SpiderBoss, 800, 90],
-                       3: [375, (1.5, 3), [enemy.Slimes, enemy.Bird, enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 1400, 90]}
+                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.MinoBoss, 1400, 90],
+                       4: [375, (1.2, 2.3), [enemy.Tornado,enemy.Bird], [obstacles.Barricade], enemy.EyeBoss, 2600, 90],
+                       5: [395, (2, 2.8), [enemy.Snake,enemy.Octo,enemy.Tornado], [obstacles.Barricade], enemy.SpiderBoss, 3400, 90],
+                       6: [395, (2, 2.5), [enemy.Snake,enemy.Octo,enemy.Wolf,enemy.Tornado], [obstacles.Barricade], enemy.MinoBoss, 4200, 90],
+                       7: [420, (2, 3), [enemy.Snake,enemy.Wolf,enemy.Tornado,enemy.Bird,enemy.Octo,enemy.Slimes], [obstacles.Barricade], enemy.EyeBoss, 5000, 90]}
+
         self.spawn_range = self.levels[self.cur_level][1]
         self.available_enemies = self.levels[self.cur_level][2]
         self.available_hazards = self.levels[self.cur_level][3]
@@ -103,6 +108,10 @@ class LevelManager():
         self.level_timer = self.levels[self.cur_level][6]
         self.chunk_timer = 2
         self.pit = False
+
+        # Sounds
+        self.sound = {"fire":pygame.mixer.Sound("audio\\fire.ogg")}
+
 
         self.time_loss_messages = ["The world as you know it is doomed.",
                                    "All hail our new Slime overlords.",
