@@ -20,6 +20,7 @@ class Enemy:
         self.clear_points = 100
         self.weapon_collision = False
         self.special_effect = None
+        self.boss = False
         self.debuffs = []
         self.defense = 0
         self.stunned = ["False", 0]
@@ -141,6 +142,7 @@ class Bird(Enemy):
     def draw_portrait(self, surf):
         surf.blit(self.bird_small_img_flip, (700, 180))
 
+
 class Tornado(Enemy):
 
     def __init__(self, start_pos, state, scroll_speed):
@@ -177,6 +179,7 @@ class EyeBoss(Enemy):
         self.height = 50
         self.luck = 0
         self.dodge = 0
+        self.boss = True
         self.boss_img = pygame.image.load("images\\boss.png")
         self.width = int(self.boss_img.get_width())
         self.height = int(self.boss_img.get_height()) - 20
@@ -196,6 +199,7 @@ class SpiderBoss(Enemy):
         self.height = 50
         self.luck = 0
         self.dodge = 0
+        self.boss = True
         self.spider_img = pygame.image.load("images\\spider.png")
         self.width = int(self.spider_img.get_width())
         self.height = int(self.spider_img.get_height()) - 10
