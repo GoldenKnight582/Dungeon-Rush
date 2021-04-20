@@ -271,7 +271,7 @@ class LevelManager():
                         if "Wizard" in self.party and self.party["Wizard"].runner_moves["Shield"][0] > 0:
                             pass
                         else:
-                            if e.__class__ == enemy.EyeBoss and enemy.SpiderBoss:
+                            if e.boss:
                                 self.boss_encounter = True
                             self.combat_encounter = [e]
                             for i in range(random.randint(1, 2)):
