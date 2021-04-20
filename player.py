@@ -387,6 +387,8 @@ class Wizard(Player):
         pygame.draw.circle(self.shield_surf, (66, 139, 255), (self.half_width, self.half_width), self.half_width)
         self.abilities = ["Thunderbolt", "Blaze"]
         self.ability_cooldowns = [0, 0, 5, 7]   # First two numbers are current cooldown, second two are corresponding
+        self.sound = {"fire": pygame.mixer.Sound("audio\\fire.ogg")}
+
         # starting cooldowns
 
     def handle_running_input(self, evt):
@@ -401,7 +403,11 @@ class Wizard(Player):
         if self.selection == 1:
             return Thunderbolt()
         if self.selection == 2:
+            self.sound["fire"].play()
+            self.sound["fire"].set_volume(0.3)
             return Blaze()
+
+
 
 
 class Thunderbolt:

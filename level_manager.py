@@ -68,7 +68,7 @@ class LevelManager():
 
         # Music by AlexisOrtizSofield from Pixabay
         pygame.mixer.music.load("audio\\music.mp3")
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play(-1)
 
         # Obstacle Spawn Data
@@ -92,7 +92,6 @@ class LevelManager():
         self.level_dist = 330
         self.level_timer = 80
         self.cur_level = 1
-        #self.available_enemies = [enemy.MinoBoss]
         self.available_enemies = [enemy.Slimes, enemy.Wolf]
         self.available_hazards = [obstacles.Barricade]
         self.level_boss = enemy.EyeBoss
@@ -108,6 +107,10 @@ class LevelManager():
 
         self.chunk_timer = 2
         self.pit = False
+
+        # sounds
+
+        self.sound = {"fire":pygame.mixer.Sound("audio\\fire.ogg")}
 
     def level_changer(self):
         """
