@@ -77,7 +77,7 @@ class Slimes(Enemy):
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.slime_small_img, (700,200))
+        surf.blit(self.slime_small_img, (700, 160))
 
 
 class Wolf(Enemy):
@@ -107,7 +107,7 @@ class Wolf(Enemy):
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.wolf_small_img_flip, (700,180))
+        surf.blit(self.wolf_small_img_flip, (700, 140))
 
 
 class Bird(Enemy):
@@ -137,7 +137,7 @@ class Bird(Enemy):
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.bird_small_img_flip, (700, 180))
+        surf.blit(self.bird_small_img_flip, (700, 140))
 
 
 class Tornado(Enemy):
@@ -165,7 +165,7 @@ class Tornado(Enemy):
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.fire_small_img, (700, 180))
+        surf.blit(self.fire_small_img, (700, 140))
 
 class Snake(Enemy):
 
@@ -190,7 +190,7 @@ class Snake(Enemy):
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.snake_small_img, (700, 180))
+        surf.blit(self.snake_small_img, (700, 140))
 
 class Octo(Enemy):
 
@@ -215,7 +215,7 @@ class Octo(Enemy):
 #        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
-        surf.blit(self.octo_small_img, (700, 180))
+        surf.blit(self.octo_small_img, (700, 140))
 
 
 

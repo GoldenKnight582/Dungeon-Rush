@@ -173,6 +173,8 @@ class LevelManager():
         self.score = -57
         self.distance = -57
         self.message = random.randint(0, len(self.time_loss_messages) - 1)
+        self.current_opponent = None
+        self.combat_encounter = []
         self.state = "Runner"
 
     def generate_chunk(self, x, y):
@@ -320,7 +322,7 @@ class LevelManager():
                 if not self.respawning:
                     hit = e.update(delta_time, self.player.rect, "Runner")
                     if hit:
-                        if "Wizard" in self.party and self.party["Wizard"].runner_moves["Shield"][0] > 0:
+                        if "Wizard" in self.party and self.party["Wizard"].runner_moves["Shield"][0] > 0 and not e.boss:
                             pass
                         else:
                             if e.boss:
@@ -614,7 +616,7 @@ class LevelManager():
             self.draw_level()
         elif self.state == "Combat":
             if self.player.selection is not None:
-                self.draw_combat_screen(self.combat_encounter, self.player.selection)
+                self.draw_combat_screen(self.player.selection)
                 if self.attack_delay > 0 and self.cur_effect_img:
                     self.win.blit(self.cur_effect_img, (self.effect_origin, 325))
         if self.debug:
@@ -694,7 +696,7 @@ class LevelManager():
                 y_calc = (1 - (self.player.runner_moves[ability][1] / self.player.runner_moves[ability][2])) / 2.5 * 100
                 pygame.draw.line(self.win, (179, 0, 119), (rect.left, rect.top + int(y_calc)), (rect.right, rect.top + int(y_calc)))
 
-    def draw_combat_screen(self, enemy_list, selection):
+    def draw_combat_screen(self, selection):
         # Color Palette
         menu_space_color = (176, 166, 156)
         text_color = (255, 73, 48)
@@ -704,32 +706,32 @@ class LevelManager():
         # Buff Notifications
         if "Fortify" in self.player.buffs and "Cover" in self.player.buffs:
             temp = self.normal.render("Defense and Dodge Up!", False, (11, 29, 227))
-            self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 60))
+            self.win.blit(temp, (self.player.x + self.player.half_width - temp.get_width() // 2, self.player.y - 50))
         elif "Fortify" in self.player.buffs:
             temp = self.normal.render("Defense Up!", False, (11, 29, 227))
-            self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 60))
+            self.win.blit(temp, (self.player.x + self.player.half_width - temp.get_width() // 2, self.player.y - 50))
         elif "Cover" in self.player.buffs:
             temp = self.normal.render("Dodge Up!", False, (11, 29, 227))
-            self.win.blit(temp, (self.player.x - temp.get_width() // 2, self.player.y - 60))
+            self.win.blit(temp, (self.player.x + self.player.half_width - temp.get_width() // 2, self.player.y - 50))
         if self.current_opponent:
             self.current_opponent.draw(self.win)
             # Debuffs Notifications
             if "Stun" in self.current_opponent.debuffs and "Burn" in self.current_opponent.debuffs:
-                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 20, self.current_opponent.y - 150))
-                self.win.blit(self.blaze_img_icon, (self.current_opponent.x + 20, self.current_opponent.y - 150))
+                self.win.blit(self.bolt_img_icon, (self.current_opponent.x + self.current_opponent.width // 2 - self.bolt_img_icon.get_width() // 2 - 20, self.current_opponent.y - self.bolt_img_icon.get_height() - 10))
+                self.win.blit(self.blaze_img_icon, (self.current_opponent.x + self.current_opponent.width // 2 - self.bolt_img_icon.get_width() // 2 + 20, self.current_opponent.y - self.blaze_img_icon.get_height() - 10))
             elif "Stun" in self.current_opponent.debuffs:
-                self.win.blit(self.bolt_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 150))
+                self.win.blit(self.bolt_img_icon, (self.current_opponent.x + self.current_opponent.width // 2 - self.bolt_img_icon.get_width() // 2, self.current_opponent.y - self.bolt_img_icon.get_height() - 10))
             elif "Burn" in self.current_opponent.debuffs:
-                self.win.blit(self.blaze_img_icon, (self.current_opponent.x - 18, self.current_opponent.y - 150))
+                self.win.blit(self.blaze_img_icon, (self.current_opponent.x + self.current_opponent.width // 2 - self.blaze_img_icon.get_width() // 2, self.current_opponent.y - self.blaze_img_icon.get_height() - 10))
             if "Pierce" in self.current_opponent.debuffs:
                 temp = self.normal.render("Defense Down!", False, (186, 24, 70))
                 self.win.blit(temp, (self.current_opponent.x - temp.get_width() // 2, self.current_opponent.y - 60))
         if len(self.combat_encounter) > 1:
             # Show Upcoming Enemy
             temp = self.normal.render("Next Enemy:", False, text_color)
-            pygame.draw.rect(self.win, (20, 20, 20), (645, 140, temp.get_width() + 15, temp.get_height() + 60))
-            pygame.draw.rect(self.win, (230, 60, 0), (645, 140, temp.get_width() + 15, temp.get_height() + 60), 5)
-            self.win.blit(temp, (650, 150))
+            pygame.draw.rect(self.win, (20, 20, 20), (645, 100, temp.get_width() + 15, temp.get_height() + 60))
+            pygame.draw.rect(self.win, (230, 60, 0), (645, 100, temp.get_width() + 15, temp.get_height() + 60), 5)
+            self.win.blit(temp, (650, 110))
             self.combat_encounter[1].draw_portrait(self.win)
         # Menu Options
         for i in range(len(self.combat_menu["Main"])):
@@ -751,7 +753,7 @@ class LevelManager():
         self.win.blit(temp, (self.player.x + self.player.half_width - temp.get_width() // 2, self.player.y - 100))
         # Opponent Health
         temp = self.header.render(str(self.current_opponent.health), False, text_color)
-        self.win.blit(temp, (self.current_opponent.x - temp.get_width() // 2, self.current_opponent.y - 100))
+        self.win.blit(temp, (self.current_opponent.x + self.current_opponent.width // 2 - temp.get_width() // 2, self.current_opponent.y - 100))
         # Turn Info
         temp = self.header.render(self.turn + " Turn!", False, text_color, menu_space_color)
         self.win.blit(temp, (50, 725))
