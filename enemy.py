@@ -258,3 +258,23 @@ class SpiderBoss(Enemy):
 
     def draw(self, surf):
         surf.blit(self.spider_img, (int(self.x), int(self.y)))
+
+class MinoBoss(Enemy):
+    def __init__(self, start_pos, state, scroll_speed):
+        super().__init__(start_pos, state, scroll_speed)
+        self.health = 450
+        self.radius = 50
+        self.attack = 50
+        self.defense = 35
+        self.height = 50
+        self.luck = 0
+        self.dodge = 0
+        self.boss = True
+        self.mino_img = pygame.image.load("images\\mino.png")
+        self.width = int(self.mino_img.get_width())
+        self.height = int(self.mino_img.get_height()) - 10
+        self.rect = pygame.Rect(int(self.x), int(self.y), self.width, self.height)
+
+    def draw(self, surf):
+        surf.blit(self.mino_img, (int(self.x), int(self.y)))
+
