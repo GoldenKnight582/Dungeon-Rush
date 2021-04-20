@@ -92,14 +92,16 @@ class LevelManager():
         self.level_dist = 330
         self.level_timer = 80
         self.cur_level = 1
-        self.available_enemies = [enemy.Slimes, enemy.Wolf]
+        self.available_enemies = [enemy.Octo]
+        #self.available_enemies = [enemy.Slimes, enemy.Wolf]
         self.available_hazards = [obstacles.Barricade]
         self.level_boss = enemy.EyeBoss
         self.boss_defeated = False
         self.boss_encounter = False
         self.levels = {1: [self.player.speed, self.spawn_range, self.available_enemies, self.available_hazards, self.level_boss, self.level_dist, self.level_timer],
                        2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.SpiderBoss, 800, 90],
-                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 1400, 90]}
+                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 1400, 90],
+                       4: [375, (1.5, 3), [enemy.Snake], [obstacles.Barricade], enemy.SpiderBoss, 2000, 90]}
 
         self.chunk_timer = 2
         self.pit = False
