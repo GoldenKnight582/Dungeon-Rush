@@ -34,8 +34,7 @@ class Player:
         self.buffs = []
         self.fortify = ["False", 0]
         self.cover = ["False", 0]
-        self.sound = pygame.mixer.Sound("audio\\bouncy.wav")
-        self.sound.set_volume(0.5)
+        self.sound = {"jump": pygame.mixer.Sound("audio\\jump.ogg")}
 
     def do_ability(self, opponent, party):
         pass
@@ -217,6 +216,7 @@ class Warrior(Player):
         self.abilities = ["Fortify", "Overwhelm"]
         self.ability_cooldowns = [0, 0, 7, 9]
         self.sword = pygame.image.load("images\\sword.png")
+        self.sound = {"sword": pygame.mixer.Sound("audio\\sword.ogg")}
 
     def do_ability(self, opponent, party):
         if self.selection == 1 and self.ability_cooldowns[0] == 0:
@@ -242,6 +242,8 @@ class Warrior(Player):
 
     def strike(self, enemies, hazards):
         collision_rect = pygame.Rect(self.x + self.width, self.y + 5, 50, 70)
+        self.sound["sword"].play()
+        self.sound["sword"].set_volume(0.3)
         for e in enemies:
             if collision_rect.colliderect(e.rect):
                 e.weapon_collision = True
