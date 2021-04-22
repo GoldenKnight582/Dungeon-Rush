@@ -24,9 +24,9 @@ class Obstacle:
         self.rect.y = self.y
         # Collision Check
         if self.rect.colliderect(player_rect):
-            collision = True
             self.sound["glass"].play()
             self.sound["glass"].set_volume(0.1)
+            collision = True
             return collision
 
 
