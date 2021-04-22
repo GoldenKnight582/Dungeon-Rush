@@ -9,15 +9,14 @@ class Obstacle:
 #        self.image = pygame.image.load(image)
 #        self.width = self.image.get_width()
 #        self.height = self.image.get_height()
-        self.width = 0
-        self.height = 0
 #        self.scaled_image = pygame.transform.scale(self.image, (self.width * scale, self.height * scale))
 #        self.width *= scale
 #        self.height *= scale
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.rect = None
         self.speed = scroll_speed
         self.clear_points = 100
         self.weapon_collision = False
+        self.sound = {"glass": pygame.mixer.Sound("audio\\glass.ogg")}
 
     def update(self, dt, player_rect):
         self.x -= self.speed * dt
@@ -25,6 +24,8 @@ class Obstacle:
         self.rect.y = self.y
         # Collision Check
         if self.rect.colliderect(player_rect):
+            self.sound["glass"].play()
+            self.sound["glass"].set_volume(0.1)
             collision = True
             return collision
 
@@ -32,10 +33,11 @@ class Obstacle:
 class Barricade(Obstacle):
     def __init__(self, start_pos, scroll_speed):
         super().__init__(start_pos, scroll_speed)
-        self.width = 30
-        self.height = 150
+        self.wall_img = pygame.image.load("images\\wall.png")
+        self.width = self.wall_img.get_width()
+        self.height = self.wall_img.get_height()
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
 
     def draw(self, surf):
-        pygame.draw.rect(surf, (255, 0, 0), self.rect)
+        surf.blit(self.wall_img, (int(self.x), int(self.y)))

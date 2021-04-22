@@ -34,7 +34,7 @@ class Player:
         self.buffs = []
         self.fortify = ["False", 0]
         self.cover = ["False", 0]
-        self.sound = {"jump": pygame.mixer.Sound("audio\\jump.ogg")}
+        self.jump = {"jump": pygame.mixer.Sound("audio\\jump.ogg")}
 
     def do_ability(self, opponent, party):
         pass
@@ -114,6 +114,9 @@ class Player:
         if evt.type == pygame.KEYDOWN:
             if evt.key == pygame.K_SPACE:
                 if self.can_jump:
+                    self.jump["jump"].play()
+                    self.jump["jump"].set_volume(0.01)
+                    self.jump_power = -125
                     self.jump_power = -130
                     self.can_jump = False
             if evt.key == pygame.K_q:
@@ -216,7 +219,7 @@ class Warrior(Player):
         self.abilities = ["Fortify", "Overwhelm"]
         self.ability_cooldowns = [0, 0, 7, 9]
         self.sword = pygame.image.load("images\\sword.png")
-        self.sound = {"sword": pygame.mixer.Sound("audio\\sword.ogg")}
+        self.sound = {"sword": pygame.mixer.Sound("audio\\sword.ogg"),"glass": pygame.mixer.Sound("audio\\glass.ogg")}
 
     def do_ability(self, opponent, party):
         if self.selection == 1 and self.ability_cooldowns[0] == 0:
@@ -241,14 +244,16 @@ class Warrior(Player):
         return cur_class
 
     def strike(self, enemies, hazards):
-        collision_rect = pygame.Rect(self.x + self.width, self.y + 5, 50, 70)
         self.sound["sword"].play()
-        self.sound["sword"].set_volume(0.3)
+        self.sound["sword"].set_volume(0.01)
+        collision_rect = pygame.Rect(self.x + self.width, self.y + 5, 50, 70)
         for e in enemies:
             if collision_rect.colliderect(e.rect):
                 e.weapon_collision = True
         for h in hazards:
             if collision_rect.colliderect(h.rect):
+                self.sound["glass"].play()
+                self.sound["glass"].set_volume(0.1)
                 h.weapon_collision = True
 
     def draw(self):
@@ -306,7 +311,7 @@ class Archer(Player):
         self.arrow.vertical_speed = -self.arrow.speed * math.sin(angle)
         self.runner_moves["Snipe"][1] = self.runner_moves["Snipe"][2]
         self.sound["arrow"].play()
-        self.sound["arrow"].set_volume(0.3)
+        self.sound["arrow"].set_volume(0.1)
 
     def do_ability(self, opponent, party):
         if self.selection == 1:
@@ -358,7 +363,7 @@ class Arrow:
                 e.weapon_collision = True
                 hit = True
                 self.sound["arrow"].play()
-                self.sound["arrow"].set_volume(0.3)
+                self.sound["arrow"].set_volume(0.1)
                 return hit
 
         # Boundary check
