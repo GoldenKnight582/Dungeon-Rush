@@ -64,6 +64,10 @@ class LevelManager():
         self.start_hover = False
         self.quit_rect = None
         self.quit_hover = False
+        self.next_rect = None
+        self.next_hover = False
+        self.back_rect = None
+        self.back_hover = False
         self.logo = pygame.image.load("Images\\logo.png")
 
         # Music by AlexisOrtizSofield from Pixabay
@@ -265,6 +269,12 @@ class LevelManager():
                     self.quit_hover = True
                 else:
                     self.quit_hover = False
+            if self.next_rect:
+                if self.next_rect[0] - 5 < mouse_pos[0] < self.next_rect[0] + self.next_rect[2] + 5 and \
+                        self.next_rect[1] - 5 < mouse_pos[1] < self.next_rect[1] + self.next_rect[3] + 5:
+                    self.next_hover = True
+                else:
+                    self.next_hover = False
 
         if self.state == "Runner":
             if not self.respawning:
@@ -571,6 +581,8 @@ class LevelManager():
             if event.key == pygame.K_ESCAPE:
                 if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
                     return True
+                elif self.state == "Tutorial":
+                    pass
                 else:
                     self.state = "Resume"
             elif event.key == pygame.K_F1:
@@ -584,6 +596,8 @@ class LevelManager():
                     self.state = "Runner"
                 elif event.button == 1 and self.quit_hover:
                     return True
+                elif event.button == 1 and self.next_hover:
+                    self.state = "Tutorial"
             elif self.state == "TimeUp" or self.state == "Ded":
                 if event.button == 1 and self.start_hover:
                     self.reset()
@@ -611,7 +625,9 @@ class LevelManager():
             self.win.blit(timer, (self.win.get_width() // 2 - timer.get_width() // 2, 5))
         # State specific drawing
         if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
-            self.draw_title_screen(self.start_hover, self.quit_hover)
+            self.draw_title_screen(self.start_hover, self.quit_hover, self.next_hover)
+        elif self.state == "Tutorial":
+            self.draw_instructions(self.next_hover, self.back_hover)
         elif self.state == "Runner":
             self.draw_level()
         elif self.state == "Combat":
@@ -796,7 +812,7 @@ class LevelManager():
                 pygame.draw.polygon(self.win, (0, 0, 0), ((350, 485 + (offset - align) * 40), (350, 515 + (offset - align) * 40),
                                                           (395, 500 + (offset - align) * 40)))
 
-    def draw_title_screen(self, start_highlight=False, quit_highlight=False):
+    def draw_title_screen(self, start_highlight=False, quit_highlight=False, next_highlight=False):
         bg_color = (150, 150, 150)
         title_color = (255, 0, 51)
         highlight_color = (0, 170, 200)
@@ -841,8 +857,52 @@ class LevelManager():
             temp = self.header.render("Quit Game", False, highlight_color, bg_color)
         self.quit_rect = temp.get_rect()
         self.quit_rect[0] = self.screen_dim[0] // 2 - temp.get_width() // 2
-        self.quit_rect[1] = int(self.screen_dim[1] * 0.63)
-        self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.63)))
+        if self.state == "Resume":
+            self.quit_rect[1] = int(self.screen_dim[1] * 0.63)
+        else:
+            self.quit_rect[1] = int(self.screen_dim[1] * 0.75)
+        self.win.blit(temp, (self.quit_rect[0], self.quit_rect[1]))
         if self.state != "Title":
             temp = self.title.render("Score: " + str(self.score), False, title_color, bg_color)
             self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, int(self.screen_dim[1] * 0.75)))
+        else:
+            if not next_highlight:
+                temp = self.header.render("Instructions", False, title_color, bg_color)
+            else:
+                temp = self.header.render("Instructions", False, highlight_color, bg_color)
+            self.next_rect = temp.get_rect()
+            self.next_rect[0] = self.screen_dim[0] // 2 - temp.get_width() // 2
+            self.next_rect[1] = int(self.screen_dim[1] * 0.63)
+            self.win.blit(temp, (self.next_rect[0], self.next_rect[1]))
+
+    def draw_instructions(self, next_hover, back_hover):
+        bg_color = (150, 150, 150)
+        title_color = (255, 0, 51)
+        text_color = (0, 0, 0)
+        highlight_color = (0, 170, 200)
+        left_align = int(self.screen_dim[0] * 0.02)
+        self.win.fill(bg_color)
+        if self.state == "Tutorial":
+            temp = self.header.render("Instructions", False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, 50))
+            temp = self.normal.render("Monsters have been plotting to destroy the Earth, and today, they're", False, text_color, bg_color)
+            spacing = int(self.screen_dim[1] * 0.35) + temp.get_height() + 10
+            self.win.blit(temp, (left_align, int(self.screen_dim[1] * 0.35)))
+            temp = self.normal.render("going to put that plan into motion! If your party of heroes doesn't reach", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("them in time, it's all over. Reach and defeat each boss within the time", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("limit, and you just might be able to put a stop to this!", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            temp = self.header.render("Controls", False, title_color, bg_color)
+            self.next_rect = temp.get_rect()
+            self.back_rect[0] = left_align
+            self.back_rect[1] = int(self.screen_dim[1] * 0.85)
+            self.win.blit(temp, (self.back_rect[0], self.back_rect[1]))
+            temp = self.header.render("Controls", False, title_color, bg_color)
+            self.next_rect = temp.get_rect()
+            self.next_rect[0] = int(self.screen_dim[0] * 0.75)
+            self.next_rect[1] = self.back_rect[1]
+            self.win.blit(temp, (self.next_rect[0], self.next_rect[1]))
