@@ -20,7 +20,7 @@ class Player:
         self.speed = 300
         self.can_jump = True
         self.surf = surf
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.rect = pygame.Rect(self.x, self.y, self.width - 10, self.height)
         self.selection = None
         self.selection_made = False
         self.special_effect = None
@@ -117,6 +117,7 @@ class Player:
                     self.jump["jump"].play()
                     self.jump["jump"].set_volume(0.01)
                     self.jump_power = -125
+                    self.jump_power = -130
                     self.can_jump = False
             if evt.key == pygame.K_q:
                 if self.__class__.__name__ == "Warrior":
@@ -390,7 +391,7 @@ class Wizard(Player):
         self.health = 120
         self.max_health = self.health
         self.attack = 20
-        self.defense = 10
+        self.defense = 15
         self.luck = 0.1
         self.dodge = 0.06
         self.base_dodge = 0.06
@@ -422,8 +423,6 @@ class Wizard(Player):
             self.sound["fire"].play()
             self.sound["fire"].set_volume(0.3)
             return Blaze()
-
-
 
 
 class Thunderbolt:
