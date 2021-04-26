@@ -41,3 +41,15 @@ class Barricade(Obstacle):
 
     def draw(self, surf):
         surf.blit(self.wall_img, (int(self.x), int(self.y)))
+
+class SpikyRock(Obstacle):
+    def __init__(self, start_pos, scroll_speed):
+        super().__init__(start_pos, scroll_speed)
+        self.spike_img = pygame.image.load("images\\spike.png")
+        self.width = self.spike_img.get_width()
+        self.height = self.spike_img.get_height()
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+
+    def draw(self, surf):
+        surf.blit(self.spike_img, (int(self.x), int(self.y)))

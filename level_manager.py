@@ -96,7 +96,7 @@ class LevelManager():
         self.boss_defeated = False
         self.boss_encounter = False
         self.cur_level = 1
-        self.levels = {1: [300, (1.7, 3.2), [enemy.Slimes, enemy.Wolf], [obstacles.Barricade], enemy.EyeBoss, 330, 80],
+        self.levels = {1: [300, (1.7, 3.2), [enemy.Slimes, enemy.Wolf], [obstacles.Barricade, obstacles.SpikyRock], enemy.EyeBoss, 330, 80],
                        2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.SpiderBoss, 800, 90],
                        3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.MinoBoss, 1400, 90],
                        4: [375, (1.2, 2.3), [enemy.Tornado,enemy.Bird], [obstacles.Barricade], enemy.EyeBoss, 2100, 90],
