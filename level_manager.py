@@ -97,12 +97,12 @@ class LevelManager():
         self.boss_encounter = False
         self.cur_level = 1
         self.levels = {1: [300, (1.7, 3.2), [enemy.Slimes, enemy.Wolf], [obstacles.Barricade, obstacles.SpikyRock], enemy.EyeBoss, 330, 80],
-                       2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade], enemy.SpiderBoss, 800, 90],
-                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade], enemy.MinoBoss, 1400, 90],
-                       4: [375, (1.2, 2.3), [enemy.Tornado,enemy.Bird], [obstacles.Barricade], enemy.EyeBoss, 2100, 90],
-                       5: [395, (2, 2.8), [enemy.Snake,enemy.Octo,enemy.Tornado], [obstacles.Barricade], enemy.SpiderBoss, 2900, 90],
-                       6: [395, (2, 2.5), [enemy.Snake,enemy.Octo,enemy.Wolf,enemy.Tornado], [obstacles.Barricade], enemy.MinoBoss, 3750, 90],
-                       7: [420, (2, 3), [enemy.Snake,enemy.Wolf,enemy.Tornado,enemy.Bird,enemy.Octo,enemy.Slimes], [obstacles.Barricade], enemy.EyeBoss, 5000, 90]}
+                       2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade,obstacles.SpikyRock], enemy.SpiderBoss, 800, 90],
+                       3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade,obstacles.SpikyRock], enemy.MinoBoss, 1400, 90],
+                       4: [375, (1.2, 2.3), [enemy.Tornado,enemy.Bird], [obstacles.Barricade,obstacles.SpikyRock], enemy.EyeBoss, 2100, 90],
+                       5: [395, (2, 2.8), [enemy.Snake,enemy.Octo,enemy.Tornado], [obstacles.Barricade,obstacles.SpikyRock], enemy.SpiderBoss, 2900, 90],
+                       6: [395, (2, 2.5), [enemy.Snake,enemy.Octo,enemy.Wolf,enemy.Tornado], [obstacles.Barricade,obstacles.SpikyRock], enemy.MinoBoss, 3750, 90],
+                       7: [420, (2, 3), [enemy.Snake,enemy.Wolf,enemy.Tornado,enemy.Bird,enemy.Octo,enemy.Slimes], [obstacles.Barricade,obstacles.SpikyRock], enemy.EyeBoss, 5000, 90]}
 
         self.spawn_range = self.levels[self.cur_level][1]
         self.available_enemies = self.levels[self.cur_level][2]
@@ -127,6 +127,9 @@ class LevelManager():
                                      "The world as you know it is doomed.",
                                      "You're all fired."]
         self.message = random.randint(0, len(self.time_loss_messages) - 1)
+        self.sword_small = pygame.image.load("images\\Sword_small.png")
+        self.arrow_small = pygame.image.load("images\\arrow_small.png")
+        self.dash_small = pygame.image.load("images\\dash.png")
 
     def level_changer(self):
         """
@@ -179,6 +182,7 @@ class LevelManager():
         self.current_opponent = None
         self.combat_encounter = []
         self.state = "Runner"
+
 
     def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
@@ -728,6 +732,14 @@ class LevelManager():
             if self.player.runner_moves[ability][1] > 0:
                 y_calc = (1 - (self.player.runner_moves[ability][1] / self.player.runner_moves[ability][2])) / 2.5 * 100
                 pygame.draw.line(self.win, (179, 0, 119), (rect.left, rect.top + int(y_calc)), (rect.right, rect.top + int(y_calc)))
+            if self.player.__class__.__name__ == "Warrior":
+                self.win.blit(self.sword_small, (285,12))
+            if self.player.__class__.__name__ == "Archer":
+                self.win.blit(self.arrow_small, (280,15))
+                self.win.blit(self.dash_small, (232, 23))
+            if self.player.__class__.__name__ == "Wizard":
+                pygame.draw.circle(self.win,(135,206,235),(295,27),10)
+
 
     def draw_combat_screen(self, selection):
         # Color Palette

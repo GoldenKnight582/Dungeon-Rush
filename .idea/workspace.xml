@@ -1,127 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="46fca3c2-cb20-4ad5-85b4-feba4ffe86ab" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/enemy.py" beforeDir="false" afterPath="$PROJECT_DIR$/enemy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/level_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/level_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/Platformer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/grass_0.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/grass_1.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/jump.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/music.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/player_animations/idle/idle_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/player_animations/idle/idle_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/player_animations/idle/idle_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/player_animations/run/run_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/map/player_animations/run/run_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/RUN_ME.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Fonts/Orbitron-Regular.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/Bird.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/Bird_small.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/Blaze.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/Lightning.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/RedKnightSpriteSheet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/Slime.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/Slime_small.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/Sword.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/cave.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/cobblestone.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/dirt.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/grass.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/logo.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/mage-light.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/plant.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/rock.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/unnamed.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/wolf.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Images/wolf_small.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/Bird.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/CasaMonstro_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/Slime.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/__Wolf_Idle_011.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/butterfly spritesheet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/eyeball spritesheet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/plant spritesheet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/Temp folder/worm spritesheet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/audio/bouncy.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/audio/music.mp3" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/enemy.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/game.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/level_manager.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/Platformer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/Preview.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/cobblestone.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/dirt.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/grass.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/grass_0.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/grass_1.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/jump.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/music.wav" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/plant.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/player_animations/idle/idle_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/player_animations/idle/idle_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/player_animations/idle/idle_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/player_animations/run/run_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/player_animations/run/run_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/map/rock.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/obstacles.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/code/player.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/_camera.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/_pygame.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/_surface.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/camera.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/fastevents.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/font.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/freetype.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/_pygame.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/bitmask.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pgcompat.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pgimport.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pgplatform.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pygame.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pygame_bufferproxy.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pygame_font.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pygame_freetype.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pygame_mask.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/pygame_mixer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/include/sse2neon.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/mask.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/mixer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/palette.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/pgarrinter.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/pgbufferproxy.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/pgcompat.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/pgimport.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/pgopengl.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/pgplatform.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/pygame.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/scrap.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Include/pygame/surface.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Scripts/pip.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Scripts/pip3.9.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Scripts/pip3.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/Scripts/wheel.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/get-pip.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/libcrypto-1_1.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/libffi-7.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/libssl-1_1.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/python.cat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/python.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/python3.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/python39._pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/python39.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/python39.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/pythonw.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/sqlite3.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/vcruntime140.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sample_pygame_project/interpreter/vcruntime140_1.dll" beforeDir="false" />
-    </list>
+    <list default="true" id="11393aab-0a4d-4257-a2c3-edb92a46a897" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -130,7 +10,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectId" id="1riRYjjBAiFJ2xpJUEb7Qmz57AL" />
+  <component name="ProjectId" id="1roLyMZgf8A3gzx2mVonNNHykUS" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -139,8 +19,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
     <configuration name="game" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -173,24 +52,12 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="46fca3c2-cb20-4ad5-85b4-feba4ffe86ab" name="Default Changelist" comment="" />
-      <created>1619456972168</created>
+      <changelist id="11393aab-0a4d-4257-a2c3-edb92a46a897" name="Default Changelist" comment="" />
+      <created>1619637748836</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1619456972168</updated>
+      <updated>1619637748836</updated>
     </task>
     <servers />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>
