@@ -22,6 +22,7 @@ class Enemy:
         self.burned = ["False", 0]
         self.pierced = ["False", 0]
         self.air = None
+        self.boss = False
 
     def update(self, dt, player_rect, state):
         if state == "Runner":
@@ -236,6 +237,7 @@ class EyeBoss(Enemy):
         self.dodge = 0
         self.boss = True
         self.boss_img = pygame.image.load("images\\boss.png")
+        self.boss = True
         self.width = int(self.boss_img.get_width())
         self.height = int(self.boss_img.get_height()) - 20
         self.rect = pygame.Rect(int(self.x), int(self.y),self.width, self.height)
@@ -256,6 +258,7 @@ class SpiderBoss(Enemy):
         self.dodge = 0
         self.boss = True
         self.spider_img = pygame.image.load("images\\spider.png")
+        self.boss = True
         self.width = int(self.spider_img.get_width())
         self.height = int(self.spider_img.get_height()) - 10
         self.rect = pygame.Rect(int(self.x), int(self.y), self.width, self.height)

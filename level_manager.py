@@ -83,7 +83,7 @@ class LevelManager():
 
         # spawning of attacks
         warrior_attack_img = pygame.image.load("images\\sword.png")
-        self.warrior_attack_img_resize = pygame.transform.scale(warrior_attack_img, (100,100))
+        self.warrior_attack_img_resize = pygame.transform.scale(warrior_attack_img, (100, 100))
         bolt_img = pygame.image.load("images\\lightning.png")
         self.bolt_img_icon = pygame.transform.scale(bolt_img, (36, 36))
         blaze_img = pygame.image.load("images\\blaze.png")
@@ -115,7 +115,6 @@ class LevelManager():
 
         # Sounds
         self.sound = {"fire":pygame.mixer.Sound("audio\\fire.ogg")}
-
 
         self.time_loss_messages = ["The world as you know it is doomed.",
                                    "All hail our new Slime overlords.",
@@ -255,7 +254,7 @@ class LevelManager():
                     break
 
         # Title Screen Updates
-        if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
+        if self.state != "Runner" and self.state != "Combat":
             mouse_pos = pygame.mouse.get_pos()
             if self.start_rect:
                 if self.start_rect[0] - 5 < mouse_pos[0] < self.start_rect[0] + self.start_rect[2] + 5 and \
@@ -275,6 +274,12 @@ class LevelManager():
                     self.next_hover = True
                 else:
                     self.next_hover = False
+            if self.back_rect:
+                if self.back_rect[0] - 5 < mouse_pos[0] < self.back_rect[0] + self.back_rect[2] + 5 and \
+                        self.back_rect[1] - 5 < mouse_pos[1] < self.back_rect[1] + self.back_rect[3] + 5:
+                    self.back_hover = True
+                else:
+                    self.back_hover = False
 
         if self.state == "Runner":
             if not self.respawning:
@@ -591,18 +596,30 @@ class LevelManager():
                 else:
                     self.debug = True
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.state == "Title" or self.state == "Resume":
-                if event.button == 1 and self.start_hover:
+            if event.button == 1 and self.start_hover:
+                if self.state == "Title" or self.state == "Resume":
                     self.state = "Runner"
-                elif event.button == 1 and self.quit_hover:
-                    return True
-                elif event.button == 1 and self.next_hover:
-                    self.state = "Tutorial"
-            elif self.state == "TimeUp" or self.state == "Ded":
-                if event.button == 1 and self.start_hover:
+                elif self.state == "TimeUp" or self.state == "Ded":
                     self.reset()
-                elif event.button == 1 and self.quit_hover:
+            elif event.button == 1 and self.quit_hover:
+                if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
                     return True
+            elif event.button == 1 and self.next_hover:
+                if self.state == "Title":
+                    self.state = "Tutorial"
+                elif self.state == "Tutorial":
+                    self.state = "Controls"
+                elif self.state == "Controls":
+                    self.state = "Combat Instructions"
+                elif self.state == "Combat Instructions":
+                    self.state = "Title"
+            elif event.button == 1 and self.back_hover:
+                if self.state == "Tutorial":
+                    self.state = "Title"
+                elif self.state == "Controls":
+                    self.state = "Tutorial"
+                elif self.state == "Combat Instructions":
+                    self.state = "Controls"
 
         # Non input game over
         if len(self.party) == 0:
@@ -626,8 +643,8 @@ class LevelManager():
         # State specific drawing
         if self.state == "Title" or self.state == "Resume" or self.state == "TimeUp" or self.state == "Ded":
             self.draw_title_screen(self.start_hover, self.quit_hover, self.next_hover)
-        elif self.state == "Tutorial":
-            self.draw_instructions(self.next_hover, self.back_hover)
+        elif self.state == "Tutorial" or self.state == "Controls" or self.state == "Combat Instructions":
+            self.draw_instructions()
         elif self.state == "Runner":
             self.draw_level()
         elif self.state == "Combat":
@@ -875,12 +892,13 @@ class LevelManager():
             self.next_rect[1] = int(self.screen_dim[1] * 0.63)
             self.win.blit(temp, (self.next_rect[0], self.next_rect[1]))
 
-    def draw_instructions(self, next_hover, back_hover):
+    def draw_instructions(self):
         bg_color = (150, 150, 150)
         title_color = (255, 0, 51)
         text_color = (0, 0, 0)
         highlight_color = (0, 170, 200)
         left_align = int(self.screen_dim[0] * 0.02)
+        temp_str = ""
         self.win.fill(bg_color)
         if self.state == "Tutorial":
             temp = self.header.render("Instructions", False, title_color, bg_color)
@@ -896,13 +914,92 @@ class LevelManager():
             spacing += temp.get_height() + 10
             temp = self.normal.render("limit, and you just might be able to put a stop to this!", False, text_color, bg_color)
             self.win.blit(temp, (left_align, spacing))
+        elif self.state == "Combat Instructions":
+            temp = self.header.render("Combat", False, title_color, bg_color)
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, 50))
+            temp = self.normal.render("Colliding with an enemy initiates a combat encounter.", False, text_color, bg_color)
+            spacing = int(self.screen_dim[1] * 0.2) + temp.get_height() + 10
+            self.win.blit(temp, (left_align, int(self.screen_dim[1] * 0.2)))
+            temp = self.normal.render("Use the arrow keys and Enter key to select menu options.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("Backspace returns to a previous menu.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("Each character has unique stats and abilities, so use them wisely!", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("Attacks may have a chance to crit for 1.5x damage and the", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("attacked may have a chance to dodge and avoid damage.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("If you choose to swap characters, your swapped-in character is", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("vulnerable to attack.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("Be careful, if a character dies in combat, they won't come back!", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("However, defeating a boss encounter will refill the health of", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("living party members.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+        elif self.state == "Controls":
             temp = self.header.render("Controls", False, title_color, bg_color)
-            self.next_rect = temp.get_rect()
-            self.back_rect[0] = left_align
-            self.back_rect[1] = int(self.screen_dim[1] * 0.85)
-            self.win.blit(temp, (self.back_rect[0], self.back_rect[1]))
-            temp = self.header.render("Controls", False, title_color, bg_color)
-            self.next_rect = temp.get_rect()
-            self.next_rect[0] = int(self.screen_dim[0] * 0.75)
-            self.next_rect[1] = self.back_rect[1]
-            self.win.blit(temp, (self.next_rect[0], self.next_rect[1]))
+            self.win.blit(temp, (self.screen_dim[0] // 2 - temp.get_width() // 2, 50))
+            temp = self.normal.render("In Runner mode, use Space to jump and mouse buttons for abilities.", False, text_color, bg_color)
+            spacing = int(self.screen_dim[1] * 0.2) + temp.get_height() + 10
+            self.win.blit(temp, (left_align, int(self.screen_dim[1] * 0.2)))
+            temp = self.normal.render("The Warrior can use Strike (LMB) to break barriers and slay enemies.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("The Archer can use Shot (LMB) to slay flying enemies and Dash (RMB).", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("This move briefly increases your speed to help you cross gaps or", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("jump over enemies.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("Finally, the Wizard can use Shield (LMB) to pass through obstacles.", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("Follow the line descending the boxes in the UI to know when", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+            spacing += temp.get_height() + 10
+            temp = self.normal.render("your cooldowns are up!", False, text_color, bg_color)
+            self.win.blit(temp, (left_align, spacing))
+        if self.state == "Tutorial":
+            temp_str = "Back to Main"
+        elif self.state == "Controls":
+            temp_str = "Instructions"
+        else:
+            temp_str = "Controls"
+        if not self.back_hover:
+            temp = self.header.render(temp_str, False, title_color, bg_color)
+        else:
+            temp = self.header.render(temp_str, False, highlight_color, bg_color)
+        self.back_rect = temp.get_rect()
+        self.back_rect[0] = left_align
+        self.back_rect[1] = int(self.screen_dim[1] * 0.85)
+        self.win.blit(temp, (self.back_rect[0], self.back_rect[1]))
+        if self.state == "Tutorial":
+            temp_str = "Controls"
+        elif self.state == "Controls":
+            temp_str = "Combat"
+        else:
+            temp_str = "Title Screen"
+        if not self.next_hover:
+            temp = self.header.render(temp_str, False, title_color, bg_color)
+        else:
+            temp = self.header.render(temp_str, False, highlight_color, bg_color)
+        self.next_rect = temp.get_rect()
+        self.next_rect[0] = int(self.screen_dim[0] * 0.71)
+        self.next_rect[1] = self.back_rect[1]
+        self.win.blit(temp, (self.next_rect[0], self.next_rect[1]))
