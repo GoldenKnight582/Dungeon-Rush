@@ -354,7 +354,7 @@ class LevelManager():
                             self.onscreen_enemies.remove(e)
                             for ec in self.combat_encounter:
                                 ec.x = 600
-                                ec.y = 400 - e.height
+                                ec.y = 400 - ec.height
                             for character in self.party:
                                 self.party[character].y = self.screen_dim[1] // 2 - self.player.height
                                 self.party[character].cur_frame = 1
