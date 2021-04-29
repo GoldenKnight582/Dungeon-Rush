@@ -43,7 +43,7 @@ class Enemy:
                 self.stunned[0] = "False"
             if "Burn" in self.debuffs and self.burned[0] == "False":
                 self.burned[0] = "True"
-                self.burned[1] = 2
+                self.burned[1] = 4
             if self.burned[1] == 0 and self.burned[0] == "True":
                 self.debuffs.remove("Burn")
                 self.burned[0] = "False"

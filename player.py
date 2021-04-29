@@ -103,7 +103,7 @@ class Player:
             if "Cover" in self.buffs and self.cover[0] == "False":
                 self.dodge = 0.33
                 self.cover[0] = "True"
-                self.cover[1] = 5
+                self.cover[1] = 7
             if self.cover[1] == 0 and self.cover[0] == "True":
                 self.dodge = self.base_dodge
                 self.buffs.remove("Cover")
@@ -231,6 +231,7 @@ class Warrior(Player):
     def update(self, game_state, tiles, dt, enemy_list, hazard_list):
         super().update(game_state, tiles, dt, enemy_list, hazard_list)
         if self.runner_moves["Strike"][0] > 0:
+            self.can_jump = False
             self.strike(enemy_list, hazard_list)
         if game_state == "Combat":
             self.runner_moves["Strike"][0] = 0

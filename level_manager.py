@@ -183,7 +183,6 @@ class LevelManager():
         self.combat_encounter = []
         self.state = "Runner"
 
-
     def generate_chunk(self, x, y):
         cal = self.screen_dim[1] / 2 / self.CHUNK_SIZE
         chunk_data = []
@@ -575,12 +574,39 @@ class LevelManager():
         if self.state == "Runner":
             new_class = self.player.handle_running_input(event)
             if new_class not in self.party:
-                if "Warrior" in self.party:
-                    new_class = "Warrior"
-                if "Archer" in self.party:
-                    new_class = "Archer"
-                if "Wizard" in self.party:
-                    new_class = "Wizard"
+                if self.player.__class__.__name__ == "Warrior":
+                    if new_class == "Archer":
+                        if "Wizard" in self.party:
+                            new_class = "Wizard"
+                        else:
+                            new_class = "Warrior"
+                    elif new_class == "Wizard":
+                        if "Archer" in self.party:
+                            new_class = "Archer"
+                        else:
+                            new_class = "Warrior"
+                elif self.player.__class__.__name__ == "Archer":
+                    if new_class == "Warrior":
+                        if "Wizard" in self.party:
+                            new_class = "Wizard"
+                        else:
+                            new_class = "Archer"
+                    elif new_class == "Wizard":
+                        if "Warrior" in self.party:
+                            new_class = "Warrior"
+                        else:
+                            new_class = "Archer"
+                elif self.player.__class__.__name__ == "Wizard":
+                    if new_class == "Archer":
+                        if "Warrior" in self.party:
+                            new_class = "Warrior"
+                        else:
+                            new_class = "Wizard"
+                    elif new_class == "Warrior":
+                        if "Archer" in self.party:
+                            new_class = "Archer"
+                        else:
+                            new_class = "Wizard"
             self.player = self.party[new_class]
         elif self.state == "Combat":
             self.player.handle_combat_input(event, self.cur_menu)
@@ -739,7 +765,6 @@ class LevelManager():
                 self.win.blit(self.dash_small, (232, 23))
             if self.player.__class__.__name__ == "Wizard":
                 pygame.draw.circle(self.win,(135,206,235),(295,27),10)
-
 
     def draw_combat_screen(self, selection):
         # Color Palette
