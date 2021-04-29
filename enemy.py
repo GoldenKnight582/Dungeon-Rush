@@ -78,7 +78,7 @@ class Slimes(Enemy):
     def draw(self, surf):
         surf.blit(self.slime_img, (int(self.x), int(self.y)))
         # Debug Collision
-        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+        #pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
         surf.blit(self.slime_small_img, (700, 160))
@@ -110,7 +110,7 @@ class Wolf(Enemy):
     def draw(self, surf):
         surf.blit(self.wolf_img_flip, (int(self.x), int(self.y)))
         # Debug Collision
-        pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
+        #pygame.draw.rect(surf, (255, 255, 0), self.rect, 1)
 
     def draw_portrait(self, surf):
         surf.blit(self.wolf_small_img_flip, (700, 140))

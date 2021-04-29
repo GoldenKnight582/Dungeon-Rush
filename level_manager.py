@@ -909,7 +909,7 @@ class LevelManager():
             temp = self.normal.render("going to put that plan into motion! If your party of heroes doesn't reach", False, text_color, bg_color)
             self.win.blit(temp, (left_align, spacing))
             spacing += temp.get_height() + 10
-            temp = self.normal.render("them in time, it's all over. Reach and defeat each boss within the time", False, text_color, bg_color)
+            temp = self.normal.render("them in time, it's all over. Fight and defeat each boss within the time", False, text_color, bg_color)
             self.win.blit(temp, (left_align, spacing))
             spacing += temp.get_height() + 10
             temp = self.normal.render("limit, and you just might be able to put a stop to this!", False, text_color, bg_color)
