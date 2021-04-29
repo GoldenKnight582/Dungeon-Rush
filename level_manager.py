@@ -99,10 +99,10 @@ class LevelManager():
         self.levels = {1: [300, (1.7, 3.2), [enemy.Slimes, enemy.Wolf], [obstacles.Barricade, obstacles.SpikyRock], enemy.EyeBoss, 330, 80],
                        2: [350, (1.3, 2.5), [enemy.Wolf, enemy.Bird], [obstacles.Barricade,obstacles.SpikyRock], enemy.SpiderBoss, 800, 90],
                        3: [375, (1.5, 3), [enemy.Slimes,enemy.Bird,enemy.Wolf], [obstacles.Barricade,obstacles.SpikyRock], enemy.MinoBoss, 1400, 90],
-                       4: [375, (1.2, 2.3), [enemy.Tornado,enemy.Bird], [obstacles.Barricade,obstacles.SpikyRock], enemy.EyeBoss, 2100, 90],
-                       5: [395, (2, 2.8), [enemy.Snake,enemy.Octo,enemy.Tornado], [obstacles.Barricade,obstacles.SpikyRock], enemy.SpiderBoss, 2900, 90],
-                       6: [395, (2, 2.5), [enemy.Snake,enemy.Octo,enemy.Wolf,enemy.Tornado], [obstacles.Barricade,obstacles.SpikyRock], enemy.MinoBoss, 3750, 90],
-                       7: [420, (2, 3), [enemy.Snake,enemy.Wolf,enemy.Tornado,enemy.Bird,enemy.Octo,enemy.Slimes], [obstacles.Barricade,obstacles.SpikyRock], enemy.EyeBoss, 5000, 90]}
+                       4: [375, (1.2, 2.3), [enemy.Tornado,enemy.Bird], [obstacles.Barricade,obstacles.SpikyRock], enemy.EyeBoss, 2100, 95],
+                       5: [395, (2, 2.8), [enemy.Snake,enemy.Octo,enemy.Tornado], [obstacles.Barricade,obstacles.SpikyRock], enemy.SpiderBoss, 2900, 105],
+                       6: [395, (2, 2.5), [enemy.Snake,enemy.Octo,enemy.Wolf,enemy.Tornado], [obstacles.Barricade,obstacles.SpikyRock], enemy.MinoBoss, 3750, 105],
+                       7: [420, (2, 3), [enemy.Snake,enemy.Wolf,enemy.Tornado,enemy.Bird,enemy.Octo,enemy.Slimes], [obstacles.Barricade,obstacles.SpikyRock], enemy.EyeBoss, 5000, 105]}
 
         self.spawn_range = self.levels[self.cur_level][1]
         self.available_enemies = self.levels[self.cur_level][2]
