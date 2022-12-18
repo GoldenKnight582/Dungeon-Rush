@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="46fca3c2-cb20-4ad5-85b4-feba4ffe86ab" name="Default Changelist" comment="Enemy alignment in combat bugfix">
+      <change beforePath="$PROJECT_DIR$/.idea/Dungeon-Rush.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Dungeon-Rush.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/audio/thunder.ogg" beforeDir="false" afterPath="$PROJECT_DIR$/audio/thunder.ogg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/enemy.py" beforeDir="false" afterPath="$PROJECT_DIR$/enemy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/level_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/level_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/player.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,6 +93,9 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/sample_pygame_project/media" />
+    </ignored-roots>
     <MESSAGE value="Time up" />
     <MESSAGE value="Enemy alignment in combat bugfix" />
     <option name="LAST_COMMIT_MESSAGE" value="Enemy alignment in combat bugfix" />
